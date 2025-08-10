@@ -1,0 +1,33 @@
+\documentclass[12pt]{article}
+\usepackage[margin=0.5in]{geometry}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{amsmath}
+
+\newcommand{\hl}[1]{\colorbox{yellow}{#1}}
+
+\newcommand{\vA}{\mathbf{A}}
+\newcommand{\vB}{\mathbf{B}}
+\newcommand{\vC}{\mathbf{C}}
+\newcommand{\vu}{\mathbf{u}}
+\newcommand{\vf}{\mathbf{f}}
+\newcommand{\vr}{\mathbf{r}}
+\newcommand{\cP}{\mathcal{P}}
+\newcommand{\vPhi}{\boldsymbol{\Phi}}
+
+% d#/dt
+\newcommand{\ddt}[1]{\frac{\dd #1}{\dd t}}
+\newcommand{\ddtb}[1]{\frac{\dd^2#1}{\dd t^2}}
+\newcommand{\ddtn}[2]{\frac{\dd^#2#1}{\dd t^#2}}
+% p#/pt
+\newcommand{\ppt}[1]{\frac{\partial#1}{\partial t}}
+\newcommand{\pptb}[1]{\frac{\partial^2#1}{\partial t^2}}
+\newcommand{\pptn}[2]{\frac{\partial^#2#1}{\partial t^#2}}
+
+\newcommand\vn{{\mathbf{n}}}
+
+\begin{document}
+
+\input{./src/sec_problem}
+
+\end{document}

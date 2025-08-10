@@ -1,0 +1,1 @@
+from thermo_elastic.solver import fem_thermo_elastic_solver

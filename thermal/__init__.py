@@ -1,0 +1,2 @@
+from thermal.fem_solver import fem_thermal_solver
+from thermal.fdm_solver import fdm_thermal_solver
