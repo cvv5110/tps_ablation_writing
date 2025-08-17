@@ -1,0 +1,62 @@
+\appendix
+
+\section{Numerical Implementation}\label{app_implementation}
+
+\subsection{Full-Order Model}
+
+\subsection{Reduced-Physics Model}
+
+Let $\phi^{(e)}_i(x)$ with $i=1,2$ be two linear shape defined over the element $e_i=[x_{i},x_{i+1}]$ with length $h_e=x_{i+1} - x_i$,
+\begin{equation}
+    \phi^{(e)}_1(x) = \left\{\begin{matrix}
+        \frac{x_{i+1} - x}{h_e},\quad x\in[x_i,x_{i+1}]\\
+        0, \quad \text{otherwise}
+    \end{matrix}\right.,\quad\phi^{(e)}_2(x) = \left\{\begin{matrix}
+        \frac{x - x_i}{h_e},\quad x\in[x_i,x_{i+1}]\\
+        0, \quad \text{otherwise}
+    \end{matrix}\right.
+\end{equation}
+Letting,
+\[
+    x(\xi) = \frac{1-\xi}{2}x_i + \frac{1 + \xi}{2}x_{i+1}
+\]
+for $\xi\in[-1,1]$,
+\begin{equation}
+    \hat{\phi}_1^{(e)}(\xi) = \frac{1 - \xi}{2},\quad \hat{\phi}_2^{(e)}(\xi) = \frac{1 + \xi}{2}
+\end{equation}
+
+Multiply through by the test function,
+\begin{equation}
+    \int_{\Omega}\left[\rho c_p\frac{\partial T}{\partial t} - \rho c_p v(x,t)\frac{\partial T}{\partial x} - \frac{\partial}{\partial x}\left(k\frac{\partial T}{\partial x}\right)\right]\phi_i(x)dx = 0
+\end{equation}
+
+\begin{equation}
+    \int_{\Omega}\rho c_p\frac{\partial T}{\partial t}\phi_i(x)dx - \int_{\Omega}\rho c_p v(x,t)\frac{\partial T}{\partial x}\phi_i(x)dx + \int_{\Omega} k\frac{\partial T}{\partial x}\frac{\partial\phi_i(x)}{\partial x} dx = k\frac{\partial T}{\partial x}\phi_i(x)\Bigg|_{\partial\Omega}
+\end{equation}
+Perform the finite-element approximation,
+\begin{equation}
+    T(x,t)\approx\sum_jT_j(t)\phi_j(x)
+\end{equation}
+and define the matrix elements,
+\begin{align}
+    M_{ij} &= \int_{\Omega}\rho c_p\phi_i(x)\phi_j(x)dx\\
+    C_{ij}(t) &= \int_{\Omega}\rho c_p v(x,t) \frac{\partial\phi_j}{\partial x}\phi_i(x)dx\\
+    K_{ij} &= \int_{\Omega}k\frac{\partial\phi_i(x)}{\partial x}\frac{\partial\phi_j(x)}{\partial x}dx\\
+    f_i(t) &= k\frac{\partial T}{\partial x}\phi_i(x)\Bigg|_{\partial\Omega}
+\end{align}
+The time-dependent finite-dimensional ODE system for nodal temperatures $\mathbf{T}(t)$, including the ALE-induced advection effect from mesh motion, is given as,
+\begin{equation}
+    \mathbf{M}\frac{d\mathbf{T}}{dt} + \left(\mathbf{K} - \mathbf{C}(t)\right)\mathbf{T} = \mathbf{f}(t)
+\end{equation}
+
+The element-level expressions for the mass, stiffness, advection, and forcing vectors are given as,
+\begin{align}
+    M^{(e)}_{mn} &= \int_{x_i}^{x_{i+1}}\rho c_p\phi_m(x)\phi_n(x)dx = \rho c_p \frac{h_e}{6}\begin{pmatrix}
+        2 & 1 \\ 1 & 2
+    \end{pmatrix}\\
+    K^{(e)}_{mn} &= \int_{x_i}^{x_{i+1}} k \frac{\partial \phi_m}{\partial x}\frac{\partial \phi_n}{\partial x} dx = \frac{k}{h_e}\begin{pmatrix}
+        1 & -1 \\ -1 & 1
+    \end{pmatrix}\\
+    C^{(e)}_{mn}(t) &= \int_{x_i}^{x_{i+1}}\rho c_p v(x,t) \frac{\partial \phi_n(x)}{\partial x}\phi_m(x) dx\\
+    f^{(e)}_1(t) &= \left(q(t),0\right)^T
+\end{align}

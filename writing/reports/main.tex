@@ -3,6 +3,9 @@
 \usepackage{graphicx}
 \usepackage{xcolor}
 \usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{cleveref}
 
 \newcommand{\hl}[1]{\colorbox{yellow}{#1}}
 
@@ -10,10 +13,16 @@
 \newcommand{\vB}{\mathbf{B}}
 \newcommand{\vC}{\mathbf{C}}
 \newcommand{\vu}{\mathbf{u}}
+\newcommand{\bw}{\mathbf{w}}
+\newcommand{\bv}{\mathbf{v}}
 \newcommand{\vf}{\mathbf{f}}
 \newcommand{\vr}{\mathbf{r}}
 \newcommand{\cP}{\mathcal{P}}
+\newcommand{\cQ}{\mathcal{Q}}
 \newcommand{\vPhi}{\boldsymbol{\Phi}}
+\newcommand{\bu}{\mathbf{u}}
+\newcommand{\bepsilon}{\boldsymbol{\epsilon}}
+\newcommand{\bsigma}{\boldsymbol{\sigma}}
 
 % d#/dt
 \newcommand{\ddt}[1]{\frac{\dd #1}{\dd t}}
@@ -28,6 +37,13 @@
 
 \begin{document}
 
+\begin{abstract}
+    This work presents a physics-infused reduced-order modeling (PIROM) framework towards the design, analysis, and optimization of ablating hypersonic thermal protection systems (TPS). 
+\end{abstract}
+
+\input{./src/sec_intro}
 \input{./src/sec_problem}
+\input{./src/sec_pirom}
+\input{./src/app_implementation}
 
 \end{document}

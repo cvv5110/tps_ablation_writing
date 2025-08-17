@@ -1,10 +1,82 @@
-\section{Reduced-Physics Model}
+\section{Modeling of Ablating Thermal Protection Systems}
 
-This section describes the derivation of the RPM model for the ablating TPS surface. The model is composed of two components: (1) a thermal solver to capture the one-dimensional distribution of temperature across the ablating material, and (2) an elasticity solver to capture the one-dimensional mesh motion as a function of the surface temperature. The interface between the thermal solver and the moving mesh is achieved using a B' table, which determines the surface recession velocity as a function of the wall temperature.
+This section presents the ablation problem for a non-decomposing generic TPS geometry as a parametrized system of non-linear PDEs. These non-linear PDEs govern the energy of heat conduction and the pseudo-elastic material deformation of the mesh motion. Two different but mathematically-connected numerical solution strategies are provided: (1) a high-fidelity full-order model (FOM) based on a discontinuous Galerkin FEM, and (2) a thermo-elastic RPM based on a one-dimensional approximation to the energy and pseudo-elasticity equations.
 
-\subsection{Computational Domain}
+\subsection{Governing Equations}
 
-Consider a $2$ mm Titanium slab as shown in Fig.~\ref{fig_ablation_domain}. The geometry, material properties, and boundary conditions are summarized in Table~\hl{x}. The left surface is exposed to the hypersonic flow (Neumann boundary condition), while the right surface is perfectly insulated (adiabatic boundary condition). 
+Consider a generic domain $\Omega\subset$, $d=2$ or $3$, illustrated in Fig.~\ref{fig_general_domain}. A heat flux $q_b(x,t)$ is prescribed on the boundary $\Gamma_q$ (i.e., Neumann boundary condition), and the temperature $T_b(x,t)$ is prescribed on boundary $\Gamma_T$ (i.e., Dirichlet boundary condition), where $\Gamma_q\cup\Gamma_T = \partial\Omega$ and $\Gamma_q\cap\Gamma_T = \emptyset$. The ablation occurs only on the heated boundary $\Gamma_q$, and its effects are included into the energy equation using an Arbitrary Lagrangian-Eulerian (ALE) description. The ALE assumes the computational mesh moves with a velocity $\mathbf{v}(x,t)$, which is different to the material velocity, which is set to zero in this work.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.6\textwidth]{./figs/general_domain.png}
+    \caption{General domain $\Omega$ with prescribed heat flux $q_b(x,t)$ and temperature $T_b(x,t)$ on the boundaries $\Gamma_q$ and $\Gamma_T$, respectively. The mesh moves with a velocity $\mathbf{v}(x,t)$, while the material velocity is $\mathbf{w}(x,t)$.\hl{draw mesh next to arbitrary domain with moving boundaries.}}
+    \label{fig_general_domain}
+\end{figure}
+
+The transient heat conduction with receding boundary is coupled with the steady pseudo-elastic mesh motion equation into the following system of PDEs,
+\begin{subequations}
+    \begin{align}
+        \rho c_p\ppt{T} - \nabla\cdot (\mathbf{k}(T) \nabla T) - \rho c_p\mathbf{v}(x,t)\cdot\nabla T - \cQ(x,t) &= 0,\ x\in\Omega \label{eqn_thermal_pde}\\
+        \nabla\cdot\boldsymbol{\sigma}(\mathbf{w}) &= 0\label{eqn_elasticity_pde}
+    \end{align}\label{eqn_governing_equations}
+\end{subequations}
+The density $\rho$ is constant, while the heat capacity $c_p=c_p(T)$ and thermal conductivity $\mathbf{k}=\mathbf{k}(T)\in\mathbb{R}^{d\times d}$ may vary with temperature. The boundary and initial conditions for the heat equation are,
+\begin{subequations}
+    \begin{align}
+        -\mathbf{k}\nabla T\cdot \vn &= q_b(x,t),\ x\in\Gamma_q\label{eqn_thermal_bc_neumann}\\
+        T(x,t) &= T_b(x,t),\ x\in\Gamma_T\label{eqn_thermal_bc_dirichlet}\\
+        T(x,0) &= T_0(x),\ x\in\Omega\label{eqn_thermal_ic}
+    \end{align}\label{eqn_thermal_bc}
+\end{subequations}
+while for the pseudo-elastic mesh motion, the boundary and initial conditions are,
+\begin{subequations}
+    \begin{align}
+        \bw(x,t) &= \mathbf{w}_q(x,t),\ x\in\Gamma_q\\
+        \bw(x,t) &= 0,\ x\notin\Gamma_q\\
+        \bw(x,0) &= 0,\ x\in\Omega
+    \end{align}\label{eqn_elasticity_bc}
+\end{subequations}
+
+The terms in the thermo-elastic equations~\cref{eqn_governing_equations}, along with the boundary conditions in \cref{eqn_thermal_bc,eqn_elasticity_bc} are described in detail next. The terms in \cref{eqn_thermal_pde}, in the order they appear, correspond to the unsteady energy storage, heat conduction, temperature advection due to mesh motion, and heat source terms. The \cref{eqn_elasticity_pde} implies that the divergence of the stress tensor $\boldsymbol{\sigma}(\mathbf{w})$ is zero. The stress tensor is related to the strain tensor $\bepsilon(\bw)$ through Hooke's law,
+\[
+    \boldsymbol{\sigma}(\bw) = \mathbb{D}:\boldsymbol{\epsilon}(\bw)
+\]
+where $\mathbb{D}$ is the constitutive operator, ``:'' is the double contraction of tensors, and $\bepsilon$ is the symmetric strain tensor given by,
+\[
+    \bepsilon(\bw) = \frac{1}{2}\left(\nabla\bw + \nabla\bw^T\right)
+\]
+For instance, an isotropic material assumption results in,
+\[
+    \bsigma = \lambda\left(\nabla\cdot\bw\right) \mathbf{I} + 2\mu\bepsilon(\bw)
+\]
+where $\lambda$ and $\mu$ are Lame constants that are arbitrarily selected to model the mesh motion. The ``material'' properties $\lambda$ and $\mu$ can be chosen to tailor the mesh deformation and need not present the actual material being modeled~\hl{Amar2016}. 
+
+The boundary conditions for the energy equation includes a heated surface (\cref{eqn_thermal_bc_neumann}) and a constant-temperature surface (\cref{eqn_thermal_bc_dirichlet}). The boundary conditions for the pseudo-elasticity equation are a function of the surface temperature $T_q(x,t)$ for $x\in\Gamma_q$ using a B' table. The B' table....
+\begin{equation}
+    \bw(x,t) = \int_{0}^{t} \mathbf{v}(x,\tau)d\tau = \int_{0}^{t}\mathbf{f}\left(T_q(x,\tau)\right)d\tau
+\end{equation}
+
+
+\subsection{Full-Order Model: Finite Element Method}
+
+\subsubsection{Numerical Solution}
+
+To obtain the full-order numerical solution, the governing equation is spatially discretized using variational principles of Discontinuous Galerkin (DG) to result in a high-dimensional system of ordinary differential equations (ODEs). 
+
+\subsubsection{Usage Within an Ablation Simulation}
+
+
+\subsection{Formulation of Reduced-Physics Model}
+
+This section presents the derivation of the thermo-elastic RPM to model the one-dimensional temperature distribution and surface recessions for the ablating TPS. The RPM is composed of three coupled components: (1) a thermal solver based on FEM, (2) a pseudo-elastic solver for the FEM mesh, and (3) a lumped capacitance model (LCM) to model the volumetric energy source (i.e., the $\cQ(x,t)$ in \cref{eqn_thermal_pde}) interactions between the inter-connected components.
+
+To start the RPM formulation, consider a partitioning of the general domain in Fig.~\ref{fig_general_domain} into smaller one-dimensional inter-connected material components as illustrated in Fig.~\hl{x}. Consider the $n$-th component with length $\ell^{(n)}$ illustrated in Fig.~\hl{x}, and for simplicity, assume that the material properties are independent of temperature.
+
+For the $n$-th component, the left surface is exposed to the hypersonic flow (Neumann boundary condition), while the right surface is perfectly insulated (adiabatic boundary condition). The left surface is receding with a velocity $v(t)$ that is a function of the surface temperature $T_w(t)=T(0,t)$. This velocity is obtained from a B'-table lookup table,
+\[
+    v(t) = f(T_w(t))
+\]
+where $f(\cdot)$ is a cubic spline interpolation of B' and enthalpy tabulated data.
 
 \begin{figure}[h]
     \centering
@@ -12,61 +84,42 @@ Consider a $2$ mm Titanium slab as shown in Fig.~\ref{fig_ablation_domain}. The 
     \label{fig_ablation_domain}
 \end{figure}
 
-\begin{table}[h]
-    \begin{tabular}{cccc}
-        Material & Density, $[\text{kg}/\text{m}^3]$ & Thermal Conductivity, $\text{W}/{\text{m}\text{K}}$ & Specific Heat, $[\text{J}/\text{kg}\text{K}]$\\
-        \hline
-        \hline
-        Tungstenn & x & x & x\\
-        \hline
-        \hline
-    \end{tabular}
-\end{table}
-
-\subsection{Governing Equations}
-
-The governing equations for a non-decomposing ablator involves the energy equation with a temperature advection term to account for the moving boundary. An Arbitrary Lagrangian-Eulerian description (ALE) is adopted to incorporate the effects of mesh motion into the energy equation. The ALE approach assumes the computational mesh moves with a velocity $\mathbf{v}(x,t)$ that is different to the material velocity $\mathbf{w}(x,t)$. These effects are taken into 
-
-moves the mesh independently of the material movement, 
-
-\begin{subequations}\label{eqn_pde}
-    \begin{align}
-        \rho c_p\ppt{T} + \rho c_p\left(\mathbf{w}(x,t) - \mathbf{v}(x,t)\right)\cdot\nabla T - \nabla\cdot (\mathbf{k} \nabla T) &= 0,\ x\in\Omega \\
-        \nabla\cdot\boldsymbol{\sigma}(\mathbf{u}) &= 0\\
-        -\mathbf{k}\nabla T\cdot \vn  &= q_b(x,t),\ x\in\Gamma_q \\
-        T(x,0) &= T_0(x),\ x\in\Omega
-    \end{align}
-\end{subequations}
-
--------------------------------
-
-The following simplifications are introduced in the FOM \hl{x} to aid in the derivation of the RPM,
-\begin{enumerate}
-    \item The material properties are independent of temperature.
-    \item The domain is one dimensional.
-    \item The spatial discretization is coarse-grained.
-    \item ...
-\end{enumerate}
-With these 
-
-
-With the inclusion of the physical assumptions, the FOM in \hl{x} reduces to the following one-dimensional energy equation with the temperature advection term for the moving mesh,
+The governing energy and elasticity equations are defined over the domain $\Omega=[0,\ell]$,
 \begin{subequations}
     \begin{align}
-        \rho c_p\left(\frac{\partial T}{\partial t} - v(x,t)\frac{\partial T}{\partial x}\right) - \frac{\partial}{\partial x}\left(k\frac{\partial T}{\partial x}\right) &= 0\\
-        \frac{\partial}{\partial x}\left(E\frac{\partial u}{\partial x}\right) &= 0\label{eqn_elasticity_1d}\\
-        k\frac{\partial T}{\partial x}\Bigg|_{x=0} &= q(t)\label{eqn_neumann_bc}\\
-        k\frac{\partial T}{\partial x}\Bigg|_{x=\ell} &= 0\\
-        u(0,t) &= v(t) * (t - t_0)\\
+        \rho c_p\left(\frac{\partial T}{\partial t} - v(x,t)\frac{\partial T}{\partial x}\right) - \frac{\partial}{\partial x}\left(k\frac{\partial T}{\partial x}\right) &= 0\label{eqn_thermal_1d}\\
+        \frac{\partial}{\partial x}\left(\frac{\partial u}{\partial x}\right) &= 0\label{eqn_elasticity_1d}
+    \end{align}\label{eqn_rpm}
+\end{subequations}
+with boundary conditions for the energy equation,
+\begin{subequations}
+    \begin{align}
+        -k\frac{\partial T}{\partial x}\Bigg|_{x=0} &= q_b(t)\\
+        -k\frac{\partial T}{\partial x}\Bigg|_{x=\ell} &= 0
+    \end{align}
+\end{subequations}
+and for the elasticity equation,
+\begin{subequations}
+    \begin{align}
+        u(0,t) &= \int_{t_0}^{t}v(\tau)d\tau = \int_{0}^{t} f(T_w(\tau))d\tau\\
         u(\ell,t) &= 0
     \end{align}
 \end{subequations}
 
 \subsection{Numerical Solution}
 
-A numerical solution based on the FEM method is adopted for the governing PDEs. 
+Along the one-dimensional domain, a numerical solution based on FEM is adopted for the energy equation, while an analytical solution is adopted for the pseudo-elastic mesh motion. The quasi-steady boundary conditions for the mesh motion are employed via a spline fit to the B' and enthalpy tabulated data as a function of surface temperature. The main results of the numerical approach are presented here and the reader is directed to Sec.~\ref{app_implementation} for details.
 
-\subsubsection{Elasticity Solver}
+\subsubsection{Thermal Solver}
+
+The result of the FEM discretization is a system of ODEs for the nodal temperature values given by,
+\begin{equation}
+    \mathbf{M}\frac{d\mathbf{T}}{dt} + \left(\mathbf{K} - \mathbf{C}(t)\right)\mathbf{T} = \mathbf{f}(t)
+\end{equation}
+
+\subsubsection{Pseudo-Elastic Solver}
+
+Note that \cref{eqn_elasticity_1d} is steady. Under the assumption that the mesh deformation is quasi-steady, it can be applied at each time step within an ablation simulation. For instance, for a known value of the wall temperature $T_w(t)$ the surface displacement 
 
 Assuming the Young's modulus is constant, the PDE simplifies to,
 \begin{equation}
@@ -85,78 +138,13 @@ The mesh velocity is the time derivative of the displacement,
     v(x,t) = \frac{\partial u(x,t)}{\partial t} = v(t)\left(1 - \frac{x}{\ell}\right)
 \end{equation}
 
-\subsubsection{Thermal Solver}
+\subsubsection{Coupling Scheme}
 
-Let $\phi^{(e)}_i(x)$ with $i=1,2$ be two linear shape defined over the element $e_i=[x_{i},x_{i+1}]$ with length $h_e=x_{i+1} - x_i$,
-\begin{equation}
-    \phi^{(e)}_1(x) = \left\{\begin{matrix}
-        \frac{x_{i+1} - x}{h_e},\quad x\in[x_i,x_{i+1}]\\
-        0, \quad \text{otherwise}
-    \end{matrix}\right.,\quad\phi^{(e)}_2(x) = \left\{\begin{matrix}
-        \frac{x - x_i}{h_e},\quad x\in[x_i,x_{i+1}]\\
-        0, \quad \text{otherwise}
-    \end{matrix}\right.
-\end{equation}
-Letting,
-\[
-    x(\xi) = \frac{1-\xi}{2}x_i + \frac{1 + \xi}{2}x_{i+1}
-\]
-for $\xi\in[-1,1]$,
-\begin{equation}
-    \hat{\phi}_1^{(e)}(\xi) = \frac{1 - \xi}{2},\quad \hat{\phi}_2^{(e)}(\xi) = \frac{1 + \xi}{2}
-\end{equation}
+\subsubsection{Reduced-Physics Ablation Simulation}
 
-Multiply through by the test function,
-\begin{equation}
-    \int_{\Omega}\left[\rho c_p\frac{\partial T}{\partial t} - \rho c_p v(x,t)\frac{\partial T}{\partial x} - \frac{\partial}{\partial x}\left(k\frac{\partial T}{\partial x}\right)\right]\phi_i(x)dx = 0
-\end{equation}
-.
-.
-.
-\begin{equation}
-    \int_{\Omega}\rho c_p\frac{\partial T}{\partial t}\phi_i(x)dx - \int_{\Omega}\rho c_p v(x,t)\frac{\partial T}{\partial x}\phi_i(x)dx + \int_{\Omega} k\frac{\partial T}{\partial x}\frac{\partial\phi_i(x)}{\partial x} dx = k\frac{\partial T}{\partial x}\phi_i(x)\Bigg|_{\partial\Omega}
-\end{equation}
-Perform the finite-element approximation,
-\begin{equation}
-    T(x,t)\approx\sum_jT_j(t)\phi_j(x)
-\end{equation}
-and define the matrix elements,
-\begin{align}
-    M_{ij} &= \int_{\Omega}\rho c_p\phi_i(x)\phi_j(x)dx\\
-    C_{ij}(t) &= \int_{\Omega}\rho c_p v(x,t) \frac{\partial\phi_j}{\partial x}\phi_i(x)dx\\
-    K_{ij} &= \int_{\Omega}k\frac{\partial\phi_i(x)}{\partial x}\frac{\partial\phi_j(x)}{\partial x}dx\\
-    f_i(t) &= k\frac{\partial T}{\partial x}\phi_i(x)\Bigg|_{\partial\Omega}
-\end{align}
-The time-dependent finite-dimensional ODE system for nodal temperatures $\mathbf{T}(t)$, including the ALE-induced advection effect from mesh motion, is given as,
-\begin{equation}
-    \mathbf{M}\frac{d\mathbf{T}}{dt} + \left(\mathbf{K} - \mathbf{C}(t)\right)\mathbf{T} = \mathbf{f}(t)
-\end{equation}
 
-The element-level expressions for the mass, stiffness, advection, and forcing vectors are given as,
-\begin{align}
-    M^{(e)}_{mn} &= \int_{x_i}^{x_{i+1}}\rho c_p\phi_m(x)\phi_n(x)dx = \rho c_p \frac{h_e}{6}\begin{pmatrix}
-        2 & 1 \\ 1 & 2
-    \end{pmatrix}\\
-    K^{(e)}_{mn} &= \int_{x_i}^{x_{i+1}} k \frac{\partial \phi_m}{\partial x}\frac{\partial \phi_n}{\partial x} dx = \frac{k}{h_e}\begin{pmatrix}
-        1 & -1 \\ -1 & 1
-    \end{pmatrix}\\
-    C^{(e)}_{mn}(t) &= \int_{x_i}^{x_{i+1}}\rho c_p v(x,t) \frac{\partial \phi_n(x)}{\partial x}\phi_m(x) dx\\
-    f^{(e)}_1(t) &= \left(q(t),0\right)^T
-\end{align}
 
-\subsection{Coarse Graining}
 
-\begin{equation}
-    \vA(\vu)\dot{\vu} = \left(\vB(\vu) - \vC(\vu,t)\right)\vu + \vf(t)
-\end{equation}
-so that,
-\begin{equation}
-    \dot{\vu} = \vr(\vu,t) = \vA(\vu)^{-1}\left[\left(\vB(u) - \vC(\vu,t)\right)\vu + \vf(t)\right]
-\end{equation}
-The resolved dynamics,
-\begin{align}
-    \vr^{(1)}(\vu,t) &= \cP\left[\vPhi^+\vr(\vu,t)\right]\\
-    &=\cP\left[\vPhi^+\vA^{-1}(\vu)\vB(\vu)\vu - \vPhi^+\vA^{-1}(\vu)\vC(\vu,t)\vu + \vPhi^+\vA^{-1}(\vu)\vf(t)\right]
-\end{align}
-\subsection{Numerical Simulation Results}
+
+
 
