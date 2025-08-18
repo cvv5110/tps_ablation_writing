@@ -1,6 +1,6 @@
 \section{Modeling of Ablating Thermal Protection Systems}
 
-This section presents the ablation problem for a non-decomposing generic TPS geometry as a parametrized system of non-linear PDEs. These non-linear PDEs govern the energy of heat conduction and the pseudo-elastic material deformation of the mesh motion. Two different but mathematically-connected numerical solution strategies are provided: (1) a high-fidelity full-order model (FOM) based on a discontinuous Galerkin FEM, and (2) a thermo-elastic RPM based on a one-dimensional approximation to the energy and pseudo-elasticity equations.
+This section presents the ablation problem for a non-decomposing TPS as a parametrized system of non-linear PDEs. These non-linear PDEs govern the energy of heat conduction and the pseudo-elastic material deformation of the mesh motion. Two different but mathematically-connected numerical solution strategies are provided: (1) a high-fidelity full-order model (FOM) based on a discontinuous Galerkin FEM, and (2) a thermo-elastic RPM based on a one-dimensional approximation to the energy and pseudo-elasticity equations.
 
 \subsection{Governing Equations}
 
@@ -13,7 +13,7 @@ Consider a generic domain $\Omega\subset$, $d=2$ or $3$, illustrated in Fig.~\re
     \label{fig_general_domain}
 \end{figure}
 
-The transient heat conduction with receding boundary is coupled with the steady pseudo-elastic mesh motion equation into the following system of PDEs,
+The transient heat conduction is coupled with the pseudo-elastic mesh motion equation as the following non-linear system of PDEs,
 \begin{subequations}
     \begin{align}
         \rho c_p\ppt{T} - \nabla\cdot (\mathbf{k}(T) \nabla T) - \rho c_p\mathbf{v}(x,t)\cdot\nabla T - \cQ(x,t) &= 0,\ x\in\Omega \label{eqn_thermal_pde}\\
@@ -37,7 +37,7 @@ while for the pseudo-elastic mesh motion, the boundary and initial conditions ar
     \end{align}\label{eqn_elasticity_bc}
 \end{subequations}
 
-The terms in the thermo-elastic equations~\cref{eqn_governing_equations}, along with the boundary conditions in \cref{eqn_thermal_bc,eqn_elasticity_bc} are described in detail next. The terms in \cref{eqn_thermal_pde}, in the order they appear, correspond to the unsteady energy storage, heat conduction, temperature advection due to mesh motion, and heat source terms. The \cref{eqn_elasticity_pde} implies that the divergence of the stress tensor $\boldsymbol{\sigma}(\mathbf{w})$ is zero. The stress tensor is related to the strain tensor $\bepsilon(\bw)$ through Hooke's law,
+The thermo-elastic equations~\cref{eqn_governing_equations}, along with the boundary conditions in \cref{eqn_thermal_bc,eqn_elasticity_bc} are described next. The terms in \cref{eqn_thermal_pde}, in the order they appear, correspond to the unsteady energy storage, heat conduction, temperature advection due to mesh motion, and heat source terms. The \cref{eqn_elasticity_pde} implies that the divergence of the stress tensor $\boldsymbol{\sigma}(\mathbf{w})$ is zero. The stress tensor is related to the strain tensor $\bepsilon(\bw)$ through Hooke's law,
 \[
     \boldsymbol{\sigma}(\bw) = \mathbb{D}:\boldsymbol{\epsilon}(\bw)
 \]
@@ -49,7 +49,7 @@ For instance, an isotropic material assumption results in,
 \[
     \bsigma = \lambda\left(\nabla\cdot\bw\right) \mathbf{I} + 2\mu\bepsilon(\bw)
 \]
-where $\lambda$ and $\mu$ are Lame constants that are arbitrarily selected to model the mesh motion. The ``material'' properties $\lambda$ and $\mu$ can be chosen to tailor the mesh deformation and need not present the actual material being modeled~\hl{Amar2016}. 
+where $\lambda$ and $\mu$ are Lame constants that are arbitrarily selected to model the mesh motion. The ``material'' properties $\lambda$ and $\mu$ can be chosen to tailor the mesh deformation and need not represent the actual material being modeled~\hl{Amar2016}. 
 
 The boundary conditions for the energy equation includes a heated surface (\cref{eqn_thermal_bc_neumann}) and a constant-temperature surface (\cref{eqn_thermal_bc_dirichlet}). The boundary conditions for the pseudo-elasticity equation are a function of the surface temperature $T_q(x,t)$ for $x\in\Gamma_q$ using a B' table. The B' table....
 \begin{equation}
@@ -57,7 +57,9 @@ The boundary conditions for the energy equation includes a heated surface (\cref
 \end{equation}
 
 
-\subsection{Full-Order Model: Finite Element Method}
+\subsection{Full-Order Model: Discontinuous Galerkin Finite Element Method}
+
+To obtain the full-order numerical solution, the governing equation is spatially discretized using variational principle of Discontinuous Galerkin (DG) to result in a high-dimensional system of ODEs. Note that the choice of DG approach here is mainly for theoretical convenience in the coarse-graining formulation. In Sec.~\hl{x} the full-order TPS ablation simulation is computed using standard FEM instead, and the equivalence between DG and standard FEM is noted upon their convergence.
 
 \subsubsection{Numerical Solution}
 
@@ -68,7 +70,7 @@ To obtain the full-order numerical solution, the governing equation is spatially
 
 \subsection{Formulation of Reduced-Physics Model}
 
-This section presents the derivation of the thermo-elastic RPM to model the one-dimensional temperature distribution and surface recessions for the ablating TPS. The RPM is composed of three coupled components: (1) a thermal solver based on FEM, (2) a pseudo-elastic solver for the FEM mesh, and (3) a lumped capacitance model (LCM) to model the volumetric energy source (i.e., the $\cQ(x,t)$ in \cref{eqn_thermal_pde}) interactions between the inter-connected components.
+In this section, a thermo-elastic RPM is derived to model the one-dimensional temperature distribution and surface recession for an ablating TPS. The RPM is composed of three coupled components: (1) a thermal solver based on FEM, (2) a pseudo-elastic solver for the FEM mesh, and (3) a lumped capacitance model (LCM) to model the volumetric energy source (i.e., the $\cQ(x,t)$ in \cref{eqn_thermal_pde}) interactions between the inter-connected components.
 
 To start the RPM formulation, consider a partitioning of the general domain in Fig.~\ref{fig_general_domain} into smaller one-dimensional inter-connected material components as illustrated in Fig.~\hl{x}. Consider the $n$-th component with length $\ell^{(n)}$ illustrated in Fig.~\hl{x}, and for simplicity, assume that the material properties are independent of temperature.
 
@@ -116,6 +118,14 @@ The result of the FEM discretization is a system of ODEs for the nodal temperatu
 \begin{equation}
     \mathbf{M}\frac{d\mathbf{T}}{dt} + \left(\mathbf{K} - \mathbf{C}(t)\right)\mathbf{T} = \mathbf{f}(t)
 \end{equation}
+where,
+\begin{itemize}
+    \item $\mathbf{M}$ is the mass matrix,
+    \item $\mathbf{K}$ is the stiffness matrix,
+    \item $\mathbf{C}(t)$ is the advection matrix,,
+    \item $\mathbf{T}$ is the vector of nodal temperatures, and
+    \item $\mathbf{f}(t)$ is the vector of external forces.
+\end{itemize}
 
 \subsubsection{Pseudo-Elastic Solver}
 
