@@ -79,9 +79,9 @@ To start the RPM formulation, consider a partitioning of the general domain in F
     \label{fig_domain_partition}
 \end{figure}
 
-For the $n$-th component, the left surface is exposed to the hypersonic flow (Neumann boundary condition), while the right surface is perfectly insulated (adiabatic boundary condition). The left surface is receding with a velocity $v(t)$ that is a function of the surface temperature $T_w(t)=T(0,t)$. This velocity is obtained from a B'-table lookup table,
+For the $n$-th component, the left surface is exposed to the hypersonic flow (Neumann boundary condition), while the right surface is perfectly insulated (adiabatic boundary condition) and no ablation occurs. The left surface is receding with a velocity $v^{(n)}(t)$ that is a function of the surface temperature $T^{(n)}_w(t)=T^{(n)}(0,t)$. This velocity is obtained from a B'-table lookup table,
 \[
-    v(t) = f(T_w(t))
+    v^{(n)}(t) = f(T^{(n)}_w(t))
 \]
 where $f(\cdot)$ is a cubic spline interpolation of B' and enthalpy tabulated data.
 
@@ -94,22 +94,22 @@ where $f(\cdot)$ is a cubic spline interpolation of B' and enthalpy tabulated da
 The governing energy and elasticity equations are defined over the domain $\Omega=[0,\ell]$,
 \begin{subequations}
     \begin{align}
-        \rho c_p\left(\frac{\partial T}{\partial t} - v(x,t)\frac{\partial T}{\partial x}\right) - \frac{\partial}{\partial x}\left(k\frac{\partial T}{\partial x}\right) - \cQ(x,t) &= 0\label{eqn_thermal_1d}\\
-        \frac{\partial}{\partial x}\left(\frac{\partial u}{\partial x}\right) &= 0\label{eqn_elasticity_1d}
+        \rho c_p\left(\frac{\partial T^{(n)}}{\partial t} - v^{(n)}(x,t)\frac{\partial T^{(n)}}{\partial x}\right) - \frac{\partial}{\partial x}\left(k\frac{\partial T^{(n)}}{\partial x}\right) - \cQ^{(n,n+1)}(x,t) &= 0\label{eqn_thermal_1d}\\
+        \frac{\partial}{\partial x}\left(\frac{\partial u^{(n)}}{\partial x}\right) &= 0\label{eqn_elasticity_1d}
     \end{align}\label{eqn_rpm}
 \end{subequations}
 with boundary conditions for the energy equation,
 \begin{subequations}
     \begin{align}
-        -k\frac{\partial T}{\partial x}\Bigg|_{x=0} &= q_b(t)\\
-        -k\frac{\partial T}{\partial x}\Bigg|_{x=\ell} &= 0
+        -k\frac{\partial T^{(n)}}{\partial x}\Bigg|_{x=0} &= q^{(n)}_b(t)\\
+        -k\frac{\partial T^{(n)}}{\partial x}\Bigg|_{x=\ell} &= 0
     \end{align}
 \end{subequations}
 and for the elasticity equation,
 \begin{subequations}
     \begin{align}
-        u(0,t) &= \int_{t_0}^{t}v(\tau)d\tau = \int_{0}^{t} f(T_w(\tau))d\tau\\
-        u(\ell,t) &= 0
+        u^{(n)}(0,t) &= \int_{t_0}^{t}v^{(n)}(\tau)d\tau = \int_{0}^{t} f(T^{(n)}_w(\tau))d\tau\\
+        u^{(n)}(\ell,t) &= 0
     \end{align}
 \end{subequations}
 
@@ -119,17 +119,17 @@ Along the one-dimensional domain, a numerical solution based on FEM is adopted f
 
 \subsubsection{Thermal Solver}
 
-The result of the FEM discretization is a system of ODEs for the nodal temperature values given by,
+The FEM implementation details are supplied in Appendix~\hl{x}. For the $n$-th component, the result of the FEM discretization is a system of ODEs for the nodal temperatures, coupled to the neighboring component $n+1$ through the energy volumetric source term,
 \begin{equation}
-    \mathbf{A}\frac{d\mathbf{T}}{dt} + \left(\mathbf{B} - \mathbf{C}(t)\right)\mathbf{T} = \mathbf{f}(t)
+    \mathbf{A}^{(n)}\frac{d\mathbf{T}^{(n)}}{dt} + \left(\mathbf{B}^{(n)} - \mathbf{C}^{(n)}(t)\right)\mathbf{T}^{(n)} = \mathbf{f}^{(n,n+1)}(t)
 \end{equation}
 where,
 \begin{itemize}
-    \item $\mathbf{A}\in\mathbb{R}^{N\times N}$ is the mass matrix,
-    \item $\mathbf{B}\in\mathbb{R}^{N\times N}$ is the stiffness matrix,
-    \item $\mathbf{C}(t)\in\mathbb{R}^{N\times N}$ is the advection matrix,,
-    \item $\mathbf{T}\in\mathbb{R}^{N}$ is the vector of nodal temperatures, and
-    \item $\mathbf{f}(t)\in\mathbb{R}^{N}$ is the vector of external inputs.
+    \item $\mathbf{A}^{(n)}\in\mathbb{R}^{N\times N}$ is the mass matrix,
+    \item $\mathbf{B}^{(n)}\in\mathbb{R}^{N\times N}$ is the stiffness matrix,
+    \item $\mathbf{C}^{(n)}(t)\in\mathbb{R}^{N\times N}$ is the advection matrix,,
+    \item $\mathbf{T}^{(n)}\in\mathbb{R}^{N}$ is the vector of nodal temperatures, and
+    \item $\mathbf{f}^{(n,n+1)}(T)\in\mathbb{R}^{N}$ is the input vector, which incldues the volumetric energy source term $\cQ^{(n,n+1)}(x,t)$.
 \end{itemize}
 where $N$ is the number of nodes in the one-dimensional mesh for the $n$-th component.
 
