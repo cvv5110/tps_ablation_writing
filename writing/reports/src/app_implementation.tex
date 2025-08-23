@@ -60,3 +60,20 @@ The element-level expressions for the mass, stiffness, advection, and forcing ve
     C^{(e)}_{mn}(t) &= \int_{x_i}^{x_{i+1}}\rho c_p v(x,t) \frac{\partial \phi_n(x)}{\partial x}\phi_m(x) dx\\
     f^{(e)}_1(t) &= \left(q(t),0\right)^T
 \end{align}
+
+\subsection{Three-Component Example}
+
+\begin{subequations}
+    \begin{align}
+        \rho c_p \left(\frac{\partial T^{(1)}}{\partial t} - v^{(1)}(x,t)\frac{\partial T^{(1)}}{\partial x}\right) - \cQ^{(1)}_{\text{net}}(x,t) &= 0\\
+        \rho c_p \left(\frac{\partial T^{(2)}}{\partial t} - v^{(2)}(x,t)\frac{\partial T^{(2)}}{\partial x}\right) - \cQ^{(2)}_{\text{net}}(x,t) &= 0\\
+        \rho c_p \left(\frac{\partial T^{(3)}}{\partial t} - v^{(3)}(x,t)\frac{\partial T^{(3)}}{\partial x}\right) - \cQ^{(3)}_{\text{net}}(x,t) &= 0\\
+    \end{align}
+\end{subequations}
+where,
+\begin{subequations}
+    \begin{align}
+        \cQ^{(1)}_{\text{net}}(x,t) &=\\
+        \cQ^{(2)}_{\text{net}}(x,t) &=\\
+    \end{align}
+\end{subequations}

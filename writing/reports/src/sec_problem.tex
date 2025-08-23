@@ -66,9 +66,14 @@ To obtain the full-order numerical solution, the governing equation is spatially
 \subsubsection{Usage Within an Ablation Simulation}
 
 
-\subsection{Formulation of Reduced-Physics Model}
+\subsection{Reduced-Physics Model: One-Dimensional Thermo-Elastic Solver}
 
-In this section, a thermo-elastic RPM is derived to model the one-dimensional temperature distribution and surface recession for an ablating TPS. The RPM is composed of three coupled components: (1) a thermal solver based on FEM, (2) a pseudo-elastic solver for the FEM mesh, and (3) a lumped capacitance model (LCM) to model the volumetric energy source (i.e., the $\cQ(x,t)$ in \cref{eqn_thermal_pde}) interactions between the inter-connected components.
+In this section,  the thermo-elastic RPM is derived to model the one-dimensional temperature distribution and surface recession for an ablating TPS. The RPM is derived for $N$ non-overlapping inter-connected components $\left\{\Omega_i\right\}_{i=1}^{N}$, as illustrated in Fig.~\hl{x} for $N=2$. The $i$-th component $\Omega_i$ may be associated with a different set of material properties $\left(\rho_i, c_{p,i}, \bk_i\right)$ that are assumed to be continuous within one component, and can be discontinuous across two neighboring components.
+
+The RPM is defined based on two models: (1) a thermal solver based on FEM, and (2) a pseudo-elastic solver for the FEM mesh. The coupling between the thermal and pseudo-elastic solvers is an explicit scheme 
+
+
+three main components: (1) a thermal solver based on FEM, (2) a pseudo-elastic solver for the FEM mesh, and (3) a lumped capacitance model (LCM) to model the volumetric energy source (i.e., the $\cQ(x,t)$ in \cref{eqn_thermal_pde}) interactions between the inter-connected components.
 
 To start the RPM formulation, consider a partitioning of the general domain in Fig.~\ref{fig_general_domain} into smaller one-dimensional inter-connected material components as illustrated in Fig.~\ref{fig_domain_partition}. Consider the $n$-th component with length $\ell^{(n)}$ illustrated in Fig.~\hl{x}, and for simplicity, assume that the material properties are independent of temperature.
 
@@ -132,7 +137,6 @@ where,
     \item $\mathbf{f}^{(n,n+1)}(T)\in\mathbb{R}^{N}$ is the input vector, which incldues the volumetric energy source term $\cQ^{(n,n+1)}(x,t)$.
 \end{itemize}
 where $N$ is the number of nodes in the one-dimensional mesh for the $n$-th component.
-
 
 \subsubsection{Pseudo-Elastic Solver}
 
