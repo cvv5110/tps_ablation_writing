@@ -6,7 +6,22 @@
 
 \subsection{Reduced-Physics Model}
 
-This section outlines the approach to derive the RPM for a series of 
+This section outlines the approach to derive the RPM for a series of $N$ interconnected one-dimensional components inside a TPS. Consider the splitting of the TPS into a series of one-dimensional strands, where the temperature distribution over the $n$-th strand is governed by,
+\begin{equation}
+    \rho c_p\frac{\partial T^{(n)}}{\partial t} - \rho c_p v^{(n)}(x,t)\frac{\partial T^{(n)}}{\partial x} - \frac{\partial}{\partial x}\left(k\frac{\partial T^{(n)}}{\partial x}\right) - \cQ^{(n)}_{\text{net}}(x,t) = 0
+\end{equation}
+
+
+
+where the temperature distribution of the $n$-th strand is related to the temperature distribution of the $(n-1)$-th and $(n+1)$-th strands via the volumetric energy source term,
+\begin{equation}
+    \cQ^{(n,n+1)}(x,t) = \frac{T^{(n)}(x,t) - T^{(n+1)}(x,t)}{R_{(n,)}}
+\end{equation}
+which is approximated using the \hl{x} relation from 
+
+strand is coupled to 
+
+each one-dimensional strand is coupled to the temperature distribution from its neighboring strand 
 
 Let $\phi^{(e)}_i(x)$ with $i=1,2$ be two linear shape defined over the element $e_i=[x_{i},x_{i+1}]$ with length $h_e=x_{i+1} - x_i$,
 \begin{equation}
