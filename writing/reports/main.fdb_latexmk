@@ -1,7 +1,7 @@
 # Fdb version 3
-["pdflatex"] 1755961825 "/home/andres/tps_ablation_writing/writing/reports/main.tex" "main.pdf" "main" 1755961828
+["pdflatex"] 1755962265 "/home/andres/tps_ablation_writing/writing/reports/main.tex" "main.pdf" "main" 1755962268
   "/etc/texmf/web2c/texmf.cnf" 1688327385 475 c0e671620eb5563b2130f56340a5fde8 ""
-  "/home/andres/tps_ablation_writing/writing/reports/main.tex" 1755438285 1402 f648b67d6f2c7fc67adbe0b5a49e47a6 ""
+  "/home/andres/tps_ablation_writing/writing/reports/main.tex" 1755962205 1431 c1ae939a2067e411ee27f7c5878fbe84 ""
   "/usr/share/texlive/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/jknappen/ec/tcrm1200.tfm" 1136768653 1536 74b7293ec3713bb7fdca8dd1bd1f469c ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmbsy6.tfm" 1246382020 1124 14ccf5552bc7f77ca02a8a402bea8bfb ""
@@ -82,12 +82,12 @@
   "figs/ablation.png" 1754852953 30444 3e5acd6e98aa32bd8de5f2673f46a1d6 ""
   "figs/domain_partition.png" 1755961651 148285 94eab1954fa46693356a777e310d6b0d ""
   "figs/general_domain.png" 1755294841 1126974 245c2f657b5c1dda907264430a22a01c ""
-  "main.aux" 1755961828 4055 f2addedd5ab64a45cb9c4befc2d8bcfd "pdflatex"
-  "main.tex" 1755438285 1402 f648b67d6f2c7fc67adbe0b5a49e47a6 ""
-  "src/app_implementation.tex" 1755961825 3022 fc0a779aee79be17f13c2daee49b5660 ""
-  "src/sec_intro.tex" 1755961651 2076 dbf10a8ef30e75320cdf5ffc0b290439 ""
+  "main.aux" 1755962267 4195 d87591fa186d43e41bee1e3c18e90e19 "pdflatex"
+  "main.tex" 1755962205 1431 c1ae939a2067e411ee27f7c5878fbe84 ""
+  "src/app_implementation.tex" 1755962263 3757 1ac6c0319ccafac04a86d9c44c6054b3 ""
+  "src/sec_intro.tex" 1755962205 2013 ca25c5ca0f5ad5205172ee78f46125b5 ""
   "src/sec_pirom.tex" 1754856312 0 d41d8cd98f00b204e9800998ecf8427e ""
-  "src/sec_problem.tex" 1755961703 11207 42ce499bbdf02504459639095fc92d8d ""
+  "src/sec_problem.tex" 1755962205 11814 a676b4aed458855614c563aec18fdec8 ""
   (generated)
   "main.aux"
   "main.log"
