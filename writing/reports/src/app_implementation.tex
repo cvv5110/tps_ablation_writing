@@ -6,26 +6,7 @@
 
 \subsection{Reduced-Physics Model}
 
-This section outlines the derivation of the RPM for a generic TPS geometry. The RPM is formulated for $N$ interconnected one-dimensional components, and a three-component example is provided to demonstrate 
-
-This section outlines the approach to derive the RPM for a series of $N$ interconnected one-dimensional components inside a TPS. Consider the splitting of the TPS into a series of one-dimensional strands, where the temperature distribution over the $n$-th strand is governed by,
-\begin{equation}
-    \rho c_p\frac{\partial T^{(n)}}{\partial t} - \rho c_p v^{(n)}(x,t)\frac{\partial T^{(n)}}{\partial x} - \frac{\partial}{\partial x}\left(k\frac{\partial T^{(n)}}{\partial x}\right) - \cQ^{(n)}_{\text{net}}(x,t) = 0
-\end{equation}
-
-
-
-where the temperature distribution of the $n$-th strand is related to the temperature distribution of the $(n-1)$-th and $(n+1)$-th strands via the volumetric energy source term,
-\begin{equation}
-    \cQ^{(n,n+1)}(x,t) = \frac{T^{(n)}(x,t) - T^{(n+1)}(x,t)}{R_{(n,)}}
-\end{equation}
-which is approximated using the \hl{x} relation from 
-
-strand is coupled to 
-
-each one-dimensional strand is coupled to the temperature distribution from its neighboring strand 
-
-Let $\phi^{(e)}_i(x)$ with $i=1,2$ be two linear shape defined over the element $e_i=[x_{i},x_{i+1}]$ with length $h_e=x_{i+1} - x_i$,
+This section outlines the FEM implementation for the RPM with $N=3$ inter-connected one-dimensional components used in Sec.~\hl{x}. Consider the splitting of the TPS as in Fig.~\hl{x}. Over the $i$-th component with $x\in\Omega^{(i)}$, consider $\phi^{(e)}_i(x)$ with $i=1,2$ as linear shape functions defined over the element $e_i=[x_{i},x_{i+1}]$ with length $h_e=x_{i+1} - x_i$,
 \begin{equation}
     \phi^{(e)}_1(x) = \left\{\begin{matrix}
         \frac{x_{i+1} - x}{h_e},\quad x\in[x_i,x_{i+1}]\\
@@ -44,24 +25,24 @@ for $\xi\in[-1,1]$,
     \hat{\phi}_1^{(e)}(\xi) = \frac{1 - \xi}{2},\quad \hat{\phi}_2^{(e)}(\xi) = \frac{1 + \xi}{2}
 \end{equation}
 
-Multiply through by the test function,
+Multiply through by the weight function $\phi_j(x)$ and integrate over the domain $\Omega^{(i)}$,
 \begin{equation}
-    \int_{\Omega}\left[\rho c_p\frac{\partial T}{\partial t} - \rho c_p v(x,t)\frac{\partial T}{\partial x} - \frac{\partial}{\partial x}\left(k\frac{\partial T}{\partial x}\right) - \cQ(x,t)\right]\phi_i(x)dx = 0
+    \int_{\Omega}\left[\rho c_p\left(\frac{\partial T^{(i)}}{\partial t} - v^{(i)}(x,t)\frac{\partial T^{(i)}}{\partial x}\right) - \frac{\partial}{\partial x}\left(k\frac{\partial T^{(i)}}{\partial x}\right) - \cQ^{(i)}_{\text{net}}(x,t)\right]\phi_j(x)dx = 0
 \end{equation}
-
+Using integration by parts the natural boundary conditions are obtained,
 \begin{equation}
-    \int_{\Omega}\rho c_p\frac{\partial T}{\partial t}\phi_i(x)dx - \int_{\Omega}\rho c_p v(x,t)\frac{\partial T}{\partial x}\phi_i(x)dx + \int_{\Omega} k\frac{\partial T}{\partial x}\frac{\partial\phi_i(x)}{\partial x} dx = k\frac{\partial T}{\partial x}\phi_i(x)\Bigg|_{\partial\Omega} + \int_{\Omega}\phi_j(x)\cQ(x,t)dx
+    \int_{\Omega}\rho c_p\frac{\partial T}{\partial t}\phi_j(x)dx - \int_{\Omega}\rho c_p v(x,t)\frac{\partial T}{\partial x}\phi_j(x)dx + \int_{\Omega} k\frac{\partial T}{\partial x}\frac{\partial\phi_j(x)}{\partial x} dx = k\frac{\partial T}{\partial x}\phi_j(x)\Bigg|_{\partial\Omega} + \int_{\Omega}\phi_j(x)\cQ(x,t)dx
 \end{equation}
 Perform the finite-element approximation,
 \begin{equation}
-    T(x,t)\approx\sum_jT_j(t)\phi_j(x)
+    T^{(i)}(x,t)\approx\sum_{l=0}^{M-1} T_l(t)\phi_l(x)
 \end{equation}
 and define the matrix elements,
 \begin{align}
-    A_{ij} &= \int_{\Omega}\rho c_p\phi_i(x)\phi_j(x)dx\\
-    C_{ij}(t) &= \int_{\Omega}\rho c_p v(x,t) \frac{\partial\phi_j}{\partial x}\phi_i(x)dx\\
-    B_{ij} &= \int_{\Omega}k\frac{\partial\phi_i(x)}{\partial x}\frac{\partial\phi_j(x)}{\partial x}dx\\
-    f_i(t) &= k\frac{\partial T}{\partial x}\phi_i(x)\Bigg|_{\partial\Omega} + \int_{\Omega}\phi_j(x)\cQ(x,t)dx
+    A_{ij} &= \int_{\Omega}\rho c_p\phi_j(x)\phi_j(x)dx\\
+    C_{ij}(t) &= \int_{\Omega}\rho c_p v(x,t) \frac{\partial\phi_j}{\partial x}\phi_j(x)dx\\
+    B_{ij} &= \int_{\Omega}k\frac{\partial\phi_j(x)}{\partial x}\frac{\partial\phi_j(x)}{\partial x}dx\\
+    f_i(t) &= k\frac{\partial T}{\partial x}\phi_j(x)\Bigg|_{\partial\Omega} + \int_{\Omega}\phi_j(x)\cQ(x,t)dx
 \end{align}
 The time-dependent finite-dimensional ODE system for nodal temperatures $\mathbf{T}(t)$, including the ALE-induced advection effect from mesh motion, is given as,
 \begin{equation}
@@ -80,19 +61,34 @@ The element-level expressions for the mass, stiffness, advection, and forcing ve
     f^{(e)}_1(t) &= \left(q(t),0\right)^T
 \end{align}
 
-\subsection{Three-Component Example}
 
+
+The thermodynamic interaction between the components is modeled via the net volumetric energy source from \cref{eqn_net_volumetric_energy}, which for the three-components in Fig.~\hl{x} are described by,
 \begin{subequations}
     \begin{align}
-        \rho c_p \left(\frac{\partial T^{(1)}}{\partial t} - v^{(1)}(x,t)\frac{\partial T^{(1)}}{\partial x}\right) - \cQ^{(1)}_{\text{net}}(x,t) &= 0\\
-        \rho c_p \left(\frac{\partial T^{(2)}}{\partial t} - v^{(2)}(x,t)\frac{\partial T^{(2)}}{\partial x}\right) - \cQ^{(2)}_{\text{net}}(x,t) &= 0\\
-        \rho c_p \left(\frac{\partial T^{(3)}}{\partial t} - v^{(3)}(x,t)\frac{\partial T^{(3)}}{\partial x}\right) - \cQ^{(3)}_{\text{net}}(x,t) &= 0\\
+        \cQ^{(1)}_{\text{net}}(x,t) &= -\cQ^{(1,2)}(x,t)\\
+        \cQ^{(2)}_{\text{net}}(x,t) &= \cQ^{(1,2)}(x,t) - \cQ^{(2,3)}(x,t)\\
+        \cQ^{(3)}_{\text{net}}(x,t) &= \cQ^{(2,3)}(x,t)
     \end{align}
 \end{subequations}
-where,
+which from \cref{eqn_volumetric_energy_approximation} becomes,
 \begin{subequations}
-    \begin{align}
-        \cQ^{(1)}_{\text{net}}(x,t) &=\\
-        \cQ^{(2)}_{\text{net}}(x,t) &=\\
-    \end{align}
+    \begin{align*}
+        \cQ^{(1)}_{\text{net}}(x,t) &= -\frac{1}{R_{(1,2)}}\left(T^{(2)}(x,t) - T^{(1)}(x,t)\right)\\
+        \cQ^{(2)}_{\text{net}}(x,t) &= \frac{1}{R_{(1,2)}}\left(T^{(2)}(x,t) - T^{(1)}(x,t)\right) - \frac{1}{R_{(2,3)}}\left(T^{(3)}(x,t) - T^{(2)}(x,t)\right)\\
+        \cQ^{(3)}_{\text{net}}(x,t) &= \frac{1}{R_{(2,3)}}\left(T^{(3)}(x,t) - T^{(2)}(x,t)\right)
+    \end{align*}
 \end{subequations}
+
+Now, for the 
+
+
+
+
+
+
+
+
+
+
+

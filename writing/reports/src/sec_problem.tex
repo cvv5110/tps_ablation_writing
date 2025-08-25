@@ -53,13 +53,13 @@ where $\lambda$ and $\mu$ are Lame constants that are arbitrarily selected to mo
 
 The boundary conditions for the energy equation includes a heated surface (\cref{eqn_thermal_bc_neumann}) and a constant-temperature surface (\cref{eqn_thermal_bc_dirichlet}). The boundary conditions for the pseudo-elasticity equation are a function of the surface temperature $T_q(x,t)$ for $x\in\Gamma_q$ using a B' table. The B' table....
 \begin{equation}
-    \bw_q(x,t) = \int_{0}^{t} \mathbf{v}(x,\tau)d\tau = \int_{0}^{t}\mathbf{f}\left(T_q(x,\tau)\right)d\tau
+    \bw_q(x,t) = \int_{0}^{t} \mathbf{v}(x,\tau)d\tau = \int_{0}^{t}\mathbf{f}\left(T_q(x,\tau)\right)d\tau\label{eqn_boundary_displacement}
 \end{equation}
 
 
 \subsection{Full-Order Model: Discontinuous Galerkin Finite Element Method}
 
-To obtain the full-order numerical solution, the governing equation is spatially discretized using variational principle of Discontinuous Galerkin (DG) to result in a high-dimensional system of ODEs. Note that the choice of DG approach here is mainly for theoretical convenience in the coarse-graining formulation. In Sec.~\hl{x} the full-order TPS ablation simulation is computed using standard FEM instead, and the equivalence between DG and standard FEM is noted upon their convergence.
+To obtain the full-order numerical solution, the governing equation is spatially discretized using variational principle of Discontinuous Galerkin (DG) to result in a high-dimensional system of ODEs for the time-varying nodal data. The full-order TPS ablation simulations are computed using standard FEM.
 
 \subsubsection{Numerical Solution}
 
@@ -68,7 +68,7 @@ To obtain the full-order numerical solution, the governing equation is spatially
 
 \subsection{Reduced-Physics Model: One-Dimensional Thermo-Elastic Solver}
 
-In this section,  the thermo-elastic RPM is derived to model the one-dimensional temperature distribution and surface recession for an ablating TPS. The RPM is derived by partitioning the general domain in Fig.~\ref{fig_general_domain} into $N$ non-overlapping inter-connected components $\left\{\Omega_i\right\}_{i=1}^{N}$, as illustrated in Fig.~\hl{x} for $N=3$. The $i$-th component $\Omega_i$ is associated with material properties $\left(\rho_i, c_{p,i}, \bk_i\right)$, which are continuous within each component, and may be discontinuous across two neighboring components.
+In this section, the thermo-elastic RPM is derived to model the one-dimensional temperature distribution and surface recession for an ablating TPS. The RPM is derived by partitioning the general domain in Fig.~\ref{fig_general_domain} into $N$ non-overlapping inter-connected components $\left\{\Omega_i\right\}_{i=1}^{N}$, as illustrated in Fig.~\hl{x} for $N=3$. The $i$-th component $\Omega_i$ is associated with material properties $\left(\rho_i, c_{p,i}, \bk_i\right)$, which are continuous within each component, and may be discontinuous across two neighboring components.
 
 \begin{figure}
     \centering
@@ -88,7 +88,7 @@ with boundary conditions for the energy equation,
 \begin{subequations}
     \begin{align}
         -k\frac{\partial T^{(i)}}{\partial x}\Bigg|_{x=0} &= q^{(i)}_b(t)\\
-        -k\frac{\partial T^{(i)}}{\partial x}\Bigg|_{x=\ell} &= 0
+        -k\frac{\partial T^{(i)}}{\partial x}\Bigg|_{x=\ell} &= 0s
     \end{align}
 \end{subequations}
 and for the elasticity equation,
@@ -98,25 +98,24 @@ and for the elasticity equation,
         u^{(i)}(\ell,t) &= 0
     \end{align}
 \end{subequations}
+where $v^{(i)}(t)$ is the surface receding velocity due to ablation, which is a function of the surface temperature as in \cref{eqn_boundary_displacement}. The surface velocity is computed from a cubic spline interpolate to a B' look-up table...
 
-
-
-
-
-
-
-three main components: (1) a thermal solver based on FEM, (2) a pseudo-elastic solver for the FEM mesh, and (3) a lumped capacitance model (LCM) to model the volumetric energy source (i.e., the $\cQ(x,t)$ in \cref{eqn_thermal_pde}) interactions between the inter-connected components.
-
-
-Consider the $n$-th component with length $\ell^{(i)}$ illustrated in Fig.~\hl{x}, and for simplicity, assume that the material properties are independent of temperature.
-
-
-
-For the $n$-th component, the left surface is exposed to the hypersonic flow (Neumann boundary condition), while the right surface is perfectly insulated (adiabatic boundary condition) and no ablation occurs. The left surface is receding with a velocity $v^{(n)}(t)$ that is a function of the surface temperature $T^{(n)}_w(t)=T^{(n)}(0,t)$. This velocity is obtained from a B'-table lookup table,
-\[
-    v^{(n)}(t) = f(T^{(n)}_w(t))
-\]
-where $f(\cdot)$ is a cubic spline interpolation of B' and enthalpy tabulated data.
+The coupling between the one-dimensional strands is enforced through the net volumetric energy source term $\cQ^{(i)}_{\text{net}}$, which is computed as,
+\begin{equation}
+    \cQ^{(i)}_{\text{net}}(x,t) = \sum_j\cQ^{(i)}_{\text{in},j}(x,t) - \sum_j\cQ^{(i)}_{\text{out},j}(x,t)\label{eqn_net_volumetric_energy}
+\end{equation}
+For example, in the $i=2$ component of Fig.~\hl{x}, the net volumetric energy source term is,
+\begin{subequations}
+    \begin{align}
+        \cQ^{(2)}_{\text{net}}(x,t) &= \sum_j\cQ^{(2)}_{\text{in},j}(x,t) - \sum_j\cQ^{(2)}_{\text{out},j}(x,t)\notag\\
+        &= \cQ^{(1,2)}(x,t) - \cQ^{(2,3)}(x,t)
+    \end{align}
+\end{subequations}
+In this work, the volumetric energy source term between the $i$-th and $j$-th components is approximated as,
+\begin{equation}
+    \cQ^{(i,j)}(x,t) = \frac{T^{(j)}(x,t) - T^{(i)}(x,t)}{R_{ij}}\label{eqn_volumetric_energy_approximation}
+\end{equation}
+where $R_{ij}$ is the so-called thermal resistance. Empirically, for a component of isotropic heat conductivity $k$, length $L$ and cross-section $A$, the thermal resistance is $R=L/kA$ . Between components $i$ and $j$, define $R_{ij} = R_i + R_j$.
 
 \begin{figure}[h]
     \centering
@@ -124,28 +123,23 @@ where $f(\cdot)$ is a cubic spline interpolation of B' and enthalpy tabulated da
     \label{fig_ablation_domain}
 \end{figure}
 
-The governing energy and elasticity equations are defined over the domain $\Omega=[0,\ell]$,
-
-
-\subsection{Numerical Solution}
-
 Along the one-dimensional domain, a numerical solution based on FEM is adopted for the energy equation, while an analytical solution is adopted for the pseudo-elastic mesh motion. The quasi-steady boundary conditions for the mesh motion are employed via a spline fit to the B' and enthalpy tabulated data as a function of surface temperature. The main results of the numerical approach are presented here and the reader is directed to Sec.~\ref{app_implementation} for details.
 
 \subsubsection{Thermal Solver}
 
 The FEM implementation details are supplied in Appendix~\hl{x}. For the $n$-th component, the result of the FEM discretization is a system of ODEs for the nodal temperatures, coupled to the neighboring component $n+1$ through the energy volumetric source term,
 \begin{equation}
-    \mathbf{A}^{(n)}\frac{d\mathbf{T}^{(n)}}{dt} + \left(\mathbf{B}^{(n)} - \mathbf{C}^{(n)}(t)\right)\mathbf{T}^{(n)} = \mathbf{f}^{(n,n+1)}(t)
+    \mathbf{A}^{(i)}\frac{d\mathbf{T}^{(i)}}{dt} + \left(\mathbf{B}^{(i)} - \mathbf{C}^{(i)}(t)\right)\mathbf{T}^{(i)} = \mathbf{f}^{(i)}(t)
 \end{equation}
 where,
 \begin{itemize}
-    \item $\mathbf{A}^{(n)}\in\mathbb{R}^{N\times N}$ is the mass matrix,
-    \item $\mathbf{B}^{(n)}\in\mathbb{R}^{N\times N}$ is the stiffness matrix,
-    \item $\mathbf{C}^{(n)}(t)\in\mathbb{R}^{N\times N}$ is the advection matrix,,
-    \item $\mathbf{T}^{(n)}\in\mathbb{R}^{N}$ is the vector of nodal temperatures, and
-    \item $\mathbf{f}^{(n,n+1)}(T)\in\mathbb{R}^{N}$ is the input vector, which incldues the volumetric energy source term $\cQ^{(n,n+1)}(x,t)$.
+    \item $\mathbf{A}^{(i)}\in\mathbb{R}^{M\times M}$ is the mass matrix,
+    \item $\mathbf{B}^{(i)}\in\mathbb{R}^{M\times M}$ is the stiffness matrix,
+    \item $\mathbf{C}^{(i)}(t)\in\mathbb{R}^{M\times M}$ is the advection matrix,,
+    \item $\mathbf{T}^{(i)}\in\mathbb{R}^{M}$ is the vector of nodal temperatures, and
+    \item $\mathbf{f}^{(i)}(t)\in\mathbb{R}^{M}$ is the input vector, which includes the Neumann boundary conditions and the net volumetric energy source term $\cQ^{(i)}_{\text{net}}$.
 \end{itemize}
-where $N$ is the number of nodes in the one-dimensional mesh for the $n$-th component.
+where $M$ is the number of nodes in the one-dimensional mesh for the $i$-th component.
 
 \subsubsection{Pseudo-Elastic Solver}
 
