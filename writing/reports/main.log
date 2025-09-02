@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.26 (TeX Live 2024) (preloaded format=pdflatex 2025.1.24)  25 AUG 2025 17:09
+This is pdfTeX, Version 3.141592653-2.6-1.40.26 (TeX Live 2024) (preloaded format=pdflatex 2025.1.24)  2 SEP 2025 14:14
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -155,7 +155,14 @@ Package: cleveref 2018/03/27 v0.21.4 Intelligent cross-referencing
 File: l3backend-pdftex.def 2024-05-08 L3 backend support: PDF output (pdfTeX)
 \l__color_backend_stack_int=\count285
 \l__pdf_internal_box=\box54
-) (./main.aux)
+) (./main.aux
+
+LaTeX Warning: Label `eqn_rpm' multiply defined.
+
+
+LaTeX Warning: Label `eqn_rpm@cref' multiply defined.
+
+)
 \openout1 = `main.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 39.
@@ -250,28 +257,18 @@ Package pdftex.def Info: ./figs/general_domain.png  used on input line 11.
 {/usr/local/texlive/2024/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
 
 [2 <./figs/general_domain.png>]
-<./figs/domain_partition.png, id=23, 778.91pt x 614.295pt>
-File: ./figs/domain_partition.png Graphic file (type png)
-<use ./figs/domain_partition.png>
-Package pdftex.def Info: ./figs/domain_partition.png  used on input line 75.
-(pdftex.def)             Requested size: 271.0125pt x 213.73169pt.
+<./figs/three_components.png, id=23, 853.68938pt x 569.12625pt>
+File: ./figs/three_components.png Graphic file (type png)
+<use ./figs/three_components.png>
+Package pdftex.def Info: ./figs/three_components.png  used on input line 75.
+(pdftex.def)             Requested size: 433.62166pt x 289.08687pt.
 
 
 [3]
-<./figs/ablation.png, id=28, 1672.2475pt x 900.36375pt>
-File: ./figs/ablation.png Graphic file (type png)
-<use ./figs/ablation.png>
-Package pdftex.def Info: ./figs/ablation.png  used on input line 122.
-(pdftex.def)             Requested size: 487.8192pt x 262.65125pt.
 
+[4 <./figs/three_components.png>]
 
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-
-
-[4 <./figs/domain_partition.png>]
-
-[5{/usr/local/texlive/2024/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc} <./figs/ablation.png>]) (./src/sec_pirom.tex) (./src/app_implementation.tex
+[5{/usr/local/texlive/2024/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc}]) (./src/sec_pirom.tex) (./src/app_implementation.tex
 
 [6])
 
@@ -284,20 +281,23 @@ L3 programming layer <2024-12-25>
 
 LaTeX Warning: There were undefined references.
 
+
+LaTeX Warning: There were multiply-defined labels.
+
  ) 
 Here is how much of TeX's memory you used:
- 5411 strings out of 473207
- 93005 string characters out of 5716288
+ 5406 strings out of 473207
+ 92855 string characters out of 5716288
  529626 words of memory out of 5000000
- 28609 multiletter control sequences out of 15000+600000
+ 28604 multiletter control sequences out of 15000+600000
  568407 words of font info for 70 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  57i,14n,65p,881b,238s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmmib10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/cm-super/sfrm1200.pfb>
-Output written on main.pdf (7 pages, 1083774 bytes).
+Output written on main.pdf (7 pages, 988484 bytes).
 PDF statistics:
- 111 PDF objects out of 1000 (max. 8388607)
+ 109 PDF objects out of 1000 (max. 8388607)
  65 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
- 16 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 11 words of extra memory for PDF output out of 10000 (max. 10000000)
 

@@ -2,7 +2,7 @@
 
 This section presents the ablation problem for a non-decomposing TPS as a parametrized system of non-linear PDEs. These non-linear PDEs govern the energy of heat conduction and the pseudo-elastic material deformation of the mesh motion. Two different but mathematically-connected numerical solution strategies are provided: (1) a high-fidelity full-order model (FOM) based on a discontinuous Galerkin FEM, and (2) a thermo-elastic RPM based on a one-dimensional approximation to the energy and pseudo-elasticity equations.
 
-\subsection{Governing Equations}
+\subsection{Governing Equations}\label{sec_governing_equations}
 
 Consider a generic domain $\Omega\subset$, $d=2$ or $3$, illustrated in Fig.~\ref{fig_general_domain}. A heat flux $q_b(x,t)$ is prescribed on the boundary $\Gamma_q$ (i.e., Neumann boundary condition), and the temperature $T_b(x,t)$ is prescribed on boundary $\Gamma_T$ (i.e., Dirichlet boundary condition), where $\Gamma_q\cup\Gamma_T = \partial\Omega$ and $\Gamma_q\cap\Gamma_T = \emptyset$. The ablation occurs only on the heated boundary $\Gamma_q$, and its effects are included into the energy equation using an Arbitrary Lagrangian-Eulerian (ALE) description. The ALE assumes the computational mesh moves with a velocity $\mathbf{v}(x,t)$, which is different to the material velocity, which is set to zero in this work.
 
@@ -57,7 +57,7 @@ The boundary conditions for the energy equation includes a heated surface (\cref
 \end{equation}
 
 
-\subsection{Full-Order Model: Discontinuous Galerkin Finite Element Method}
+\subsection{Full-Order Model: Discontinuous Galerkin Finite Element Method}\label{sec_fom}
 
 To obtain the full-order numerical solution, the governing equation is spatially discretized using variational principle of Discontinuous Galerkin (DG) to result in a high-dimensional system of ODEs for the time-varying nodal data. The full-order TPS ablation simulations are computed using standard FEM.
 
@@ -68,14 +68,31 @@ To obtain the full-order numerical solution, the governing equation is spatially
 
 \subsection{Reduced-Physics Model: One-Dimensional Thermo-Elastic Solver}
 
-In this section, the thermo-elastic RPM is derived to model the one-dimensional temperature distribution and surface recession for an ablating TPS. The RPM is derived by partitioning the general domain in Fig.~\ref{fig_general_domain} into $N$ non-overlapping inter-connected components $\left\{\Omega_i\right\}_{i=1}^{N}$, as illustrated in Fig.~\hl{x} for $N=3$. The $i$-th component $\Omega_i$ is associated with material properties $\left(\rho_i, c_{p,i}, \bk_i\right)$, which are continuous within each component, and may be discontinuous across two neighboring components.
+In this section, the thermo-elastic RPM is derived to model the one-dimensional temperature distribution and surface recession for an ablating TPS. The RPM is defined by partitioning the general domain depicted in Fig.~\ref{fig_general_domain} into $N=3$ non-overlapping inter-connected components $\left\{\Omega_i\right\}_{i=1}^{3}$, as illustrated in Fig.~\ref{fig_domain_partition} . The $i$-th component $\Omega_i$ is associated with material properties $\left(\rho^{(i)}, c^{(i)}_{p}, \kappa^{(i)}\right)$, which are continuous within each component, and may be discontinuous across two neighboring components.
 
 \begin{figure}
     \centering
-    \includegraphics[width=0.5\textwidth]{./figs/domain_partition.png}
-    \caption{Partition of the TPS into one-dimensional components.}
+    \includegraphics[width=0.8\textwidth]{./figs/three_components.png}
+    \caption{Partition of the TPS into three one-dimensional components.}
     \label{fig_domain_partition}
 \end{figure}
+
+The thermo-elastic RPM is defined using DG-FEM for each component, with the coupling enforced via interior point penalty methods~\hl{x} as discussed in Sec.~\ref{sec_fom}. The result is a block-diagonal system of ODEs for the nodal temperature values of the components given as,
+\begin{equation}
+    \vA\left(\vu\right)\dot{\vu} + \left(\vB - \vC(t)\right)\vu = \mathbf{f}(t)\label{eqn_rpm}
+\end{equation}
+where,
+\begin{subequations}
+    \begin{align}
+        \vA(\vu) = \begin{pmatrix}
+            \vA^{(1)}(\vu^{(1)}) & 0 & 0 \\
+            0 & \vA^{(1)}(\vu^{(2)}) & 0 \\
+            0 & 0 & \vA^{(1)}(\vu^{(3)}) \\
+        \end{pmatrix}
+    \end{align}
+\end{subequations}
+
+The details involving the RPM derivation are provided in Appendix.
 
 The ablation on the $i$-th component is modeled using a one-dimensional approximation to the temperature and mesh-motion equations in \cref{eqn_governing_equations}, and are given by,
 \begin{subequations}
@@ -116,12 +133,6 @@ In this work, the volumetric energy source term between the $i$-th and $j$-th co
     \cQ^{(i,j)}(x,t) = \frac{T^{(j)}(x,t) - T^{(i)}(x,t)}{R_{ij}}\label{eqn_volumetric_energy_approximation}
 \end{equation}
 where $R_{ij}$ is the so-called thermal resistance. Empirically, for a component of isotropic heat conductivity $k$, length $L$ and cross-section $A$, the thermal resistance is $R=L/kA$ . Between components $i$ and $j$, define $R_{ij} = R_i + R_j$.
-
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=0.9\textwidth]{./figs/ablation.png}
-    \label{fig_ablation_domain}
-\end{figure}
 
 Along the one-dimensional domain, a numerical solution based on FEM is adopted for the energy equation, while an analytical solution is adopted for the pseudo-elastic mesh motion. The quasi-steady boundary conditions for the mesh motion are employed via a spline fit to the B' and enthalpy tabulated data as a function of surface temperature. The main results of the numerical approach are presented here and the reader is directed to Sec.~\ref{app_implementation} for details.
 
