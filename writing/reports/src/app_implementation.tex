@@ -6,23 +6,17 @@
 
 \subsection{Reduced-Physics Model}
 
-This section outlines the FEM implementation for the RPM with $N=3$ inter-connected one-dimensional components used in Sec.~\hl{x}. Consider the splitting of the TPS as in Fig.~\hl{x}. Over the $i$-th component with $x\in\Omega^{(i)}$, consider $\phi^{(e)}_i(x)$ with $i=1,2$ as linear shape functions defined over the element $e_i=[x_{i},x_{i+1}]$ with length $h_e=x_{i+1} - x_i$,
+This section outlines the DG-FEM implementation for the RPM with $N=3$ inter-connected one-dimensional components used in Sec.~\hl{x}. Consider the splitting of the TPS as in Fig.~\hl{x}. Over the $i$-th component with $x\in\Omega^{(i)}(t)$, consider a basis set $\phi^{(i)}_j(x)$ with $j=1,2$ over the element $[x^{(i)}_{0}(t),x^{(i)}_{1}(t)]$ with length $\ell^{(i)}(t)=x^{(i)}_{1}(t) - x^{(i)}_{0}(t)$. For notational convenience, the time dependence of the spatial domains with respect to time due to the ablating surfaces is dropped. The orthogonal basis functions are defined as,
 \begin{equation}
-    \phi^{(e)}_1(x) = \left\{\begin{matrix}
-        \frac{x_{i+1} - x}{h_e},\quad x\in[x_i,x_{i+1}]\\
-        0, \quad \text{otherwise}
-    \end{matrix}\right.,\quad\phi^{(e)}_2(x) = \left\{\begin{matrix}
-        \frac{x - x_i}{h_e},\quad x\in[x_i,x_{i+1}]\\
-        0, \quad \text{otherwise}
-    \end{matrix}\right.
+    \phi^{(i)}_1(x) = 1,\quad \phi^{(i)}_2(x) = \frac{2}{\ell^{(i)}}\left(x - x^{(i)}_c\right)
 \end{equation}
-Letting,
+where $x^{(i)}_c = (x^{(i)}_0 + x^{(i)}_1) / 2$. Let,
 \[
     x(\xi) = \frac{1-\xi}{2}x_i + \frac{1 + \xi}{2}x_{i+1}
 \]
-for $\xi\in[-1,1]$,
+thus for $\xi\in[-1,1]$,
 \begin{equation}
-    \hat{\phi}_1^{(e)}(\xi) = \frac{1 - \xi}{2},\quad \hat{\phi}_2^{(e)}(\xi) = \frac{1 + \xi}{2}
+    \hat{\phi}^{(i)}_1(\xi) = 1, \quad \hat{\phi}^{(i)}_2(\xi) = \xi
 \end{equation}
 
 Multiply through by the weight function $\phi_j(x)$ and integrate over the domain $\Omega^{(i)}$,

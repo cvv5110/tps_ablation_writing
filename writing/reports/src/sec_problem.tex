@@ -16,7 +16,7 @@ Consider a generic domain $\Omega\subset$, $d=2$ or $3$, illustrated in Fig.~\re
 The transient heat conduction is coupled with the pseudo-elastic mesh motion equation as the following non-linear system of PDEs,
 \begin{subequations}
     \begin{align}
-        \rho c_p\ppt{T} - \nabla\cdot (\mathbf{k}\nabla T) - \rho c_p\mathbf{v}(x,t)\cdot\nabla T - \cQ(x,t) &= 0,\ x\in\Omega \label{eqn_thermal_pde}\\
+        \rho c_p\left(\ppt{T} - \mathbf{v}(x,t)\cdot\nabla T\right) - \nabla\cdot (\mathbf{k}\nabla T) &= \cQ(x,t),\ x\in\Omega \label{eqn_thermal_pde}\\
         \nabla\cdot\boldsymbol{\sigma}(\mathbf{w}) &= 0\label{eqn_elasticity_pde}
     \end{align}\label{eqn_governing_equations}
 \end{subequations}
@@ -68,7 +68,9 @@ To obtain the full-order numerical solution, the governing equation is spatially
 
 \subsection{Reduced-Physics Model: One-Dimensional Thermo-Elastic Solver}
 
-In this section, the thermo-elastic RPM is derived to model the one-dimensional temperature distribution and surface recession for an ablating TPS. The RPM is defined by partitioning the general domain depicted in Fig.~\ref{fig_general_domain} into $N=3$ non-overlapping inter-connected components $\left\{\Omega_i\right\}_{i=1}^{3}$, as illustrated in Fig.~\ref{fig_domain_partition} . The $i$-th component $\Omega_i$ is associated with material properties $\left(\rho^{(i)}, c^{(i)}_{p}, \kappa^{(i)}\right)$, which are continuous within each component, and may be discontinuous across two neighboring components.
+In this section, the main results regarding the derivation of the thermo-elastic RPM are presented, with the details provided in Appendix~\hl{x}. The thermo-elastic RPM is derived to model the one-dimensional temperature distribution and surface recession for an ablating TPS. The temperature is modeled using a coarse-grained DG-FEM approach, while the moving mesh is modeled using an analytical solution to the elasticity equations.
+
+Consider the partitioning of the general domain depicted in Fig.~\ref{fig_general_domain} into $N=3$ non-overlapping inter-connected components $\left\{\Omega_i\right\}_{i=1}^{3}$, as illustrated in Fig.~\ref{fig_domain_partition}, where the thermodynamic coupling occurs due to $\cQ^{(1,2)}(x,t)$ and $\cQ^{(2,3)}(x,t)$, which are space-time varying. The $i$-th component $\Omega_i$ is associated with material properties $\left\{\rho^{(i)}, c^{(i)}_{p}, k^{(i)}\right\}$, which are continuous within each component, and may be discontinuous across two neighboring components.
 
 \begin{figure}
     \centering
@@ -77,21 +79,20 @@ In this section, the thermo-elastic RPM is derived to model the one-dimensional 
     \label{fig_domain_partition}
 \end{figure}
 
-The thermo-elastic RPM is defined using DG-FEM for each component, with the coupling enforced via interior point penalty methods~\hl{x} as discussed in Sec.~\ref{sec_fom}. The result is a block-diagonal system of ODEs for the nodal temperature values of the components given as,
+A first-order DG-FEM scheme is adopted for each component, with the coupling between the components enforced via interior point penalty methods~\hl{x} as discussed in Sec.~\ref{sec_fom}. The RPM results in a block-diagonal system of ODEs for the nodal temperature values on the three components, and is given as,
 \begin{equation}
     \vA\left(\vu\right)\dot{\vu} + \left(\vB - \vC(t)\right)\vu = \mathbf{f}(t)\label{eqn_rpm}
 \end{equation}
-where,
-\begin{subequations}
-    \begin{align}
-        \vA(\vu) = \begin{pmatrix}
-            \vA^{(1)}(\vu^{(1)}) & 0 & 0 \\
-            0 & \vA^{(1)}(\vu^{(2)}) & 0 \\
-            0 & 0 & \vA^{(1)}(\vu^{(3)}) \\
-        \end{pmatrix}
-    \end{align}
-\end{subequations}
-
+where the block matrices are defined as,
+\begin{equation}
+    \vA_{ij} = \left\{\begin{matrix}
+        \vA^{i}(\vu^{(i)}),\quad i=j\\
+        0,\quad i\neq j
+    \end{matrix}\right.,\quad \vB_{ij} = \left\{\begin{matrix}
+        \vB^{(i)}(\vu^{(i)}),\quad i=j\\
+        0,\quad i\neq j
+    \end{matrix}\right.
+\end{equation}
 The details involving the RPM derivation are provided in Appendix.
 
 The ablation on the $i$-th component is modeled using a one-dimensional approximation to the temperature and mesh-motion equations in \cref{eqn_governing_equations}, and are given by,
