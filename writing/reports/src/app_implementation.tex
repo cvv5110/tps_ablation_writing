@@ -6,9 +6,9 @@
 
 \subsection{Reduced-Physics Model}
 
-This section outlines the DG-FEM implementation for the RPM with $N=3$ inter-connected one-dimensional components used in Sec.~\hl{x}. Consider the splitting of the TPS as in Fig.~\hl{x}. Over the $i$-th component with $x\in\Omega^{(i)}(t)$, consider a basis set $\phi^{(i)}_j(x)$ with $j=1,2$ over the element $[x^{(i)}_{0}(t),x^{(i)}_{1}(t)]$ with length $\ell^{(i)}(t)=x^{(i)}_{1}(t) - x^{(i)}_{0}(t)$. For notational convenience, the time dependence of the spatial domains with respect to time due to the ablating surfaces is dropped. The orthogonal basis functions are defined as,
+This section outlines the DG-FEM implementation for the RPM with $N=3$ inter-connected one-dimensional components used in Sec.~\hl{x}. Consider the splitting of the TPS as in Fig.~\hl{x}. Over the element $e$ with $x\in\Omega^{(e)}(t)$, consider the following linear basis set $\phi_i^{(e)}(x)$ with $i=1,2$ on the element $[x^{(i)}_{0}(t),x^{(i)}_{1}(t)]$ with length $h^{(e)}(t)=x^{(e)}_{1}(t) - x^{(e)}_{0}(t)$. For notational convenience, the time dependence of the spatial domain due to ablating surfaces is dropped. The orthogonal basis functions are defined as,
 \begin{equation}
-    \phi^{(i)}_1(x) = 1,\quad \phi^{(i)}_2(x) = \frac{2}{\ell^{(i)}}\left(x - x^{(i)}_c\right)
+    \phi^{(i)}_1(x) = 1,\quad \phi^{(i)}_2(x) = \frac{2}{h^{(i)}}\left(x - x^{(i)}_c\right)
 \end{equation}
 where $x^{(i)}_c = (x^{(i)}_0 + x^{(i)}_1) / 2$. Let,
 \[
@@ -43,12 +43,12 @@ The time-dependent finite-dimensional ODE system for nodal temperatures $\mathbf
     \mathbf{A}\frac{d\mathbf{T}}{dt} + \left(\mathbf{B} - \mathbf{C}(t)\right)\mathbf{T} = \mathbf{f}(t)
 \end{equation}
 
-The element-level expressions for the mass, stiffness, advection, and forcing vectors are given as,
+On the element $(e)$ the expressions for mass, stiffness, advection, and forcing are given as,
 \begin{align}
-    M^{(e)}_{mn} &= \int_{x_i}^{x_{i+1}}\rho c_p\phi_m(x)\phi_n(x)dx = \rho c_p \frac{h_e}{6}\begin{pmatrix}
+    M^{(e)}_{mn} &= \int_{x^{(e)}_i}^{x^{(e)}_{i+1}}\rho c_p\phi^{(e)}_m(x)\phi^{(e)}_n(x)dx = \rho c_p \frac{h^{(e)}}{6}\begin{pmatrix}
         2 & 1 \\ 1 & 2
     \end{pmatrix}\\
-    K^{(e)}_{mn} &= \int_{x_i}^{x_{i+1}} k \frac{\partial \phi_m}{\partial x}\frac{\partial \phi_n}{\partial x} dx = \frac{k}{h_e}\begin{pmatrix}
+    K^{(e)}_{mn} &= \int_{x^{(e)}_i}^{x^{(e)}_{i+1}} k^{(e)} \frac{\partial \phi^{(e)}_m}{\partial x}\frac{\partial \phi^{(e)}_n}{\partial x} dx = \frac{k}{h_e}\begin{pmatrix}
         1 & -1 \\ -1 & 1
     \end{pmatrix}\\
     C^{(e)}_{mn}(t) &= \int_{x_i}^{x_{i+1}}\rho c_p v(x,t) \frac{\partial \phi_n(x)}{\partial x}\phi_m(x) dx\\
@@ -74,7 +74,14 @@ which from \cref{eqn_volumetric_energy_approximation} becomes,
     \end{align*}
 \end{subequations}
 
-Now, for the 
+For example, for $x\in\Omega^{(2)}(t)$,
+\begin{gather}
+    \cQ^{(2)}_{\text{net}}(x,t) = \frac{1}{R_{(1,2)}}\left(T_1^{(2)}(t) + T_2^{(2)}(t)\xi^{(2)}(x,t)\right) - \frac{1}{R_{(2,3)}}\left(T_1^{(3)}(t) + T_2^{(3)}(t)\xi^{(3)}(x,t) - T_1^{(2)}(t) - T_2^{(2)}(t)\xi^{(2)}(x,t)\right)
+\end{gather}
+where,
+\begin{equation}
+    \xi^{(i)}(x,t) = \frac{2x(t) - (x_0^{(i)}(t) - x_1^{(i)}(t))}{x_1^{(i)}(t) - x_0^{(i)}(t)}
+\end{equation}
 
 
 

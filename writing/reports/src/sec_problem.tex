@@ -159,23 +159,19 @@ Note that \cref{eqn_elasticity_1d} is steady. Under the assumption that the mesh
 
 Along the one-dimensional domain, the PDE in \cref{eqn_elasticity_pde} simplifies to,
 \begin{equation}
-    \frac{\partial^2 u}{\partial x^2} = 0
+    \frac{\partial^2 u^{(e)}}{\partial x^2} = 0
 \end{equation}
 which has the analytical solution,
 \begin{equation}
-    u(x,t) = a(t)x + b(t)
+    u^{(e)}(x,t) = a(t)x + b(t)
 \end{equation}
 Imposing the boundary conditions leads to,
 \begin{equation}
-    u(x,t) = u(0,t)\left(1 - \frac{x}{\ell}\right)
+    u^{(e)}(x,t) = u^{(e)}(0,t)\left(\frac{x_1^{(e)} - x}{h^{(e)}}\right)
 \end{equation}
 The mesh velocity is the time derivative of the displacement,
 \begin{equation}
-    v(x,t) = \frac{\partial u(x,t)}{\partial t} = v(t)\left(1 - \frac{x}{\ell}\right)
-\end{equation}
-which is a function of the wall temperature,
-\begin{equation}
-    v(x,t) = v(T_w(t)) \left(1 - \frac{x}{\ell}\right)
+    v^{(e)}(x,t) = \frac{\partial u^{(e)}(x,t)}{\partial t} = v^{(e)}(t)\left(\frac{x_1^{(e)} - x}{h^{(e)}}\right)
 \end{equation}
 
 \subsubsection{Coupling Scheme}
