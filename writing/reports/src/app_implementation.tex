@@ -6,13 +6,13 @@
 
 \subsection{Reduced-Physics Model}
 
-This section outlines the DG-FEM implementation for the RPM with $N=3$ inter-connected one-dimensional components used in Sec.~\hl{x}. Consider the splitting of the TPS as in Fig.~\hl{x}. Over the element $e$ with $x\in\Omega^{(e)}(t)$, consider the following linear basis set $\phi_i^{(e)}(x)$ with $i=1,2$ on the element $[x^{(i)}_{0}(t),x^{(i)}_{1}(t)]$ with length $h^{(e)}(t)=x^{(e)}_{1}(t) - x^{(e)}_{0}(t)$. For notational convenience, the time dependence of the spatial domain due to ablating surfaces is dropped. The orthogonal basis functions are defined as,
+This section outlines the DG-FEM implementation for the RPM with $N=3$ inter-connected one-dimensional components used in Sec.~\hl{x}. Consider the splitting of the TPS as in Fig.~\hl{x}. Over the $i$-th element with $x\in\Omega^{(i)}(t)$, consider the following linear basis set $\phi_k^{(i)}(x)$ with $k=1,2$ on the element $[x^{(i)}_{0}(t),x^{(i)}_{1}(t)]$ with length $h^{(i)}(t)=x^{(i)}_{1}(t) - x^{(i)}_{0}(t)$. For notational convenience, the time dependence of the spatial domain due to ablating surfaces is dropped. The orthogonal basis functions are defined as,
 \begin{equation}
     \phi^{(i)}_1(x) = 1,\quad \phi^{(i)}_2(x) = \frac{2}{h^{(i)}}\left(x - x^{(i)}_c\right)
 \end{equation}
 where $x^{(i)}_c = (x^{(i)}_0 + x^{(i)}_1) / 2$. Let,
 \[
-    x(\xi) = \frac{1-\xi}{2}x_i + \frac{1 + \xi}{2}x_{i+1}
+    x(\xi) = \frac{1-\xi}{2}x^{(i)}_0 + \frac{1 + \xi}{2}x^{(i)}_{1}
 \]
 thus for $\xi\in[-1,1]$,
 \begin{equation}
@@ -21,22 +21,23 @@ thus for $\xi\in[-1,1]$,
 
 Multiply through by the weight function $\phi_j(x)$ and integrate over the domain $\Omega^{(i)}$,
 \begin{equation}
-    \int_{\Omega}\left[\rho c_p\left(\frac{\partial T^{(i)}}{\partial t} - v^{(i)}(x,t)\frac{\partial T^{(i)}}{\partial x}\right) - \frac{\partial}{\partial x}\left(k\frac{\partial T^{(i)}}{\partial x}\right) - \cQ^{(i)}_{\text{net}}(x,t)\right]\phi_j(x)dx = 0
+    \int_{\Omega}\left[\rho c_p\left(\frac{\partial T^{(i)}}{\partial t} - v^{(i)}(x,t)\frac{\partial T^{(i)}}{\partial x}\right) - \frac{\partial}{\partial x}\left(k\frac{\partial T^{(i)}}{\partial x}\right) - \cQ^{(i)}_{\text{net}}(x,t)\right]\phii_l(x)dx = 0
 \end{equation}
 Using integration by parts the natural boundary conditions are obtained,
-\begin{equation}
-    \int_{\Omega}\rho c_p\frac{\partial T}{\partial t}\phi_j(x)dx - \int_{\Omega}\rho c_p v(x,t)\frac{\partial T}{\partial x}\phi_j(x)dx + \int_{\Omega} k\frac{\partial T}{\partial x}\frac{\partial\phi_j(x)}{\partial x} dx = k\frac{\partial T}{\partial x}\phi_j(x)\Bigg|_{\partial\Omega} + \int_{\Omega}\phi_j(x)\cQ(x,t)dx
-\end{equation}
+\begin{align}
+    \int_{\Omega}\rho c_p\left(\frac{\partial\Ti}{\partial t}\phii_l(x) - v(x,t)\frac{\partial\Ti}{\partial x}\phii_l(x)\right)dx &+ \int_{\Omega} k\frac{\partial\Ti}{\partial x}\frac{\partial\phii_l(x)}{\partial x} dx\notag\\
+    &=k\frac{\partial\Ti}{\partial x}\phii_l(x)\Bigg|_{\partial\Omega} + \int_{\Omega}\phii_l(x)\cQ(x,t)dx
+\end{align}
 Perform the finite-element approximation,
 \begin{equation}
-    T^{(i)}(x,t)\approx\sum_{l=0}^{M-1} T_l(t)\phi_l(x)
+    T^{(i)}(x,t)\approx\sum_{k=1}^{n^{(i)}}\ui_k(t)\phii_k(x)
 \end{equation}
 and define the matrix elements,
 \begin{align}
-    A_{ij} &= \int_{\Omega}\rho c_p\phi_j(x)\phi_j(x)dx\\
-    C_{ij}(t) &= \int_{\Omega}\rho c_p v(x,t) \frac{\partial\phi_j}{\partial x}\phi_j(x)dx\\
-    B_{ij} &= \int_{\Omega}k\frac{\partial\phi_j(x)}{\partial x}\frac{\partial\phi_j(x)}{\partial x}dx\\
-    f_i(t) &= k\frac{\partial T}{\partial x}\phi_j(x)\Bigg|_{\partial\Omega} + \int_{\Omega}\phi_j(x)\cQ(x,t)dx
+    A^{(i)}_{kl} &= \int_{\Omega}\rho c_p\phii_k(x)\phii_l(x)dx\\
+    B^{(i)}_{kl} &= \int_{\Omega}k\frac{\partial\phii_k(x)}{\partial x}\frac{\partial\phii_l(x)}{\partial x}dx\\
+    C^{(i)}_{kl}(t) &= \int_{\Omega}\rho c_p v^{(i)}(x,t)\phii_k(x)\frac{\partial\phii_l}{\partial x}dx\\
+    f^{(i)}_l(t) &= k\frac{\partial T}{\partial x}\phii_l(x)\Bigg|_{\partial\Omega} + \int_{\Omega}\phii_l(x)\cQnet^{(i)}(x,t)dx
 \end{align}
 The time-dependent finite-dimensional ODE system for nodal temperatures $\mathbf{T}(t)$, including the ALE-induced advection effect from mesh motion, is given as,
 \begin{equation}
@@ -45,14 +46,14 @@ The time-dependent finite-dimensional ODE system for nodal temperatures $\mathbf
 
 On the element $(e)$ the expressions for mass, stiffness, advection, and forcing are given as,
 \begin{align}
-    M^{(e)}_{mn} &= \int_{x^{(e)}_i}^{x^{(e)}_{i+1}}\rho c_p\phi^{(e)}_m(x)\phi^{(e)}_n(x)dx = \rho c_p \frac{h^{(e)}}{6}\begin{pmatrix}
+    M^{(i)}_{mn} &= \int_{x^{(i)}_i}^{x^{(i)}_{i+1}}\rho c_p\phi^{(i)}_m(x)\phi^{(i)}_n(x)dx = \rho c_p \frac{h^{(i)}}{6}\begin{pmatrix}
         2 & 1 \\ 1 & 2
     \end{pmatrix}\\
-    K^{(e)}_{mn} &= \int_{x^{(e)}_i}^{x^{(e)}_{i+1}} k^{(e)} \frac{\partial \phi^{(e)}_m}{\partial x}\frac{\partial \phi^{(e)}_n}{\partial x} dx = \frac{k}{h_e}\begin{pmatrix}
+    K^{(i)}_{mn} &= \int_{x^{(i)}_i}^{x^{(i)}_{i+1}} k^{(i)} \frac{\partial \phi^{(i)}_m}{\partial x}\frac{\partial \phi^{(i)}_n}{\partial x} dx = \frac{k}{h_e}\begin{pmatrix}
         1 & -1 \\ -1 & 1
     \end{pmatrix}\\
-    C^{(e)}_{mn}(t) &= \int_{x_i}^{x_{i+1}}\rho c_p v(x,t) \frac{\partial \phi_n(x)}{\partial x}\phi_m(x) dx\\
-    f^{(e)}_1(t) &= \left(q(t),0\right)^T
+    C^{(i)}_{mn}(t) &= \int_{x_i}^{x_{i+1}}\rho c_p v(x,t) \frac{\partial \phi_n(x)}{\partial x}\phi_m(x) dx\\
+    f^{(i)}_1(t) &= \left(q(t),0\right)^T
 \end{align}
 
 
@@ -65,31 +66,5 @@ The thermodynamic interaction between the components is modeled via the net volu
         \cQ^{(3)}_{\text{net}}(x,t) &= \cQ^{(2,3)}(x,t)
     \end{align}
 \end{subequations}
-which from \cref{eqn_volumetric_energy_approximation} becomes,
-\begin{subequations}
-    \begin{align*}
-        \cQ^{(1)}_{\text{net}}(x,t) &= -\frac{1}{R_{(1,2)}}\left(T^{(2)}(x,t) - T^{(1)}(x,t)\right)\\
-        \cQ^{(2)}_{\text{net}}(x,t) &= \frac{1}{R_{(1,2)}}\left(T^{(2)}(x,t) - T^{(1)}(x,t)\right) - \frac{1}{R_{(2,3)}}\left(T^{(3)}(x,t) - T^{(2)}(x,t)\right)\\
-        \cQ^{(3)}_{\text{net}}(x,t) &= \frac{1}{R_{(2,3)}}\left(T^{(3)}(x,t) - T^{(2)}(x,t)\right)
-    \end{align*}
-\end{subequations}
-
-For example, for $x\in\Omega^{(2)}(t)$,
-\begin{gather}
-    \cQ^{(2)}_{\text{net}}(x,t) = \frac{1}{R_{(1,2)}}\left(T_1^{(2)}(t) + T_2^{(2)}(t)\xi^{(2)}(x,t)\right) - \frac{1}{R_{(2,3)}}\left(T_1^{(3)}(t) + T_2^{(3)}(t)\xi^{(3)}(x,t) - T_1^{(2)}(t) - T_2^{(2)}(t)\xi^{(2)}(x,t)\right)
-\end{gather}
-where,
-\begin{equation}
-    \xi^{(i)}(x,t) = \frac{2x(t) - (x_0^{(i)}(t) - x_1^{(i)}(t))}{x_1^{(i)}(t) - x_0^{(i)}(t)}
-\end{equation}
-
-
-
-
-
-
-
-
-
 
 
