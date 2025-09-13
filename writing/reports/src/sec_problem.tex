@@ -13,19 +13,25 @@ Consider a generic domain $\Omega\subset$, $d=2$ or $3$, illustrated in Fig.~\re
     \label{fig_general_domain}
 \end{figure}
 
-The transient heat conduction over the moving mesh is described by the following equations,
+The transient heat conduction is described by the energy equation,
 \begin{subequations}
     \begin{align}
         \rho c_p\left(\ppt{T} - \mathbf{v}(x,t)\cdot\nabla T\right) - \nabla\cdot (\mathbf{k}\nabla T) &= \cQ(x,t),\ x\in\Omega \label{eqn_thermal_pde}\\
-        \nabla\cdot\boldsymbol{\sigma}(\mathbf{w}) &= 0\label{eqn_elasticity_pde}\\
         -\mathbf{k}\nabla T\cdot \vn &= q_b(x,t),\ x\in\Gamma_q\label{eqn_thermal_bc_neumann}\\
         T(x,t) &= T_b(x,t),\ x\in\Gamma_T\label{eqn_thermal_bc_dirichlet}\\
-        T(x,0) &= T_0(x),\ x\in\Omega\label{eqn_thermal_ic}\\
-        \vw(x,t) &= \vw_q(x,t),\quad x\in\Gamma_q\label{eqn_displacement_heated_bc}\\
-        \vw(x,t) &= 0,\quad x\notin \Gamma_q\label{eqn_displacement_unheated_bc}\\
-        \vw(x,t) &= \boldsymbol{0}\label{eqn_displacement_initial_condition}
+        T(x,0) &= T_0(x),\ x\in\Omega\label{eqn_thermal_ic}
     \end{align}\label{eqn_governing_equations}
 \end{subequations}
+while the mesh motion is described by the pseudo-elasticity equation,
+\begin{subequations}
+    \begin{align}
+        \nabla\cdot\boldsymbol{\sigma}(\mathbf{w}) &= 0\label{eqn_elasticity_pde}\\
+        \vw(x,t) &= \vw_q(x,t),\quad x\in\Gamma_q\label{eqn_displacement_heated_bc}\\
+        \vw(x,t) &= 0,\quad x\notin \Gamma_q\label{eqn_displacement_unheated_bc}\\
+        \vw(x,0) &= \boldsymbol{0}\label{eqn_displacement_initial_condition}
+    \end{align}
+\end{subequations}
+
 The density $\rho$, heat capacity $c_p$, and thermal conductivity $\mathbf{k}\in\mathbb{R}^{n_d\times n_d}$ are assumed to be constant with respect to temperature in this work. The terms in \cref{eqn_thermal_pde}, in the order they appear, correspond to the unsteady energy storage, heat conduction, temperature advection due to mesh motion, and the heat source terms. 
 
 The elasticity equation \cref{eqn_elasticity_pde} states that the divergence of the stress tensor $\boldsymbol{\sigma}(\mathbf{w})$ is zero. The stress tensor is related to the strain tensor $\bepsilon(\bw)$ through Hooke's law,
@@ -48,34 +54,39 @@ The boundary conditions for the energy equation includes a heated surface (\cref
 \end{equation}
 
 
-\subsection{Full-Order Model: Discontinuous Galerkin Finite Element Method}\label{sec_fom}
+\subsection{Full-Order Model: Finite-Element Method}\label{sec_fom}
 
 To obtain the full-order numerical solution, the governing equation is spatially discretized using variational principle of Discontinuous Galerkin (DG) to result in a high-dimensional system of ODEs for the time-varying nodal data. The full-order TPS ablation simulations are computed using standard FEM instead, and the equivalence between DG and standard FEM is noted upon their convergence.
 
 Consider a conforming mesh partition domain, where each element belongs to one and only one component. Denote the collection of all $M$ elements as $\left\{E_i\right\}_{i=1}^{M}$. In an element $E_i$, its shared boundaries with another element $E_j$, Neumann BC, and Dirichlet BC are denoted as $e_{ij}$, $e_{iq}$, and $e_{iT}$, respectively. Lastly, $\left|e\right|$ denotes the length $(n_d=2)$ or area $(n_d=3)$ of a component boundary $e$.
 
-For the $e$-th element, use a set of $n^{(e)}$ trial functions, such as polynomials, to represent the temperature distribution,
+For the $i$-th element, use a set of $n^{(i)}$ trial functions, such as polynomials, to represent the temperature distribution,
 \begin{equation}
-    T^{(e)}(x,t) = \sum_{i=1}^{n^{(e)}} \phi_i^{(e)}(x)u_i^{(e)} \equiv \boldsymbol{\phi}^{(e)}(x)^T\vu^{(e)}(t)
+    T^{(i)}(x,t) = \sum_{i=1}^{n^{(i)}} \phi_i^{(i)}(x)u_i^{(i)} \equiv \boldsymbol{\phi}^{(i)}(x)^T\vu^{(i)}(t)
 \end{equation}
+Without loss of generality, the trial functions are assumed to be orthogonal, so that $\int_{E^{(i)}} \phii_k(x) \phii_l(x) dx = \left|\Ei\right|\delta_{kl}$, where $\left|\Ei\right|$ is the area $(n_d=2)$ or volume $(n_d=3)$ of the $i$-th element, and $\delta_{kl}$ is the Kronecker delta. Furthermore, for simplicity, choose $\phii_1(x) = 1$; by orthogonality $\int_{E^{(i)}} \phii_l(x) dx = 0$ for $l \neq 1$. Under this choice of basis, $u_1^{(i)}$ represents the average temperature in the $i$-th element.
 
-\subsubsection{Numerical Solution}
-
-\subsubsection{Usage Within an Ablation Simulation}
-
+By standard variational processes, e.g., \hl{Cohen2018}, the full governing equation is denoted as,
+\begin{equation}
+    \vA(\vu)\dot{\vu} + \left(\vB(\vu) - \vC(t)\right)\vu = \mathbf{f}(t)\label{eqn_fom}
+\end{equation}
+where $\vu = \left(\vu^{(1)}, \vu^{(2)}, \ldots, \vu^{(M)}\right)^T\in\mathbb{R}^{n_dM}$ includes all the DG variables, $\mathbf{f}\in\mathbb{R}^{n_dM}$ is the external forcing, and the system matrices $\vA$, $\vB$, and $\vC$ are due to heat capacity, heat conduction, and mesh advection, respectively. The detailed formulation of the DG model is provided in Appendix~\hl{DG-FEM}.
 
 \subsection{Reduced-Physics Model: One-Dimensional Thermo-Elastic Solver}
 
-In this section, the main results regarding the derivation of the thermo-elastic RPM are presented, with the details provided in Appendix~\hl{x}. The thermo-elastic RPM is derived to model the one-dimensional temperature distribution and surface recession for an ablating TPS. The temperature is modeled using a coarse-grained DG-FEM approach, while the moving mesh is modeled using an analytical solution to the elasticity equations.
+In this section, the main results regarding the derivation of the thermo-elastic RPM are presented, with the details provided in Appendix~\hl{x}. The thermo-elastic RPM models the quasi-steady one-dimensional temperature distribution and surface recession for an ablating TPS. The thermal component is modeled using a coarse-graining approach over one-dimensional strands
+
+
+approach, where the resolved variables 
+
+The temperature is modeled using a coarse-grained DG-FEM approach, while the moving mesh is modeled using an analytical solution to the elasticity equations.
 
 Consider the partitioning of the general domain depicted in Fig.~\ref{fig_general_domain} into $N=3$ non-overlapping inter-connected components $\left\{\Omega_i\right\}_{i=1}^{3}$, as illustrated in Fig.~\ref{fig_domain_partition}. The coupling between the components is due to the volumetric energy source terms,
 \[
     \cQnet^{(1)}(x,t),\quad\cQnet^{(2)}(x,t),\quad \cQnet^{(3)}(x,t)
 \]
-which are space-time varying, and are unknown quantities due to the moving interfaces between the interconnected components.
+which are space-time varying unknown quantities that represent the energy transfer between components. Note that this energy transfer is not known \emph{a priori} since the interfaces between the components are moving due to ablation. 
 
-
-where the thermodynamic coupling occurs due to $\cQ^{(1,2)}(x,t)$ and $\cQ^{(2,3)}(x,t)$, which are space-time varying. The $i$-th component $\Omega_i$ is associated with material properties $\left\{\rho^{(i)}, c^{(i)}_{p}, k^{(i)}\right\}$, which are continuous within each component, and may be discontinuous across two neighboring components.
 
 \begin{figure}
     \centering
@@ -83,6 +94,9 @@ where the thermodynamic coupling occurs due to $\cQ^{(1,2)}(x,t)$ and $\cQ^{(2,3
     \caption{Partition of the TPS into three one-dimensional components.}
     \label{fig_domain_partition}
 \end{figure}
+
+
+
 
 A first-order DG-FEM scheme is adopted for each component, with the coupling between the components enforced via interior point penalty methods~\hl{x} as discussed in Sec.~\ref{sec_fom}. The RPM results in a block-diagonal system of ODEs for the nodal temperature values on the three components, and is given as,
 \begin{equation}
@@ -95,6 +109,9 @@ where the block matrices are defined as,
         0,\quad i\neq j
     \end{matrix}\right.,\quad \vB_{ij} = \left\{\begin{matrix}
         \vB^{(i)}(\vu^{(i)}),\quad i=j\\
+        0,\quad i\neq j
+    \end{matrix}\right.,\quad \vC_{ij}(t) = \left\{\begin{matrix}
+        \vC^{(i)}(t),\quad i=j\\
         0,\quad i\neq j
     \end{matrix}\right.
 \end{equation}
@@ -164,19 +181,19 @@ Note that \cref{eqn_elasticity_1d} is steady. Under the assumption that the mesh
 
 Along the one-dimensional domain, the PDE in \cref{eqn_elasticity_pde} simplifies to,
 \begin{equation}
-    \frac{\partial^2 u^{(e)}}{\partial x^2} = 0
+    \frac{\partial^2 u^{(i)}}{\partial x^2} = 0
 \end{equation}
 which has the analytical solution,
 \begin{equation}
-    u^{(e)}(x,t) = a(t)x + b(t)
+    u^{(i)}(x,t) = a(t)x + b(t)
 \end{equation}
 Imposing the boundary conditions leads to,
 \begin{equation}
-    u^{(e)}(x,t) = u^{(e)}(0,t)\left(\frac{x_1^{(e)} - x}{h^{(e)}}\right)
+    u^{(i)}(x,t) = u^{(i)}(0,t)\left(\frac{x_1^{(i)} - x}{h^{(i)}}\right)
 \end{equation}
 The mesh velocity is the time derivative of the displacement,
 \begin{equation}
-    v^{(e)}(x,t) = \frac{\partial u^{(e)}(x,t)}{\partial t} = v^{(e)}(t)\left(\frac{x_1^{(e)} - x}{h^{(e)}}\right)
+    v^{(i)}(x,t) = \frac{\partial u^{(i)}(x,t)}{\partial t} = v^{(i)}(t)\left(\frac{x_1^{(i)} - x}{h^{(i)}}\right)
 \end{equation}
 
 \subsubsection{Coupling Scheme}
