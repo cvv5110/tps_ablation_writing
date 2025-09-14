@@ -80,9 +80,9 @@ In this section, the main results regarding the derivation of the thermo-elastic
 
 The arbitrary domain in Fig.~\ref{fig_general_domain} is partitioned into $N=3$ non-overlapping interconnected components $\left\{\Omega_i\right\}_{i=1}^{N}$, as illustrated in Fig.~\ref{fig_domain_partition}. The one-dimensional temperature and mesh displacement are collected as $\left\{T^{(i)}(x,t),w^{(i)}(x,t)\right\}_{i=1}^{N}$. The heat transfer between the components is modeled using the energy source terms $\left\{\cQnet^{(i)}(x,t)\right\}_{i=1}^{N}$ which are space-time varying quantities. 
 
-The energy source term for the $j$-th component,
+The energy source term for the $i$-th component,
 \begin{equation}
-    \cQnet^{(j)}(x,t) = \sum_{i\in\cV_j}\left(\cQ^{(j)}_{\text{in},i}(x,t) - \cQ^{(j)}_{\text{out},i}(x,t)\right)\label{eqn_net_volumetric_energy}
+    \cQnet^{(i)}(x,t) = \sum_{j\in\cN_i}\left(\cQ^{(i)}_{\text{in},j}(x,t) - \cQ^{(i)}_{\text{out},j}(x,t)\right)\label{eqn_net_volumetric_energy}
 \end{equation}
 is not known \textit{a priori}, and varies according to the moving interfaces between the components due to ablation. Nonetheless, the energy sources are expected to be functions of neighboring temperatures
 
