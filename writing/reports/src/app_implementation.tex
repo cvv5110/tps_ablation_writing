@@ -21,40 +21,29 @@ thus for $\xi\in[-1,1]$,
 
 Multiply through by the weight function $\phi_j(x)$ and integrate over the domain $\Omega^{(i)}$,
 \begin{equation}
-    \int_{\Omega}\left[\rho c_p\left(\frac{\partial T^{(i)}}{\partial t} - v^{(i)}(x,t)\frac{\partial T^{(i)}}{\partial x}\right) - \frac{\partial}{\partial x}\left(k\frac{\partial T^{(i)}}{\partial x}\right) - \cQ^{(i)}_{\text{net}}(x,t)\right]\phii_l(x)dx = 0
+    \int_{\Omega^{(i)}}\left[\rho c_p\left(\frac{\partial T^{(i)}}{\partial t} - v^{(i)}(x,t)\frac{\partial T^{(i)}}{\partial x}\right) - \frac{\partial}{\partial x}\left(k\frac{\partial T^{(i)}}{\partial x}\right) - \cQ^{(i)}_{\text{net}}(x,t)\right]\phii_l(x)dx = 0
 \end{equation}
 Using integration by parts the natural boundary conditions are obtained,
 \begin{align}
-    \int_{\Omega}\rho c_p\left(\frac{\partial\Ti}{\partial t}\phii_l(x) - v(x,t)\frac{\partial\Ti}{\partial x}\phii_l(x)\right)dx &+ \int_{\Omega} k\frac{\partial\Ti}{\partial x}\frac{\partial\phii_l(x)}{\partial x} dx\notag\\
-    &=k\frac{\partial\Ti}{\partial x}\phii_l(x)\Bigg|_{\partial\Omega} + \int_{\Omega}\phii_l(x)\cQ(x,t)dx
+    \int_{\Omega^{(i)}}\rho c_p\phii_l(x)\frac{\partial\Ti}{\partial t}dx = -\int_{\Omega^{(i)}}k\frac{\partial\Ti}{\partial x}\frac{\partial\phii_l(x)}{\partial x} dx &+ \int_{\Omega^{(i)}}\rho c_p v(x,t)\phii_l(x)\frac{\partial\Ti}{\partial x} dx \notag\\
+    & + k\frac{\partial\Ti}{\partial x}\phii_l(x)\Bigg|_{\partial\Omega} + \int_{\Omega^{(i)}}\phii_l(x)\cQnet^{(i)}(x,t)dx
 \end{align}
 Perform the finite-element approximation,
 \begin{equation}
-    T^{(i)}(x,t)\approx\sum_{k=1}^{n^{(i)}}\ui_k(t)\phii_k(x)
+    T^{(i)}(x,t)\approx\sum_{k=1}^{n^{(i)}}\bar{u}^{(i)}_k(t)\phii_k(x)
 \end{equation}
 and define the matrix elements,
 \begin{align}
-    A^{(i)}_{kl} &= \int_{\Omega}\rho c_p\phii_k(x)\phii_l(x)dx\\
-    B^{(i)}_{kl} &= \int_{\Omega}k\frac{\partial\phii_k(x)}{\partial x}\frac{\partial\phii_l(x)}{\partial x}dx\\
-    C^{(i)}_{kl}(t) &= \int_{\Omega}\rho c_p v^{(i)}(x,t)\phii_k(x)\frac{\partial\phii_l}{\partial x}dx\\
-    f^{(i)}_l(t) &= k\frac{\partial T}{\partial x}\phii_l(x)\Bigg|_{\partial\Omega} + \int_{\Omega}\phii_l(x)\cQnet^{(i)}(x,t)dx
+    A^{(i)}_{kl} &= \int_{\Omega^{(i)}}\rho c_p\phii_k(x)\phii_l(x)dx\\
+    B^{(i)}_{kl} &= -\int_{\Omega^{(i)}}k\frac{\partial\phii_k(x)}{\partial x}\frac{\partial\phii_l(x)}{\partial x}dx\\
+    C^{(i)}_{kl}(t) &= \int_{\Omega^{(i)}}\rho c_p v^{(i)}(x,t)\phii_l(x)\frac{\partial\phii_k}{\partial x}dx\\
+    f^{(i)}_l(t) &= k\frac{\partial T}{\partial x}\phii_l(x)\Bigg|_{\partial\Omega} + \int_{\Omega^{(i)}}\phii_l(x)\cQnet^{(i)}(x,t)dx
 \end{align}
-The time-dependent finite-dimensional ODE system for nodal temperatures $\mathbf{T}(t)$, including the ALE-induced advection effect from mesh motion, is given as,
+The semi-discrete form of the energy equation for the nodal temperatures $\bar{\vu}\in\mathbb{\bar{u}}$, including the ALE-induced advection effects from mesh motion, is given as,
 \begin{equation}
-    \mathbf{A}\frac{d\mathbf{T}}{dt} + \left(\mathbf{B} - \mathbf{C}(t)\right)\mathbf{T} = \mathbf{f}(t)
+    \mathbf{A}\dot{\bar{\vu}} = \left(\mathbf{B} + \mathbf{C}(t)\right)\bar{\vu} + \barf(t)
 \end{equation}
 
-On the element $(e)$ the expressions for mass, stiffness, advection, and forcing are given as,
-\begin{align}
-    M^{(i)}_{mn} &= \int_{x^{(i)}_i}^{x^{(i)}_{i+1}}\rho c_p\phi^{(i)}_m(x)\phi^{(i)}_n(x)dx = \rho c_p \frac{h^{(i)}}{6}\begin{pmatrix}
-        2 & 1 \\ 1 & 2
-    \end{pmatrix}\\
-    K^{(i)}_{mn} &= \int_{x^{(i)}_i}^{x^{(i)}_{i+1}} k^{(i)} \frac{\partial \phi^{(i)}_m}{\partial x}\frac{\partial \phi^{(i)}_n}{\partial x} dx = \frac{k}{h_e}\begin{pmatrix}
-        1 & -1 \\ -1 & 1
-    \end{pmatrix}\\
-    C^{(i)}_{mn}(t) &= \int_{x_i}^{x_{i+1}}\rho c_p v(x,t) \frac{\partial \phi_n(x)}{\partial x}\phi_m(x) dx\\
-    f^{(i)}_1(t) &= \left(q(t),0\right)^T
-\end{align}
 
 
 
