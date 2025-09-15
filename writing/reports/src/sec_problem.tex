@@ -68,29 +68,29 @@ Without loss of generality, the trial functions are assumed to be orthogonal, so
 
 By standard variational processes, e.g., \hl{Cohen2018}, the full governing equation is denoted as,
 \begin{equation}
-    \vA(\vu)\dot{\vu} + \left(\vB(\vu) - \vC(t)\right)\vu = \mathbf{f}(t)\label{eqn_energy_fem}
+    \vA(\vu)\dot{\vu} = \left[\vB(\vu) + \vC(t)\right]\vu + \mathbf{f}(t)\label{eqn_energy_fem}
 \end{equation}
 where $\vu = \left(\vu^{(1)}, \vu^{(2)}, \ldots, \vu^{(M)}\right)^T\in\mathbb{R}^{n_dM}$ includes all the DG variables, $\mathbf{f}\in\mathbb{R}^{n_dM}$ is the external forcing, and the system matrices $\vA$, $\vB$, and $\vC$ are due to heat capacity, heat conduction, and mesh advection, respectively. The detailed formulation of the DG model is provided in Appendix~\hl{DG-FEM}.
 
 \subsection{Reduced-Physics Model: One-Dimensional Thermo-Elastic Solver}
 
-In this section, the main results regarding the derivation of the thermo-elastic RPM are presented, and the details are provided in Appendix~\hl{x}. The RPM models the temperature distribution and surface recession for an ablating TPS over a series of one-dimensional interconnected components. Over each component, the energy equation is simplified using a one-dimensional coarse-grained DG-FEM, with the mesh motion predicted based on an analytical solution.
+In this section, the main results regarding the derivation of the thermo-elastic RPM are presented, and the details are provided in Appendix~\hl{x}. The RPM models one-dimensional temperature distribution and mesh displacements for an ablating TPS over a series of interconnected components. Over each element, the governing dynamics are simplified using a coarse-grained FEM approach, with the mesh motion predicted based on an analytical solution to the elasticity equations.
 
-\subsubsection{Domain Discretization and Component Interactions}
+\subsubsection{Finite-Element Method}
 
-The arbitrary domain in Fig.~\ref{fig_general_domain} is partitioned into $N=3$ non-overlapping interconnected components $\left\{\Omega_i\right\}_{i=1}^{N}$, as illustrated in Fig.~\ref{fig_domain_partition}. The one-dimensional temperature and mesh displacement are collected as $\left\{T^{(i)}(x,t),w^{(i)}(x,t)\right\}_{i=1}^{N}$. The heat transfer between the components is modeled using the energy source terms $\left\{\cQnet^{(i)}(x,t)\right\}_{i=1}^{N}$ which are space-time varying quantities. 
+The arbitrary domain in Fig.~\ref{fig_general_domain} is partitioned into $N$ components $\left\{\Omega^{(i)}\right\}_{i=1}^{N}$, each with $\left\{E^{(i)}_j\right\}_{j=1}^{n^{(i)}}$ elements, establishing the resolution for the temperature and mesh displacement fields over each component. Figure~\hl{x} shows a partition of the TPS into $N=M=3$. 
 
-The energy source term for the $i$-th component,
+\subsubsection{Component Interactions}
+
+The heat transfer between components is modeled using volumetric energy sources $\left\{\cQnet^{(i)}(x,t)\right\}_{i=1}^{N}$, so that the net energy source into the $i$-th component is approximated as,
 \begin{equation}
-    \cQnet^{(i)}(x,t) = \sum_{j\in\cN_i}\left(\cQ^{(i)}_{\text{in},j}(x,t) - \cQ^{(i)}_{\text{out},j}(x,t)\right)\label{eqn_net_volumetric_energy}
+    \cQnet^{(i)}(x,t) = \sum_{j\in\cN_i}Q^{(i,j)}(x,t)\label{eqn_net_volumetric_energy}
 \end{equation}
-is not known \textit{a priori}, and varies according to the moving interfaces between the components due to ablation. Nonetheless, the energy sources are expected to be functions of neighboring temperatures
-
-
-and are thus written as,
+where,
 \begin{equation}
-    \cQnet^{(j)}(x,t) \approx 
+    Q^{(i,j)}(x,t) = \frac{T^{(j)}(x,t) - T^{(i)}(x,t)}{R_{(i,j)}}
 \end{equation}
+
 
 \begin{figure}
     \centering
