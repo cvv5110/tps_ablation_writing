@@ -76,21 +76,9 @@ where $\vu = \left(\vu^{(1)}, \vu^{(2)}, \ldots, \vu^{(M)}\right)^T\in\mathbb{R}
 
 In this section, the main results regarding the derivation of the thermo-elastic RPM are presented, and the details are provided in Appendix~\hl{x}. The RPM models one-dimensional temperature distribution and mesh displacements for an ablating TPS over a series of interconnected components. Over each element, the governing dynamics are simplified using a coarse-grained FEM approach, with the mesh motion predicted based on an analytical solution to the elasticity equations.
 
-\subsubsection{Finite-Element Method}
+\subsubsection{Finite-Element Method and Component Interactions}
 
-The arbitrary domain in Fig.~\ref{fig_general_domain} is partitioned into $N$ components $\left\{\Omega^{(i)}\right\}_{i=1}^{N}$, each with $\left\{E^{(i)}_j\right\}_{j=1}^{n^{(i)}}$ elements, establishing the resolution for the temperature and mesh displacement fields over each component. Figure~\hl{x} shows a partition of the TPS into $N=M=3$. 
-
-\subsubsection{Component Interactions}
-
-The heat transfer between components is modeled using volumetric energy sources $\left\{\cQnet^{(i)}(x,t)\right\}_{i=1}^{N}$, so that the net energy source into the $i$-th component is approximated as,
-\begin{equation}
-    \cQnet^{(i)}(x,t) = \sum_{j\in\cN_i}Q^{(i,j)}(x,t)\label{eqn_net_volumetric_energy}
-\end{equation}
-where,
-\begin{equation}
-    Q^{(i,j)}(x,t) = \frac{T^{(j)}(x,t) - T^{(i)}(x,t)}{R_{(i,j)}}
-\end{equation}
-
+The arbitrary domain in Fig.~\ref{fig_general_domain} is partitioned into $N$ components $\left\{\Omega^{(i)}\right\}_{i=1}^{N}$, each with $\left\{E^{(i)}_j\right\}_{j=1}^{n^{(i)}}$ finite elements, establishing the resolution for the temperature and mesh displacement fields over each component. Figure~\hl{x} shows a partition of the TPS into $N=M=3$, where the top and bottom are subject to Neumann and adiabatic boundary conditions, respectively. 
 
 \begin{figure}
     \centering
@@ -99,28 +87,57 @@ where,
     \label{fig_domain_partition}
 \end{figure}
 
+A first-order FEM scheme is adopted for each component, which results in a block-diagonal system of ODEs for the nodal temperature values of the components,
+\begin{equation}
+    \vA\left(\bvu\right)\dot{\bvu} = \left(\vB + \vC(t)\right)\bvu + \vf\left(\bvu,t\right)\label{eqn_rpm}
+\end{equation}
+where the block matrices are defined as,
+\begin{subequations}
+\begin{align}
+\begin{aligned}
+    \vA_{ij} &= \begin{cases}
+        \vA^{(i)}(\bvu^{(i)}), & i=j \\
+        0, & i\neq j
+    \end{cases}\\
+    \vB_{ij} &= \begin{cases}
+        \vB^{(i)}(\bvu^{(i)}), & i=j \\
+        0, & i\neq j
+    \end{cases}
+\end{aligned}
+&\qquad
+\begin{aligned}
+    \vC_{ij}(t) &= \begin{cases}
+        \vC^{(i)}(t), & i=j \\
+        0, & i\neq j
+    \end{cases}\\
+    \mathbf{f}_i(\bvu,t) &= \begin{cases}
+        \mathbf{f}^{(i)}_{\text{BC}}(t)+\mathbf{f}^{(i)}_{\cQ}(\bvu,t), & i=j \\
+        \boldsymbol{0}, & i\neq j
+    \end{cases}
+\end{aligned}\label{eqn_rpm_matrices}
+\end{align}
+\end{subequations}
+where $\vfBC$ and $\vfQ$ are the boundary and component-level energy sources. 
+
+The energy sources are modeled using distributed volumetric energies $\left\{\cQnet^{(i)}(x,t)\right\}_{i=1}^{N}$, where the net energy source into the $i$-th component is defined as,
+\begin{equation}
+    \cQnet^{(i)}(x,t) = \sum_{j\in\cN_i}Q^{(i,j)}(x,t)\label{eqn_net_volumetric_energy}
+\end{equation}
+and the heat transfer between components $i$ and $j$ is approximated as,
+\begin{equation}
+    Q^{(i,j)}(x,t) = \frac{T^{(j)}(x,t) - T^{(i)}(x,t)}{R_{(i,j)}}
+\end{equation}
+Thus, the $\vfQ$ term in \cref{eqn_rpm_matrices} becomes,
+\begin{equation}
+    \vfQ^{(i)}(\bvu,t) = \sum_{j\in\cN_i} \frac{1}{R_{(i,j)}}\left(\mathbf{M}^{(i,j)}\bvu^{(j)}(t) - \vM^{(i,i)}\bvu^{(i)}(t)\right)
+\end{equation}
+where $\vM^{(i,j)}$ and $\vM^{(i,i)}$ are due to 
+
 \subsubsection{Coarse Graining}
 
 Consider a DG model as in ~\cref{eqn_energy_fem} for $M$ components and $N$ elements; clearly $N\gg N$. Let $\cV_j=\left\{i | E^{(i)}\in\Omega^{(j)}\right\}$ be the indices of the elements belonging to the $j$-th component, so $E^{(i)}\in\Omega^{(j)}$ for $i\in\cV_j$; number of elements in $\Omega^{(j)}$ is denoted as $\left|\cV_j\right|$.
 
-A first-order DG-FEM scheme is adopted for each component, with the coupling between the components enforced via interior point penalty methods~\hl{x} as discussed in Sec.~\ref{sec_fom}. The RPM results in a block-diagonal system of ODEs for the nodal temperature values on the three components, and is given as,
-\begin{equation}
-    \vA\left(\vu\right)\dot{\vu} + \left(\vB - \vC(t)\right)\vu = \mathbf{f}(t)\label{eqn_rpm}
-\end{equation}
-where the block matrices are defined as,
-\begin{equation}
-    \vA_{ij} = \left\{\begin{matrix}
-        \vA^{i}(\vu^{(i)}),\quad i=j\\
-        0,\quad i\neq j
-    \end{matrix}\right.,\quad \vB_{ij} = \left\{\begin{matrix}
-        \vB^{(i)}(\vu^{(i)}),\quad i=j\\
-        0,\quad i\neq j
-    \end{matrix}\right.,\quad \vC_{ij}(t) = \left\{\begin{matrix}
-        \vC^{(i)}(t),\quad i=j\\
-        0,\quad i\neq j
-    \end{matrix}\right.
-\end{equation}
-The details involving the RPM derivation are provided in Appendix.
+
 
 The ablation on the $i$-th component is modeled using a one-dimensional approximation to the temperature and mesh-motion equations in \cref{eqn_governing_equations}, and are given by,
 \begin{subequations}
