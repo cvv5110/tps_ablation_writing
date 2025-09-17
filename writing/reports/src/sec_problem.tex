@@ -56,7 +56,7 @@ The boundary conditions for the energy equation includes a heated surface (\cref
 
 \subsection{Full-Order Model: Finite-Element Method}\label{sec_fom}
 
-To obtain the full-order numerical solution, the governing equation is spatially discretized using variational principle of Discontinuous Galerkin (DG) to result in a high-dimensional system of ODEs for the time-varying nodal data. The full-order TPS ablation simulations are computed using standard FEM instead, and the equivalence between DG and standard FEM is noted upon their convergence.
+To obtain the full-order numerical solution, the governing equation is spatially discretized using the variational principle from Discontinuous Galerking (DG) to result in a high-dimensional system of ODEs for the time-varying nodal data. The full-order TPS ablation simulations are computed using standard FEM instead, and the equivalence between DG and standard FEM is noted upon their convergence.
 
 Consider a conforming mesh partition domain, where each element belongs to one and only one component. Denote the collection of all $M$ elements as $\left\{E_i\right\}_{i=1}^{M}$. In an element $E_i$, its shared boundaries with another element $E_j$, Neumann BC, and Dirichlet BC are denoted as $e_{ij}$, $e_{iq}$, and $e_{iT}$, respectively. Lastly, $\left|e\right|$ denotes the length $(n_d=2)$ or area $(n_d=3)$ of a component boundary $e$.
 
@@ -64,7 +64,7 @@ For the $i$-th element, use a set of $n^{(i)}$ trial functions, such as polynomi
 \begin{equation}
     T^{(i)}(x,t) = \sum_{i=1}^{n^{(i)}} \phi_i^{(i)}(x)u_i^{(i)} \equiv \boldsymbol{\phi}^{(i)}(x)^T\vu^{(i)}(t)
 \end{equation}
-Without loss of generality, the trial functions are assumed to be orthogonal, so that $\int_{E^{(i)}} \phii_k(x) \phii_l(x) dx = \left|\Ei\right|\delta_{kl}$, where $\left|\Ei\right|$ is the area $(n_d=2)$ or volume $(n_d=3)$ of the $i$-th element, and $\delta_{kl}$ is the Kronecker delta. Furthermore, for simplicity, choose $\phii_1(x) = 1$; by orthogonality $\int_{E^{(i)}} \phii_l(x) dx = 0$ for $l \neq 1$. Under this choice of basis, $u_1^{(i)}$ represents the average temperature in the $i$-th element.
+Without loss of generality, the trial functions are assumed to be orthogonal, so that $\int_{E^{(i)}} \phii_k(x) \phii_l(x) dx = \left|\Ei\right|\delta_{kl}$, where $\left|\Ei\right|$ is the area $(n_d=2)$ or volume $(n_d=3)$ of the $i$-th element, and $\delta_{kl}$ is the Kronecker delta. 
 
 By standard variational processes, e.g., \hl{Cohen2018}, the full governing equation is denoted as,
 \begin{equation}

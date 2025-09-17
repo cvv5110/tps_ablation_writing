@@ -4,6 +4,19 @@
 
 \subsection{Full-Order Model}
 
+Choosing appropriate basis functions $v$ and $w$ and using the Interior Penalty Galerkin (IPG) scheme ~\cite{Cohen and pernet 2018}, the variational bilinear form for \cref{eqn_thermal_pde} is,
+\begin{equation}
+    \sum_{i=1}^{M}\left(a^{1}_{\epsilon,i}(v,w) + a^{2}_{\epsilon,i}(v,w)\right) = \sum_{i=1}^{m}L_i(v)
+\end{equation}
+where $\epsilon$ is an user-specified parameter and,
+\begin{subequations}
+    \begin{align}
+        a^{1}_{\epsilon,i}(v,w) &=\\
+        a^{2}_{\epsilon,i}(v,w) &=\\
+        L_i(v) &=
+    \end{align}
+\end{subequations}
+
 \subsection{Reduced-Physics Model}
 
 This section outlines the FEM implementation for the $N=3$ one-dimensional interconnected components used in Sec.~\hl{x}. Consider over the $i$-th element in Fig.~\hl{x} the linear basis,
