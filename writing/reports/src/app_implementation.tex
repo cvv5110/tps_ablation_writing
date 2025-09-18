@@ -1,31 +1,53 @@
 \appendix
 
-\section{Numerical Implementation}\label{app_implementation}
+\section{Mathematical Details}\label{app_implementation}
 
 \subsection{Full-Order Model}
 
-Choosing appropriate basis functions $v$ and $w$ and using the Interior Penalty Galerkin (IPG) scheme ~\cite{Cohen and pernet 2018}, the variational bilinear form for \cref{eqn_thermal_pde} is,
+\subsubsection{Domain Discretization}
+
+\subsubsection{Weak Form of Discontinuous Galerkin Method}
+
+Choosing appropriate basis functions $\phi_k$ and $\phi_l$ and using the Interior Penalty Galerkin (IPG) scheme ~\cite{Cohen and pernet 2018}, the variational bilinear form for \cref{eqn_thermal_pde} is,
 \begin{equation}
-    \sum_{i=1}^{M}\left(a^{1}_{\epsilon,i}(v,w) + a^{2}_{\epsilon,i}(v,w)\right) = \sum_{i=1}^{m}L_i(v)
+    \sum_{i=1}^{M}\left(a^{1}_{\epsilon,i}(\phi_k,\phi_l) + a^{2}_{\epsilon,i}(\phi_k,\phi_l)\right) = \sum_{i=1}^{m}L_i(\phi_k)
 \end{equation}
 where $\epsilon$ is an user-specified parameter and,
 \begin{subequations}
     \begin{align}
-        a^{1}_{\epsilon,i}(v,w) &=\\
-        a^{2}_{\epsilon,i}(v,w) &=\\
-        L_i(v) &=
+        a^{1}_{\epsilon,i}(\phi_k,\phi_l) &= \int_{E^{(i)}}\left(\rho c_p \phik \frac{\partial \phil}{\partial t} + \nabla \phik\cdot\left(\mathbf{k}\nabla \phil\right) - \rho c_p \phik v\cdot\nabla\phil\right)dE^{(i)}\\
+        a^{2}_{\epsilon,i}(\phik,\phil) &= -\sum_{j\in\cN_i\cup\dirichletset}\int_{\eij}\average{\bk\nabla\phik\cdot n}\jump{\phil}d\eij + \epsilon\sum_{j\in\cN_i\cup\dirichletset}\int_{\eij}\average{\bk\nabla\phil\cdot n}\jump{\phik}d\eij \notag\\
+        &+ \sigma\sumneighbordirichlet\int_{\eij}\jump{\phik}\jump{\phil}d\eij\\
+        L_i(v) &= \epsilon\sumneighbordirichlet\int_{\eij}\left(\bk\nabla\phil\cdot n\right)T_b d\eij + \int_{\eiq}\phik q_b d\eiq + \sigma\int_{\eiT}\phik T_b d\eiT
     \end{align}
 \end{subequations}
-
-\subsection{Reduced-Physics Model}
-
-This section outlines the FEM implementation for the $N=3$ one-dimensional interconnected components used in Sec.~\hl{x}. Consider over the $i$-th element in Fig.~\hl{x} the linear basis,
+In the bi-linear form above, the notations $\jump{}$ and $\average{}$ are respectively the jumps and averages at the boundary $\eij$ share by two elements $E_i$ and $E_j$,
 \[
-    \phi^{(i)}_1(x) = 1,\quad \phi^{(i)}_2(x) = \frac{2}{h^{(i)}}\left(x - x_c^{(i)}\right),\quad x\in\Omega^{(i)} = \left[x_0^{(i)},x_1^{(i)}\right]
+    \jump{u} = u\big|_{E_i} - u\big|_{E_j},\quad \average{u} = \frac{1}{2}\left(u\big|_{E_i} + u\big|_{E_j}\right), \quad \text{for } x\in\eij = E_i\cap E_j
 \]
-where $h^{(i)} = x_1^{(i)} - x_0^{(i)}$ and $x^{(i)}_c = (x^{(i)}_0 + x^{(i)}_1) / 2$. The 
+Furthermore, in the bi-linear form, the terms associated with $\sigma$ are introduced to enforce the Dirichlet boundary conditions; $\sigma$ is a penalty factor whose value can depend on the size of an element. Depending on the choice of $\epsilon$, the bi-linear form corresponds to symmetric IPG ($\epsilon=-1$), non-symmetric IPG ($\epsilon=1$), and incomplete IPG ($\epsilon=0$). All these schemes are consistent with the original PDE and have similar convergence rate with respect to mesh size. In the following derivations, the case $\epsilon=0$ is chosen for the sake of simplicity.
 
-The weak form of the 
+\subsubsection{Discontinuous Galerkin Model}
+
+Next, the DG-based model is written in an element-wise form. For the $i$-th element, use a set of $P$ trial functions to represent the temperature as in \cref{eqn_element_temperature}. Without loss of generality, the trial functions are assumed to be orthogonal, so that $\int_{E^{(i)}} \phii_k(x) \phii_l(x) dx = \left|\Ei\right|\delta_{kl}$
+
+
+Without loss of generality, the trial functions are assumed to be orthogonal, so that $\int_{E^{(i)}} \phii_k(x) \phii_l(x) dx = \left|\Ei\right|\delta_{kl}$, where $\left|\Ei\right|$ is the area $(n_d=2)$ or volume $(n_d=3)$ of the $i$-th element, and $\delta_{kl}$ is the Kronecker delta. 
+
+Using test functions same as trial functions, the dynamics $\vu^{(i)}$ is obtained by evaluating the element-wise bi-linear forms,
+\begin{equation}
+    a^{1}(\phik^{(i)},T^{(i)})
+\end{equation}
+
+\subsection{Derivation of the Reduced-Physics Model}
+
+This section outlines the derivation of the RPM. The 
+
+
+DG-FEM implementation for $M$ components. Consider 
+
+
+
 
 Multiply through by the weight function $\phi_j(x)$ and integrate over the domain $\Omega^{(i)}$,
 \begin{equation}
