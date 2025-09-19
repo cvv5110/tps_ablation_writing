@@ -4,19 +4,21 @@
 
 \subsection{Full-Order Model}
 
+To obtain the full-order numerical solution, the governing equation is spatially discretized using variational principles of Discontinuous Galerkin (DG) to result in a high-dimensional system of ordinary differential equations (ODEs). Furthermore, the DG model is written in an element-wise form, which is beneficial for subsequent derivations for the lower-order models. Note that the choice of DG approach here is mainly for theoretical convenience in the subsequent coarse-graining formulation. In the numerical results, the full-order TPS ablation simulations is computed using standard FEM instead, and the equivalence between DG and standard FEM is noted upon their convergence.
+
 \subsubsection{Domain Discretization}
 
 \subsubsection{Weak Form of Discontinuous Galerkin Method}
 
 Choosing appropriate basis functions $\phi_k$ and $\phi_l$ and using the Interior Penalty Galerkin (IPG) scheme ~\cite{Cohen and pernet 2018}, the variational bilinear form for \cref{eqn_thermal_pde} is,
 \begin{equation}
-    \sum_{i=1}^{M}\left(a^{1}_{\epsilon,i}(\phi_k,\phi_l) + a^{2}_{\epsilon,i}(\phi_k,\phi_l)\right) = \sum_{i=1}^{m}L_i(\phi_k)
+    \sum_{i=1}^{M}a_{\epsilon,i}(\phi_k,\phi_l) = \sum_{i=1}^{m}L_i(\phi_k)
 \end{equation}
 where $\epsilon$ is an user-specified parameter and,
 \begin{subequations}
     \begin{align}
-        a^{1}_{\epsilon,i}(\phi_k,\phi_l) &= \int_{E^{(i)}}\left(\rho c_p \phik \frac{\partial \phil}{\partial t} + \nabla \phik\cdot\left(\mathbf{k}\nabla \phil\right) - \rho c_p \phik v\cdot\nabla\phil\right)dE^{(i)}\\
-        a^{2}_{\epsilon,i}(\phik,\phil) &= -\sum_{j\in\cN_i\cup\dirichletset}\int_{\eij}\average{\bk\nabla\phik\cdot n}\jump{\phil}d\eij + \epsilon\sum_{j\in\cN_i\cup\dirichletset}\int_{\eij}\average{\bk\nabla\phil\cdot n}\jump{\phik}d\eij \notag\\
+        a_{\epsilon,i}(\phi_k,\phi_l) &= \int_{E^{(i)}}\left(\rho c_p \phik \frac{\partial \phil}{\partial t} + \nabla \phik\cdot\left(\mathbf{k}\nabla \phil\right) - \rho c_p \phik \vv\cdot\nabla\phil\right)dE^{(i)}\\
+        &= -\sum_{j\in\cN_i\cup\dirichletset}\int_{\eij}\average{\bk\nabla\phik\cdot n}\jump{\phil}d\eij + \epsilon\sum_{j\in\cN_i\cup\dirichletset}\int_{\eij}\average{\bk\nabla\phil\cdot n}\jump{\phik}d\eij \notag\\
         &+ \sigma\sumneighbordirichlet\int_{\eij}\jump{\phik}\jump{\phil}d\eij\\
         L_i(v) &= \epsilon\sumneighbordirichlet\int_{\eij}\left(\bk\nabla\phil\cdot n\right)T_b d\eij + \int_{\eiq}\phik q_b d\eiq + \sigma\int_{\eiT}\phik T_b d\eiT
     \end{align}
@@ -29,60 +31,55 @@ Furthermore, in the bi-linear form, the terms associated with $\sigma$ are intro
 
 \subsubsection{Discontinuous Galerkin Model}
 
-Next, the DG-based model is written in an element-wise form. For the $i$-th element, use a set of $P$ trial functions to represent the temperature as in \cref{eqn_element_temperature}. Without loss of generality, the trial functions are assumed to be orthogonal, so that $\int_{E^{(i)}} \phii_k(x) \phii_l(x) dx = \left|\Ei\right|\delta_{kl}$
-
-
-Without loss of generality, the trial functions are assumed to be orthogonal, so that $\int_{E^{(i)}} \phii_k(x) \phii_l(x) dx = \left|\Ei\right|\delta_{kl}$, where $\left|\Ei\right|$ is the area $(n_d=2)$ or volume $(n_d=3)$ of the $i$-th element, and $\delta_{kl}$ is the Kronecker delta. 
+Next, the DG-based model is written in an element-wise form. For the $i$-th element, use a set of $P$ trial functions to represent the temperature as in \cref{eqn_element_temperature}. Without loss of generality, the trial functions are assumed to be orthogonal, so that $\int_{E^{(i)}} \phii_k(x) \phii_l(x) dx = \left|\Ei\right|\delta_{kl}$, where $\left|\Ei\right|$ is the area $(n_d=2)$ or volume $(n_d=3)$ of the $i$-th element, and $\delta_{kl}$ is the Kronecker delta. 
 
 Using test functions same as trial functions, the dynamics $\vu^{(i)}$ is obtained by evaluating the element-wise bi-linear forms,
 \begin{equation}
-    a^{1}(\phik^{(i)},T^{(i)})
+    a_{\epsilon,i}(\phik^{(i)},T^{(i)}) = L_i(\phik^{(i)}),\quad k=1,2,\dots,P
 \end{equation}
-
-\subsection{Derivation of the Reduced-Physics Model}
-
-This section outlines the derivation of the RPM. The 
-
-
-DG-FEM implementation for $M$ components. Consider 
-
-
-
-
-Multiply through by the weight function $\phi_j(x)$ and integrate over the domain $\Omega^{(i)}$,
+The above procedure yields,
 \begin{equation}
-    \int_{\Omega^{(i)}}\left[\rho c_p\left(\frac{\partial T^{(i)}}{\partial t} - v^{(i)}(x,t)\frac{\partial T^{(i)}}{\partial x}\right) - \frac{\partial}{\partial x}\left(k\frac{\partial T^{(i)}}{\partial x}\right) - \cQ^{(i)}_{\text{net}}(x,t)\right]\phii_l(x)dx = 0
+    \vA^{(i)}\dot{\vu}^{(i)} = \left(\vB^{(i)} + \vC^{(i)}(t)\right)\vui + \sumneighbordirichlet\left(\vB^{(i)}_{ij}\vui + \vB^{(j)}_{ij}\vuj\right) + \vf^{(i)}(t)\label{eqn_element_wise_model}
 \end{equation}
-Using integration by parts the natural boundary conditions are obtained,
-\begin{align}
-    \int_{\Omega^{(i)}}\rho c_p\phii_l(x)\frac{\partial\Ti}{\partial t}dx = -\int_{\Omega^{(i)}}k\frac{\partial\Ti}{\partial x}\frac{\partial\phii_l(x)}{\partial x} dx &+ \int_{\Omega^{(i)}}\rho c_p v(x,t)\phii_l(x)\frac{\partial\Ti}{\partial x} dx \notag\\
-    & + k\frac{\partial\Ti}{\partial x}\phii_l(x)\Bigg|_{\partial\Omega} + \int_{\Omega^{(i)}}\phii_l(x)\cQnet^{(i)}(x,t)dx
-\end{align}
-Perform the finite-element approximation,
-\begin{equation}
-    T^{(i)}(x,t)\approx\sum_{k=1}^{n^{(i)}}\bar{u}^{(i)}_k(t)\phii_k(x)
-\end{equation}
-and define the matrix elements,
-\begin{align}
-    A^{(i)}_{kl} &= \int_{\Omega^{(i)}}\rho c_p\phii_k(x)\phii_l(x)dx\\
-    B^{(i)}_{kl} &= -\int_{\Omega^{(i)}}k\frac{\partial\phii_k(x)}{\partial x}\frac{\partial\phii_l(x)}{\partial x}dx\\
-    C^{(i)}_{kl}(t) &= \int_{\Omega^{(i)}}\rho c_p v^{(i)}(x,t)\phii_l(x)\frac{\partial\phii_k}{\partial x}dx\\
-    f^{(i)}_l(t) &= k\frac{\partial T}{\partial x}\phii_l(x)\Bigg|_{\partial\Omega} + \int_{\Omega^{(i)}}\phii_l(x)\cQnet^{(i)}(x,t)dx
-\end{align}
-The semi-discrete form of the energy equation for the nodal temperatures $\bar{\vu}\in\mathbb{\bar{u}}$, including the ALE-induced advection effects from mesh motion, is given as,
-\begin{equation}
-    \mathbf{A}\dot{\bar{\vu}} = \left(\mathbf{B} + \mathbf{C}(t)\right)\bar{\vu} + \barf(t)
-\end{equation}
-
-
-
-
-The thermodynamic interaction between the components is modeled via the net volumetric energy source from \cref{eqn_net_volumetric_energy}, which for the three-components in Fig.~\hl{x} are described by,
+where for $k,l=1,2,\dots,P$,
 \begin{subequations}
     \begin{align}
-        \cQ^{(1)}_{\text{net}}(x,t) &= -\cQ^{(1,2)}(x,t)\\
-        \cQ^{(2)}_{\text{net}}(x,t) &= \cQ^{(1,2)}(x,t) - \cQ^{(2,3)}(x,t)\\
-        \cQ^{(3)}_{\text{net}}(x,t) &= \cQ^{(2,3)}(x,t)
+        \left[\vA^{(i)}\right]_{kl} &= \intEi\rho c_p\phik^{(i)}\phil^{(i)}d\Ei\\
+        \left[\vB^{(i)}\right]_{kl} &= \intEi\left(\nabla\phik^{(i)}\right)\cdot\left(\vk\nabla\phil^{(i)}\right)d\Ei\\
+        \left[\vC^{(i)}\right]_{kl} &= \intEi\rho c_p \phik^{(i)}\vv\cdot\nabla\phil^{(i)}d\Ei\\
+        \left[\vBi_{ij}\right] &= \int_{\eij}-\average{\vk\nabla\phik^{(i)}\cdot\hat{n}}\phil^{(i)} + \sigma\jump{\phik^{(i)}}\phil^{(i)}d\eij\\
+        \left[\vBj_{ij}\right] &= \int_{\eij}\average{\vk\nabla\phik^{(i)}\cdot\hat{n}}\phil^{(j)} - \sigma\jump{\phik^{(i)}}\phil^{(j)}d\eij\\
+        \left[\vf^{(i)}\right]_k &= \int_{\eiq}\phik^{(i)}q_bd\eiq + \sigma\int_{\eiT}\phik^{(i)}d\eiT
+    \end{align}
+\end{subequations}
+Note that the matrices $\vA^{(i)}$, $\vC^{(i)}$, and $\vB_{ij}$ depend on $\rho$, $c_p$, and $\vk$, respectively, and hence can be a non-linear function of $\vu$. Since the trial functions are orthogonal, if $\rho c_p$ is constant within an element, $\vAi$ is diagonal; otherwise, $\vA_i$ is symmetric and positive definite as $\rho c_p > 0$.
+
+For compactness, the element-wise model in \cref{eqn_element_wise_model} is also written in matrix form,
+\begin{equation}
+    \vA(\dot{\vu}) = \left(\vB(\vu) + \vC(t,\vu)\right)\vu + \mathbf{f}(t)\label{eqn_complete_model}
+\end{equation}
+where $\vu = \left[\vu^{(1)},\vu^{(2)},\cdots,\vu^{(M)}\right]^T\in\mathbb{R}^{MP}$ includes all DG variables, $\vf=\left[\vf^{(1)},\vf^{(2)},\dots,\vf^{(M)}\right]^T\in\mathbb{R}^{MP}$, $\vA$ and $\vC$ are matrices of $M$ diagonal blocks whose $i$-th blocks are $\vAi$ and $\vCi$, and $\vB$ is a matrix of $M\times M$ blocks whose $(i,j)$-th block is,
+\begin{equation}
+    \vB_{ij} = \begin{cases}
+            \vBi + \sumneighbordirichlet\vBi_{ij}, & i=j\\
+            \vBj_{ij}, & i\neq j
+        \end{cases}
+\end{equation}
+The dependency of $\vA$, $\vB$, and $\vC$ on $\vu$ is explicitly noted in \cref{eqn_complete_model}, which is the source of non-linearity in the current TPS problem. Moreover, the mesh velocity $\vv$ varies with space and time, and thus the advection matrix $\vC$ varies with time as a function of $q_b$.
+
+\subsection{Reduced-Physics Model: Lumped Capacitance Model}
+
+The lumped capacitance model (LCM) is a classical physics-based low-order model for predicting the temporal variation of average temeprature in multi connected components \hl{Incropera}. The LCM is usually derived at the component level from a point of view of energy conservation. The following assumptions are employed: (1) in component $(i)$ all variations of temperature with respect to space are ignored, and the temperature is described by a single uniform temperature $\bar{u}^{(i)}$; (2) between neighboring components $(i)$ and $(j)$ the heat flux is,
+\begin{equation}
+    q_{ij} = \frac{\baruj - \barui}{R_{ij}}
+\end{equation}
+where $R_{ij}$ is the thermal resistance. Empirically, for a component of istrisotropic heat conductivity $k$, length $\ell$, and cross-section area $A$, the thermal resistance is $R=\ell/kA$. Between components $i$ and $j$, define $R_{ij}=R_{i} + R_{j}$. In addition, the heat flux due to Dirichlet boundary condition is computed as $q_{iT} = (T_b - \barui)/R_{i}$.
+
+At component $i$, the dynamics of LCM are given by,
+\begin{subequations}
+    \begin{align}
+        \int_{\Ei}\rho c_p \dot{\bar{u}}^{(i)} d\Ei &= \left(\sumneighbori\int_{\eij}\frac{\baruj - \barui}{R_{ij}}d\eij\right) + \int_{\eiq} q_b d\eiq + \int_{\eiT}\frac{T_b - \barui}{R_i}d\eiT\\
+        \bar{A}^{(i)}\dot{\bar{u}}^{(i)} &= \left(\sumneighbori\frac{|\eij|}{R_{ij}}\left(\baruj - \barui\right)\right) + |\eiq|\bar{q}^{(i)} + \frac{|\eiT|}{R_i}\left(\bar{T}^{(i)}\right)
     \end{align}
 \end{subequations}
 

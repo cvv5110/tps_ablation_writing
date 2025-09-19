@@ -72,9 +72,9 @@ By standard variational processes, e.g., \hl{Cohen2018}, the full governing equa
 \end{equation}
 where $\vu = \left(\vu^{(1)}, \vu^{(2)}, \ldots, \vu^{(M)}\right)^T\in\mathbb{R}^{MP}$ includes all the DG variables, $\mathbf{f}\in\mathbb{R}^{MP}$ is the external forcing, and the system matrices $\vA$, $\vB$, and $\vC$ are due to heat capacity, heat conduction, and temperature advection, respectively. The detailed formulation of the DG model is provided in Appendix~\hl{DG-FEM}.
 
-\subsection{Reduced-Physics Model: Extended Lumped-Capacitance Model}
+\subsection{Reduced-Physics Model: Lumped-Capacitance Model}
 
-This section presents the main results regarding the derivation of the ELCM for ablating materials, and the main details are provided in Appendix~\hl{x}. The RPM is based on an model-order adaptation to the temperature over each element, incorporating spatial information of the temperature on the original LCM, which enables computation of the surface temperature. With the surface temperature, the recession rate is predicted.
+This section presents the main results regarding the derivation of the LCM for ablating materials, and the main details are provided in Appendix~\hl{x}. The RPM is based on a coarse-grained temperature approximation in each component, neglecting higher-order spatial information that is critical to predict surface temperatures and thus the rate of surface recession. 
 
 \subsubsection{Finite-Element Method and Component Interactions}
 
