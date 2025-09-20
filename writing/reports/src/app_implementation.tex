@@ -67,20 +67,7 @@ where $\vu = \left[\vu^{(1)},\vu^{(2)},\cdots,\vu^{(M)}\right]^T\in\mathbb{R}^{M
 \end{equation}
 The dependency of $\vA$, $\vB$, and $\vC$ on $\vu$ is explicitly noted in \cref{eqn_complete_model}, which is the source of non-linearity in the current TPS problem. Moreover, the mesh velocity $\vv$ varies with space and time, and thus the advection matrix $\vC$ varies with time as a function of $q_b$.
 
-\subsection{Reduced-Physics Model: Lumped Capacitance Model}
 
-The lumped capacitance model (LCM) is a classical physics-based low-order model for predicting the temporal variation of average temeprature in multi connected components \hl{Incropera}. The LCM is usually derived at the component level from a point of view of energy conservation. The following assumptions are employed: (1) in component $(i)$ all variations of temperature with respect to space are ignored, and the temperature is described by a single uniform temperature $\bar{u}^{(i)}$; (2) between neighboring components $(i)$ and $(j)$ the heat flux is,
-\begin{equation}
-    q_{ij} = \frac{\baruj - \barui}{R_{ij}}
-\end{equation}
-where $R_{ij}$ is the thermal resistance. Empirically, for a component of istrisotropic heat conductivity $k$, length $\ell$, and cross-section area $A$, the thermal resistance is $R=\ell/kA$. Between components $i$ and $j$, define $R_{ij}=R_{i} + R_{j}$. In addition, the heat flux due to Dirichlet boundary condition is computed as $q_{iT} = (T_b - \barui)/R_{i}$.
 
-At component $i$, the dynamics of LCM are given by,
-\begin{subequations}
-    \begin{align}
-        \int_{\Ei}\rho c_p \dot{\bar{u}}^{(i)} d\Ei &= \left(\sumneighbori\int_{\eij}\frac{\baruj - \barui}{R_{ij}}d\eij\right) + \int_{\eiq} q_b d\eiq + \int_{\eiT}\frac{T_b - \barui}{R_i}d\eiT\\
-        \bar{A}^{(i)}\dot{\bar{u}}^{(i)} &= \left(\sumneighbori\frac{|\eij|}{R_{ij}}\left(\baruj - \barui\right)\right) + |\eiq|\bar{q}^{(i)} + \frac{|\eiT|}{R_i}\left(\bar{T}^{(i)}\right)
-    \end{align}
-\end{subequations}
 
 

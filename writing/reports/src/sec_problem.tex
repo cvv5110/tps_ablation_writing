@@ -32,7 +32,7 @@ while the mesh motion is described by the pseudo-elasticity equation,
     \end{align}
 \end{subequations}
 
-The density $\rho$, heat capacity $c_p$, and thermal conductivity $\mathbf{k}\in\mathbb{R}^{n_d\times n_d}$ are assumed to be constant with respect to temperature in this work. The terms in \cref{eqn_thermal_pde}, in the order they appear, correspond to the unsteady energy storage, heat conduction, temperature advection due to mesh motion, and the heat source terms. 
+The density $\rho$, heat capacity $c_p$, and thermal conductivity $\mathbf{k}\in\mathbb{R}^{n_d\times n_d}$ are assumed to be constant with respect to temperature in this work. In the order they appear, the terms in \cref{eqn_thermal_pde} include, the unsteady energy storage, heat conduction, temperature advection due to mesh motion, and source terms due to boundary conditions.
 
 The elasticity equation \cref{eqn_elasticity_pde} states that the divergence of the stress tensor $\boldsymbol{\sigma}(\mathbf{w})$ is zero. The stress tensor is related to the strain tensor $\bepsilon(\bw)$ through Hooke's law,
 \[
@@ -53,10 +53,7 @@ The boundary conditions for the energy equation includes a heated surface (\cref
     \bw_q(x,t) = \int_{0}^{t} \mathbf{v}(x,\tau)d\tau = \int_{0}^{t}\mathbf{f}\left(T_q(x,\tau)\right)d\tau\label{eqn_boundary_displacement}
 \end{equation}
 
-
 \subsection{Full-Order Model: Finite-Element Method}\label{sec_fom}
-
-To obtain the full-order numerical solution, the governing equation is spatially discretized using the variational principle from Discontinuous Galerking (DG) to result in a high-dimensional system of ODEs for the time-varying nodal data. The full-order TPS ablation simulations are computed using standard FEM instead, and the equivalence between DG and standard FEM is noted upon their convergence.
 
 Consider a conforming mesh partition domain, where each element belongs to one and only one component. Denote the collection of all $M$ elements as $\left\{E_i\right\}_{i=1}^{M}$. In an element $E_i$, its shared boundaries with another element $E_j$, Neumann BC, and Dirichlet BC are denoted as $e_{ij}$, $e_{iq}$, and $e_{iT}$, respectively. Lastly, $\left|e\right|$ denotes the length $(n_d=2)$ or area $(n_d=3)$ of a component boundary $e$.
 
@@ -64,21 +61,29 @@ For the $i$-th element, use a set of $n^{(i)}$ trial functions, such as polynomi
 \begin{equation}
     T^{(i)}(x,t) = \sum_{i=1}^{n^{(i)}} \phi_i^{(i)}(x)u_i^{(i)} \equiv \boldsymbol{\phi}^{(i)}(x)^T\vu^{(i)}(t)\label{eqn_element_temperature}
 \end{equation}
-
-
 By standard variational processes, e.g., \hl{Cohen2018}, the full governing equation is denoted as,
 \begin{equation}
-    \vA(\vu)\dot{\vu} = \left(\vB(\vu) + \vC(t)\right)\vu + \mathbf{f}(t)\label{eqn_energy_fem}
+    \vA(\vu)\dot{\vu} = \left(\vB(\vu) + \vC(t,\vu)\right)\vu + \mathbf{f}(t)\label{eqn_energy_fem}
 \end{equation}
-where $\vu = \left(\vu^{(1)}, \vu^{(2)}, \ldots, \vu^{(M)}\right)^T\in\mathbb{R}^{MP}$ includes all the DG variables, $\mathbf{f}\in\mathbb{R}^{MP}$ is the external forcing, and the system matrices $\vA$, $\vB$, and $\vC$ are due to heat capacity, heat conduction, and temperature advection, respectively. The detailed formulation of the DG model is provided in Appendix~\hl{DG-FEM}.
+where $\vu = \left[\vu^{(1)}, \vu^{(2)}, \ldots, \vu^{(M)}\right]^T\in\mathbb{R}^{MP}$ includes all the DG variables, $\mathbf{f}\in\mathbb{R}^{MP}$ is the external forcing, and the system matrices $\vA$, $\vB$, and $\vC$ are the matrices due to heat capacity, heat conduction, and temperature advection due to mesh motion, respectively. A detailed derivation of \cref{eqn_energy_fem} is provided in Appendix~\hl{DG-FEM}.
 
 \subsection{Reduced-Physics Model: Lumped-Capacitance Model}
 
-This section presents the main results regarding the derivation of the LCM for ablating materials, and the main details are provided in Appendix~\hl{x}. The RPM is based on a coarse-grained temperature approximation in each component, neglecting higher-order spatial information that is critical to predict surface temperatures and thus the rate of surface recession. 
+The lumped capacitance model (LCM) is a classical physics-based low-order model for predicting the temporal variation of average temeprature in multi connected components \hl{Incropera}. The LCM is usually derived at the component level from a point of view of energy conservation. The following assumptions are employed: (1) in component $(i)$ all variations of temperature with respect to space are ignored, and the temperature is described by a single uniform temperature $\bar{u}^{(i)}$; (2) between neighboring components $(i)$ and $(j)$ the heat flux is,
+\begin{equation}
+    q_{ij} = \frac{\baruj - \barui}{R_{ij}}
+\end{equation}
+where $R_{ij}$ is the thermal resistance. Empirically, for a component of istrisotropic heat conductivity $k$, length $\ell$, and cross-section area $A$, the thermal resistance is $R=\ell/kA$. Between components $i$ and $j$, define $R_{ij}=R_{i} + R_{j}$. In addition, the heat flux due to Dirichlet boundary condition is computed as $q_{iT} = (T_b - \barui)/R_{i}$.
 
-\subsubsection{Finite-Element Method and Component Interactions}
+At component $i$, the dynamics of LCM are given by,
+\begin{subequations}
+    \begin{align}
+        \int_{\Ei}\rho c_p \dot{\bar{u}}^{(i)} d\Ei &= \left(\sumneighbori\int_{\eij}\frac{\baruj - \barui}{R_{ij}}d\eij\right) + \int_{\eiq} q_b d\eiq + \int_{\eiT}\frac{T_b - \barui}{R_i}d\eiT\\
+        \bar{A}^{(i)}\dot{\bar{u}}^{(i)} &= \left(\sumneighbori\frac{|\eij|}{R_{ij}}\left(\baruj - \barui\right)\right) + |\eiq|\bar{q}^{(i)} + \frac{|\eiT|}{R_i}\left(\bar{T}^{(i)}\right)
+    \end{align}
+\end{subequations}
 
-The arbitrary domain in Fig.~\ref{fig_general_domain} is partitioned into $N$ components $\left\{\Omega^{(i)}\right\}_{i=1}^{N}$, each with $\left\{E^{(i)}_j\right\}_{j=1}^{n^{(i)}}$ finite elements, establishing the resolution for the temperature and mesh displacement fields over each component. Figure~\hl{x} shows a partition of the TPS into $N=M=3$, where the top and bottom are subject to Neumann and adiabatic boundary conditions, respectively. 
+\hl{note that there is no advection matrix since the temperature approximation requires space derivatives}
 
 \begin{figure}
     \centering
@@ -86,39 +91,6 @@ The arbitrary domain in Fig.~\ref{fig_general_domain} is partitioned into $N$ co
     \caption{Partition of the TPS into three one-dimensional components.}
     \label{fig_domain_partition}
 \end{figure}
-
-A first-order FEM scheme is adopted for each component, which results in a block-diagonal system of ODEs for the nodal temperature values of the components,
-\begin{equation}
-    \vA\left(\bvu\right)\dot{\bvu} = \left(\vB + \vC(t)\right)\bvu + \vf\left(\bvu,t\right)\label{eqn_rpm}
-\end{equation}
-where the block matrices are defined as,
-\begin{subequations}
-\begin{align}
-\begin{aligned}
-    \vA_{ij} &= \begin{cases}
-        \vA^{(i)}(\bvu^{(i)}), & i=j \\
-        0, & i\neq j
-    \end{cases}\\
-    \vB_{ij} &= \begin{cases}
-        \vB^{(i)}(\bvu^{(i)}), & i=j \\
-        0, & i\neq j
-    \end{cases}
-\end{aligned}
-&\qquad
-\begin{aligned}
-    \vC_{ij}(t) &= \begin{cases}
-        \vC^{(i)}(t), & i=j \\
-        0, & i\neq j
-    \end{cases}\\
-    \mathbf{f}_i(\bvu,t) &= \begin{cases}
-        \mathbf{f}^{(i)}_{\text{BC}}(t)+\mathbf{f}^{(i)}_{\cQ}(\bvu,t), & i=j \\
-        \boldsymbol{0}, & i\neq j
-    \end{cases}
-\end{aligned}\label{eqn_rpm_matrices}
-\end{align}
-\end{subequations}
-where $\vfBC$ and $\vfQ$ are the boundary and component-level energy sources. 
-
 
 \subsubsection{Coarse Graining}
 
