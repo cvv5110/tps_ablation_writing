@@ -8,6 +8,8 @@ To obtain the full-order numerical solution, the governing equation is spatially
 
 \subsubsection{Domain Discretization}
 
+Consider a conforming mesh partition of the domain, as shown in Fig.\hl{DOMAIN}, where each element belongs to one and only one component. Denote the collection of all $M$ elements as $\left\{E_i\right\}_{i=1}^{M}$. To ease the description of the DG model, a graph structure is employed. The elements are treated as vertices, the set of which is denoted $\cV=\left\{m\right\}_{m=1}^{M}$. Two neighboring elements, $E_i$ and $E_j$, are connected by an edge $(i,j)$, and the shared boundary between them is denoted $\eij$. The collection of all edges are denoted $\cE$, and $\cG$ is referred to as a graph. In the graph, the edges are unidirected, meaning if $(i,j)\in\cE$ then $(j,i)\in\cE$. Furthermore, denote the neighbors of the $i$-th element as $\cN_i=\left\{j | (i,j) \in\cE\right\}$. Lastly, for the ease of notation, introduce two special indices: $T$ for the boundary of an element that overlaps with the Dirichlet boundary condition, and similarly $q$ for the Neumann boundary condition.
+
 \subsubsection{Weak Form of Discontinuous Galerkin Method}
 
 Choosing appropriate basis functions $\phi_k$ and $\phi_l$ and using the Interior Penalty Galerkin (IPG) scheme ~\cite{Cohen and pernet 2018}, the variational bilinear form for \cref{eqn_thermal_pde} is,
@@ -45,10 +47,10 @@ where for $k,l=1,2,\dots,P$,
 \begin{subequations}
     \begin{align}
         \left[\vA^{(i)}\right]_{kl} &= \intEi\rho c_p\phik^{(i)}\phil^{(i)}d\Ei\\
-        \left[\vB^{(i)}\right]_{kl} &= \intEi\left(\nabla\phik^{(i)}\right)\cdot\left(\vk\nabla\phil^{(i)}\right)d\Ei\\
-        \left[\vC^{(i)}\right]_{kl} &= \intEi\rho c_p \phik^{(i)}\vv\cdot\nabla\phil^{(i)}d\Ei\\
-        \left[\vBi_{ij}\right] &= \int_{\eij}-\average{\vk\nabla\phik^{(i)}\cdot\hat{n}}\phil^{(i)} + \sigma\jump{\phik^{(i)}}\phil^{(i)}d\eij\\
-        \left[\vBj_{ij}\right] &= \int_{\eij}\average{\vk\nabla\phik^{(i)}\cdot\hat{n}}\phil^{(j)} - \sigma\jump{\phik^{(i)}}\phil^{(j)}d\eij\\
+        \left[\vB^{(i)}\right]_{kl} &= -\intEi\left(\nabla\phik^{(i)}\right)\cdot\left(\vk\nabla\phil^{(i)}\right)d\Ei\\
+        \left[\vC^{(i)}\right]_{kl} &= \intEi\rho c_p \phik^{(i)}\vv^{(i)}\cdot\nabla\phil^{(i)}d\Ei\\
+        \left[\vBi_{ij}\right] &= \int_{\eij}\average{\vk\nabla\phik^{(i)}\cdot\hat{n}}\phil^{(i)} - \sigma\jump{\phik^{(i)}}\phil^{(i)}d\eij\\
+        \left[\vBj_{ij}\right] &= \int_{\eij}-\average{\vk\nabla\phik^{(i)}\cdot\hat{n}}\phil^{(j)} + \sigma\jump{\phik^{(i)}}\phil^{(j)}d\eij\\
         \left[\vf^{(i)}\right]_k &= \int_{\eiq}\phik^{(i)}q_bd\eiq + \sigma\int_{\eiT}\phik^{(i)}d\eiT
     \end{align}
 \end{subequations}
@@ -56,7 +58,7 @@ Note that the matrices $\vA^{(i)}$, $\vC^{(i)}$, and $\vB_{ij}$ depend on $\rho$
 
 For compactness, the element-wise model in \cref{eqn_element_wise_model} is also written in matrix form,
 \begin{equation}
-    \vA(\dot{\vu}) = \left(\vB(\vu) + \vC(t,\vu)\right)\vu + \mathbf{f}(t)\label{eqn_complete_model}
+    \vA(\dot{\vu}) = \left[\vB(\vu) + \vC(t,\vu)\right]\vu + \mathbf{f}(t)\label{eqn_complete_model}
 \end{equation}
 where $\vu = \left[\vu^{(1)},\vu^{(2)},\cdots,\vu^{(M)}\right]^T\in\mathbb{R}^{MP}$ includes all DG variables, $\vf=\left[\vf^{(1)},\vf^{(2)},\dots,\vf^{(M)}\right]^T\in\mathbb{R}^{MP}$, $\vA$ and $\vC$ are matrices of $M$ diagonal blocks whose $i$-th blocks are $\vAi$ and $\vCi$, and $\vB$ is a matrix of $M\times M$ blocks whose $(i,j)$-th block is,
 \begin{equation}
@@ -67,6 +69,28 @@ where $\vu = \left[\vu^{(1)},\vu^{(2)},\cdots,\vu^{(M)}\right]^T\in\mathbb{R}^{M
 \end{equation}
 The dependency of $\vA$, $\vB$, and $\vC$ on $\vu$ is explicitly noted in \cref{eqn_complete_model}, which is the source of non-linearity in the current TPS problem. Moreover, the mesh velocity $\vv$ varies with space and time, and thus the advection matrix $\vC$ varies with time as a function of $q_b$.
 
+
+\subsection{Reduced-Physics Model: Lumped Capacitance Model}
+
+The following assumptions are employed: (1) in component $(i)$ all variations of temperature with respect to space are ignored, and the temperature is described by a single uniform temperature $\bar{u}^{(i)}$; (2) between neighboring components $(i)$ and $(j)$ the heat flux is,
+\begin{equation}
+    q_{ij} = \frac{\baruj - \barui}{R_{ij}}
+\end{equation}
+where $R_{ij}$ is the thermal resistance. Empirically, for a component of istrisotropic heat conductivity $k$, length $\ell$, and cross-section area $A$, the thermal resistance is $R=\ell/kA$. Between components $i$ and $j$, define $R_{ij}=R_{i} + R_{j}$. In addition, the heat flux due to Dirichlet boundary condition is computed as $q_{iT} = (T_b - \barui)/R_{i}$.
+
+At component $i$, the dynamics of LCM are given by,
+\begin{subequations}
+    \begin{align}
+        \int_{\Ei}\rho c_p \dot{\bar{u}}^{(i)} d\Ei &= \left(\sumneighbori\int_{\eij}\frac{\baruj - \barui}{R_{ij}}d\eij\right) + \int_{\eiq} q_b d\eiq + \int_{\eiT}\frac{T_b - \barui}{R_i}d\eiT\label{eqn_lcm_1}\\
+        \bar{A}^{(i)}\dot{\bar{u}}^{(i)} &= \left(\sumneighbori\frac{|\eij|}{R_{ij}}\left(\baruj - \barui\right)\right) + |\eiq|\bar{q}^{(i)} + \frac{|\eiT|}{R_i}\left(\bar{T}^{(i)} - \barui\right) \label{eqn_lcm_2}\\ 
+        &= \sumneighbori\left(-\frac{|\eij|}{R_{ij}}\barui + \frac{|\eij|}{R_{ij}}\baruj\right) + \left(-\frac{|\eiT|}{R_{i}}\barui\right) + \left(|\eiq|\bar{q}^{(i)}\frac{|\eiT|}{R_i}\bar{T}^{(i)}\right)\label{eqn_lcm_3}\\
+        &= \sumneighbordirichlet\left(\bar{B}^{(i)}_{ij}\barui + \bar{B}^{(j)}_{ij}\baruj\right) + \bar{f}^{(i)}\label{eqn_lcm_4}
+    \end{align}
+\end{subequations}
+where in \cref{eqn_lcm_2} $|e|$ denotes the length $(d=2)$ or area $(d=3)$ of a component boundary $e$, and,
+\begin{equation}
+    \bar{A}^{(i)} = \int_{\Omega^{(i)}}\rho c_p d\Omega^{(i)},\quad \bar{q}^{(i)} = \frac{1}{|\eiq|}\int_{\eiq} q_b d\eiq,\quad \bar{T}^{(i)} = \frac{1}{|\eiT|}\int_{\eiT}T_b d\eiT
+\end{equation}
 
 
 

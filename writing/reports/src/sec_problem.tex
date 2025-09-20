@@ -57,89 +57,72 @@ The boundary conditions for the energy equation includes a heated surface (\cref
 
 Consider a conforming mesh partition domain, where each element belongs to one and only one component. Denote the collection of all $M$ elements as $\left\{E_i\right\}_{i=1}^{M}$. In an element $E_i$, its shared boundaries with another element $E_j$, Neumann BC, and Dirichlet BC are denoted as $e_{ij}$, $e_{iq}$, and $e_{iT}$, respectively. Lastly, $\left|e\right|$ denotes the length $(n_d=2)$ or area $(n_d=3)$ of a component boundary $e$.
 
-For the $i$-th element, use a set of $n^{(i)}$ trial functions, such as polynomials, to represent the temperature distribution,
+For the $i$-th element, use a set of $P$ trial functions, such as polynomials, to represent the temperature distribution,
 \begin{equation}
-    T^{(i)}(x,t) = \sum_{i=1}^{n^{(i)}} \phi_i^{(i)}(x)u_i^{(i)} \equiv \boldsymbol{\phi}^{(i)}(x)^T\vu^{(i)}(t)\label{eqn_element_temperature}
+    T^{(i)}(x,t) = \sum_{l=1}^{P} \phi_l^{(i)}(x)u_l^{(i)} \equiv \boldsymbol{\phi}^{(i)}(x)^T\vu^{(i)}(t),\quad i=1,2,\dots,M\label{eqn_element_temperature}
 \end{equation}
-By standard variational processes, e.g., \hl{Cohen2018}, the full governing equation is denoted as,
+By standard variational processes, e.g., \hl{Cohen2018}, the element-wise governing equation is denoted as,
 \begin{equation}
-    \vA(\vu)\dot{\vu} = \left(\vB(\vu) + \vC(t,\vu)\right)\vu + \mathbf{f}(t)\label{eqn_energy_fem}
+    \vA^{(i)}\dot{\vu}^{(i)} = \left(\vB^{(i)} + \vC^{(i)}(t)\right)\vui + \sumneighbordirichlet\left(\vB^{(i)}_{ij}\vui + \vB^{(j)}_{ij}\vuj\right) + \vf^{(i)}(t),\quad\text{for }i=1,2,\dots,M\label{eqn_element_dg}
 \end{equation}
-where $\vu = \left[\vu^{(1)}, \vu^{(2)}, \ldots, \vu^{(M)}\right]^T\in\mathbb{R}^{MP}$ includes all the DG variables, $\mathbf{f}\in\mathbb{R}^{MP}$ is the external forcing, and the system matrices $\vA$, $\vB$, and $\vC$ are the matrices due to heat capacity, heat conduction, and temperature advection due to mesh motion, respectively. A detailed derivation of \cref{eqn_energy_fem} is provided in Appendix~\hl{DG-FEM}.
-
-\subsection{Reduced-Physics Model: Lumped-Capacitance Model}
-
-The lumped capacitance model (LCM) is a classical physics-based low-order model for predicting the temporal variation of average temeprature in multi connected components \hl{Incropera}. The LCM is usually derived at the component level from a point of view of energy conservation. The following assumptions are employed: (1) in component $(i)$ all variations of temperature with respect to space are ignored, and the temperature is described by a single uniform temperature $\bar{u}^{(i)}$; (2) between neighboring components $(i)$ and $(j)$ the heat flux is,
+which is collected as the following ODE for the all the elements in the mesh,
 \begin{equation}
-    q_{ij} = \frac{\baruj - \barui}{R_{ij}}
+    \vA(\vu)\dot{\vu} = \left[\vB(\vu) + \vC(t,\vu)\right]\vu + \mathbf{f}(t)\label{eqn_full_dg}
 \end{equation}
-where $R_{ij}$ is the thermal resistance. Empirically, for a component of istrisotropic heat conductivity $k$, length $\ell$, and cross-section area $A$, the thermal resistance is $R=\ell/kA$. Between components $i$ and $j$, define $R_{ij}=R_{i} + R_{j}$. In addition, the heat flux due to Dirichlet boundary condition is computed as $q_{iT} = (T_b - \barui)/R_{i}$.
+where $\vu = \left[\vu^{(1)}, \vu^{(2)}, \ldots, \vu^{(M)}\right]^T\in\mathbb{R}^{MP}$ includes all the DG variables, $\mathbf{f}\in\mathbb{R}^{MP}$ is the external forcing, and the system matrices $\vA$, $\vB$, and $\vC$ are the matrices due to heat capacity, heat conduction, and temperature advection due to mesh motion, respectively. A detailed derivation of \cref{eqn_element_dg,eqn_full_dg} and their matrices is provided in Appendix~\hl{DG-FEM}.
 
-At component $i$, the dynamics of LCM are given by,
+\hl{need to discuss FOM for mesh displacement}
+
+\subsection{Reduced-Physics Model: Lumped-Capacitance Model With Pseudo-Elastic Motion}
+
+
+\subsubsection{Lumped Capacitance Model}
+The main results for the lumped capacitance model (LCM) derivation are provided in this section and the mathematical details are provided in Appendix \hl{A}. The LCM is a classical physics-based low-order model for predicting the temporal variation of average temperature in multiple connected components \hl{INCROPERA}. The LCM is derived at the component level from a point of view of energy conservation, and leads to the following system of ODEs for the average temperatures on the components,
+\begin{equation}
+    \bar{\vA}\dot{\bar{\vu}} = \bar{\vB}\left(\bar{\vu}\right)\bar{\vu} + \bar{\vf}(t)\label{eqn_lcm}
+\end{equation}
+where,
 \begin{subequations}
     \begin{align}
-        \int_{\Ei}\rho c_p \dot{\bar{u}}^{(i)} d\Ei &= \left(\sumneighbori\int_{\eij}\frac{\baruj - \barui}{R_{ij}}d\eij\right) + \int_{\eiq} q_b d\eiq + \int_{\eiT}\frac{T_b - \barui}{R_i}d\eiT\\
-        \bar{A}^{(i)}\dot{\bar{u}}^{(i)} &= \left(\sumneighbori\frac{|\eij|}{R_{ij}}\left(\baruj - \barui\right)\right) + |\eiq|\bar{q}^{(i)} + \frac{|\eiT|}{R_i}\left(\bar{T}^{(i)}\right)
+       \bar{\vu} &= \left[\bar{u}^{(1)},\bar{u}^{(2)},\dots,\bar{u}^{(N)}\right]^T\in\mathbb{R}^{N}\\
+        \bar{\vf} &= \left[\bar{f}^{(1)},\bar{f}^{(2)},\dots,\bar{f}^{(N)}\right]^T\in\mathbb{R}^{N}
     \end{align}
 \end{subequations}
-
-\hl{note that there is no advection matrix since the temperature approximation requires space derivatives}
+includes the average temperatures $\bar{\vu}$ and forcing inputs $\bar{\vf}$ for the $N$ components. For $i,j=1,2,\dots,N$ the $(i,j)$-th elements of the $\bar{\vA}\in\mathbb{R}^{N\times N}$ and $\bar{\vB}\in\mathbb{R}^{N\times N}$ matrices are given by,
+\begin{equation}
+    \bar{A}^{(i)} = \begin{cases}
+            \int_{\Omega^{(i)}}\rho c_p d\Omega^{(i)}, & i=j\\
+            0, & i\neq j
+        \end{cases},\quad \bar{B}_{ij} = \begin{cases}
+        \sumneighbordirichlet\bar{B}^{(i)}_{ij}, &i=j \\
+        \bar{B}^{(j)}_{ij}, & i\neq j
+    \end{cases}
+\end{equation}
 
 \begin{figure}
     \centering
     \includegraphics[width=0.8\textwidth]{./figs/three_components.png}
-    \caption{Partition of the TPS into three one-dimensional components.}
-    \label{fig_domain_partition}
+    \caption{Partition of the TPS into three layers.}
+    \label{fig_lcm_domain}
 \end{figure}
 
-\subsubsection{Coarse Graining}
+\subsubsection{Pseudo-Elastic Mesh Motion}
 
-Consider a DG model as in ~\cref{eqn_energy_fem} for $M$ components and $N$ elements; clearly $N\gg N$. Let $\cV_j=\left\{i | E^{(i)}\in\Omega^{(j)}\right\}$ be the indices of the elements belonging to the $j$-th component, so $E^{(i)}\in\Omega^{(j)}$ for $i\in\cV_j$; number of elements in $\Omega^{(j)}$ is denoted as $\left|\cV_j\right|$.
-
-
-
-The ablation on the $i$-th component is modeled using a one-dimensional approximation to the temperature and mesh-motion equations in \cref{eqn_governing_equations}, and are given by,
-\begin{subequations}
-    \begin{align}
-        \rho c_p\left(\frac{\partial T^{(i)}}{\partial t} - v^{(i)}(x,t)\frac{\partial T^{(i)}}{\partial x}\right) - \frac{\partial}{\partial x}\left(k\frac{\partial T^{(i)}}{\partial x}\right) - \cQ^{(i)}_{\text{net}}(x,t) &= 0\label{eqn_thermal_1d}\\
-        \frac{\partial}{\partial x}\left(\frac{\partial u^{(i)}}{\partial x}\right) &= 0\label{eqn_elasticity_1d}
-    \end{align}\label{eqn_rpm}
-\end{subequations}
-with boundary conditions for the energy equation,
-\begin{subequations}
-    \begin{align}
-        -k\frac{\partial T^{(i)}}{\partial x}\Bigg|_{x=0} &= q^{(i)}_b(t)\\
-        -k\frac{\partial T^{(i)}}{\partial x}\Bigg|_{x=\ell} &= 0
-    \end{align}
-\end{subequations}
-and for the elasticity equation,
-\begin{subequations}
-    \begin{align}
-        u^{(i)}(0,t) &= \int_{t_0}^{t}v^{(i)}(\tau)d\tau = \int_{0}^{t} f(T^{(i)}_w(\tau))d\tau\\
-        u^{(i)}(\ell,t) &= 0
-    \end{align}
-\end{subequations}
-where $v^{(i)}(t)$ is the surface receding velocity due to ablation, which is a function of the surface temperature as in \cref{eqn_boundary_displacement}. The surface velocity is computed from a cubic spline interpolate to a B' look-up table...
-
-
-
-\subsubsection{Thermal Solver}
-
-The FEM implementation details are supplied in Appendix~\hl{x}. For the $n$-th component, the result of the FEM discretization is a system of ODEs for the nodal temperatures, coupled to the neighboring component $n+1$ through the energy volumetric source term,
+The components in the LCM are assumed to displace parallel to the direction of the applied heating, i.e., the $y$ direction in Fig.~\ref{fig_lcm_domain}. Therefore, the elasticity equation in \cref{eqn_elasticity_pde} for the $i$-th component simplifies to,
 \begin{equation}
-    \mathbf{A}^{(i)}\frac{d\mathbf{T}^{(i)}}{dt} + \left(\mathbf{B}^{(i)} - \mathbf{C}^{(i)}(t)\right)\mathbf{T}^{(i)} = \mathbf{f}^{(i)}(t)
+    \frac{\partial^2 w^{(i)}}{\partial x^2} = 0
 \end{equation}
-where,
-\begin{itemize}
-    \item $\mathbf{A}^{(i)}\in\mathbb{R}^{M\times M}$ is the mass matrix,
-    \item $\mathbf{B}^{(i)}\in\mathbb{R}^{M\times M}$ is the stiffness matrix,
-    \item $\mathbf{C}^{(i)}(t)\in\mathbb{R}^{M\times M}$ is the advection matrix,,
-    \item $\mathbf{T}^{(i)}\in\mathbb{R}^{M}$ is the vector of nodal temperatures, and
-    \item $\mathbf{f}^{(i)}(t)\in\mathbb{R}^{M}$ is the input vector, which includes the Neumann boundary conditions and the net volumetric energy source term $\cQ^{(i)}_{\text{net}}$.
-\end{itemize}
-where $M$ is the number of nodes in the one-dimensional mesh for the $i$-th component.
+which has the analytical solution,
+\begin{equation}
+    w^{(i)}(y,t) = a(t)y + b(t)
+\end{equation}
+Imposing the boundary conditions leads to,
+\begin{equation}
+    w^{(i)}(x,t) = w^{(i)}(0,t)\left(\frac{y_1^{(i)} - y}{h^{(i)}}\right)
+\end{equation}
 
-\subsubsection{Pseudo-Elastic Solver}
+
+
 
 Note that \cref{eqn_elasticity_1d} is steady. Under the assumption that the mesh deformation is quasi-steady, it can be applied at each time step within an ablation simulation. For instance, a known value of the wall temperature $T_w(t)$ specifies a Dirichlet boundary condition for the displacement, and the resulting nodal displacements within the ablator are determined from \cref{eqn_elasticity_pde}.
 
@@ -159,6 +142,18 @@ The mesh velocity is the time derivative of the displacement,
 \begin{equation}
     v^{(i)}(x,t) = \frac{\partial u^{(i)}(x,t)}{\partial t} = v^{(i)}(t)\left(\frac{x_1^{(i)} - x}{h^{(i)}}\right)
 \end{equation}
+
+\subsection{Summary of Modeling Approaches}
+
+The FOM (i.e., DG-FEM) and RPM (i.e., LCM) are two different but mathematically connected solution startegies. Specifically, the LCM in \cref{eqn_lcm} not only resembles the functional form of the DG model in \cref{eqn_dg_fem}, but can be viewed as a special case of the latter, where the mesh partition is extremely coarse, and the trial and test functions are piece-wise constants. For example, consider the case where each component $\Omega^{(i)}$ is treated as one single element, and each element employs one constant basis function $\phi^{(i)}=1$. The element-wise DG model in \cref{eqn_element_dg} simplifies into a scalar ODE that ignores effects due to mesh motion,
+\begin{equation}
+    \vAi = \bar{A}^{(i)},\quad \vCi = 0, \quad\vBiij = -\sigma|\eij|,\quad \vBjij=\sigma|\eij|,\quad \vf^{(i)} = |\eiq|\bar{q}^{(i)} + \sigma|\eiT|\bar{T}^{(i)}
+\end{equation}
+Clearly, the LCM is a coarse zeroth-order DG model with the inverse of thermal resistance chosen as the element-wise penalty factors. Or conversely, the DG model is a refined version of LCM via \textit{hp}-adaptation.
+
+On one hand, the FOM is the most accurate but computationally expensive to evaluate due to the fine mesh discretizations to possibly millions of state variables. On the other hand, the RPM considers only the average temperature of the material as the state variable, considerably reducing the computational cost, but sacrificing the fidelity of the temperature predictiona and neglecting higher-order effects due to mesh motion. Thus, neigher the FOM nor the RPM is a universal approach for real-world analysis, design, and optimization tasks for ablating TPS, where thounds of high-fidelity model evaluations may be necessary. This issue motivates the development of the PIROM, which can achieve the fidelity of FOM at a computational cost close to the RPM, while maintaining the generalizability to model parameters.
+
+
 
 \subsubsection{Coupling Scheme}
 
