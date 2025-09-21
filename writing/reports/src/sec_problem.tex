@@ -1,10 +1,10 @@
 \section{Modeling of Ablating Thermal Protection Systems}
 
-This section presents the ablation problem for a non-decomposing TPS as a parametrized system of non-linear PDEs. These non-linear PDEs govern the energy of heat conduction and the pseudo-elastic material deformation of the mesh motion. Two different but mathematically-connected numerical solution strategies are provided: (1) a high-fidelity full-order model (FOM) based on a discontinuous Galerkin FEM, and (2) a thermo-elastic RPM based on a one-dimensional approximation to the energy and pseudo-elasticity equations.
+This section presents the ablation problem for a non-decomposing TPS as a parametrized system of non-linear PDEs. The ablation physics is described by the energy and pseudo-elasticity equations for heat conduction and mesh motion, respectively. Two different but mathematically-connected numerical solution strategies are provided: (1) a high-fidelity full-order model (FOM) based on a discontinuous Galerkin FEM, and (2) a thermo-elastic RPM based on a one-dimensional approximation to the energy and pseudo-elasticity equations.
 
 \subsection{Governing Equations}\label{sec_governing_equations}
 
-Consider a generic domain $\Omega\subset$, $d=2$ or $3$, illustrated in Fig.~\ref{fig_general_domain}. A heat flux $q_b(x,t)$ is prescribed on the boundary $\Gamma_q$ (i.e., Neumann boundary condition), and the temperature $T_b(x,t)$ is prescribed on boundary $\Gamma_T$ (i.e., Dirichlet boundary condition), where $\Gamma_q\cup\Gamma_T = \partial\Omega$ and $\Gamma_q\cap\Gamma_T = \emptyset$. The ablation occurs only on the heated boundary $\Gamma_q$, and its effects are included into the energy equation using an Arbitrary Lagrangian-Eulerian (ALE) description. The ALE assumes that the displacement $\vw(x,t)\in\mathbb{R}^d$ of the computational mesh moves with velocity $\vv(x,t)$ that is different to the material velocity, which is fixed to zero in this work.
+\paragraph*{Heat Conduction} Consider a generic domain $\Omega\subset$, $d=2$ or $3$, illustrated in Fig.~\ref{fig_general_domain}. A heat flux $q_b(x,t)$ is prescribed on the boundary $\Gamma_q$ (i.e., Neumann boundary condition), and the temperature $T_b(x,t)$ is prescribed on boundary $\Gamma_T$ (i.e., Dirichlet boundary condition), where $\Gamma_q\cup\Gamma_T = \partial\Omega$ and $\Gamma_q\cap\Gamma_T = \emptyset$. The ablation occurs only on the heated boundary $\Gamma_q$, and its effects are included into the energy equation using an Arbitrary Lagrangian-Eulerian (ALE) description. The ALE assumes that the mesh displacements $\vw(x,t)\in\mathbb{R}^d$ and velocities $\vv(x,t)\in\mathbb{R}^{d}$ evolve independently of the physical material's response~\hl{CITE}.
 
 \begin{figure}
     \centering
@@ -22,7 +22,9 @@ The transient heat conduction is described by the energy equation,
         T(x,0) &= T_0(x),\ x\in\Omega\label{eqn_thermal_ic}
     \end{align}\label{eqn_governing_equations}
 \end{subequations}
-while the mesh motion is described by the pseudo-elasticity equation,
+where the density $\rho$ is constant, while the heat capacity $c_p$ and thermal conductivity $\mathbf{k}\in\mathbb{R}^{d\times d}$, are temperature dependent. In the order they appear, the terms in \cref{eqn_thermal_pde} include, the unsteady energy storage, heat conduction, temperature advection due to mesh motion, and source terms due to boundary conditions.
+
+\paragraph*{Mesh Motion} The mesh motion is described by the pseudo-elasticity equation,
 \begin{subequations}
     \begin{align}
         \nabla\cdot\boldsymbol{\sigma}(\mathbf{w}) &= 0\label{eqn_elasticity_pde}\\
@@ -31,10 +33,7 @@ while the mesh motion is described by the pseudo-elasticity equation,
         \vw(x,0) &= \boldsymbol{0}\label{eqn_displacement_initial_condition}
     \end{align}
 \end{subequations}
-
-The density $\rho$, heat capacity $c_p$, and thermal conductivity $\mathbf{k}\in\mathbb{R}^{n_d\times n_d}$ are assumed to be constant with respect to temperature in this work. In the order they appear, the terms in \cref{eqn_thermal_pde} include, the unsteady energy storage, heat conduction, temperature advection due to mesh motion, and source terms due to boundary conditions.
-
-The elasticity equation \cref{eqn_elasticity_pde} states that the divergence of the stress tensor $\boldsymbol{\sigma}(\mathbf{w})$ is zero. The stress tensor is related to the strain tensor $\bepsilon(\bw)$ through Hooke's law,
+where the stress tensor $\boldsymbol{\sigma}$ is related to the strain tensor $\bepsilon(\bw)$ through Hooke's law,
 \[
     \boldsymbol{\sigma}(\bw) = \mathbb{D}:\boldsymbol{\epsilon}(\bw)
 \]
@@ -73,11 +72,13 @@ where $\vu = \left[\vu^{(1)}, \vu^{(2)}, \ldots, \vu^{(M)}\right]^T\in\mathbb{R}
 
 \hl{need to discuss FOM for mesh displacement}
 
-\subsection{Reduced-Physics Model: Lumped-Capacitance Model With Pseudo-Elastic Motion}
+\subsection{Reduced-Physics Model}
 
+The RPM for ablating TPS consists of two components: the lumped capacitance model (LCM) and a one-dimensional second-order pseudo-elastic PDE for predicting the mesh motion. The LCM consists of first-order ODEs for predicting average temperature distributions inside the ablating TPS. The LCM provides a (low-fidelity) estimate of the surface temperature, which specifies the boundary conditions for the mesh motion.
 
 \subsubsection{Lumped Capacitance Model}
-The main results for the lumped capacitance model (LCM) derivation are provided in this section and the mathematical details are provided in Appendix \hl{A}. The LCM is a classical physics-based low-order model for predicting the temporal variation of average temperature in multiple connected components \hl{INCROPERA}. The LCM is derived at the component level from a point of view of energy conservation, and leads to the following system of ODEs for the average temperatures on the components,
+
+The main results regarding the derivation of the lumped capacitance model (LCM) are provided in this section, with the mathematical details in Appendix \hl{A}. The LCM is a classical physics-based low-order model for predicting the temporal variation of average temperature in multiple connected components \hl{INCROPERA}. The LCM is derived at the component level from a point of view of energy conservation, and leads to the following system of ODEs for the average temperatures on the components,
 \begin{equation}
     \bar{\vA}\dot{\bar{\vu}} = \bar{\vB}\left(\bar{\vu}\right)\bar{\vu} + \bar{\vf}(t)\label{eqn_lcm}
 \end{equation}
@@ -108,40 +109,27 @@ includes the average temperatures $\bar{\vu}$ and forcing inputs $\bar{\vf}$ for
 
 \subsubsection{Pseudo-Elastic Mesh Motion}
 
-The components in the LCM are assumed to displace parallel to the direction of the applied heating, i.e., the $y$ direction in Fig.~\ref{fig_lcm_domain}. Therefore, the elasticity equation in \cref{eqn_elasticity_pde} for the $i$-th component simplifies to,
+The mesh deformation for each component is assumed to displace parallel to the direction of the applied heating, i.e., the $y$ direction in Fig.~\ref{fig_lcm_domain}. Therefore, the elasticity equation in \cref{eqn_elasticity_pde} for the $i$-th component simplifies to,
 \begin{equation}
-    \frac{\partial^2 w^{(i)}}{\partial x^2} = 0
+    \frac{\partial^2 w^{(i)}}{\partial y^2} = 0
 \end{equation}
 which has the analytical solution,
 \begin{equation}
     w^{(i)}(y,t) = a(t)y + b(t)
 \end{equation}
-Imposing the boundary conditions leads to,
+Enforcing the boundary conditions leads to,
 \begin{equation}
-    w^{(i)}(x,t) = w^{(i)}(0,t)\left(\frac{y_1^{(i)} - y}{h^{(i)}}\right)
+    w^{(i)}(y,t) = w^{(i)}(0,t)\left(\frac{y_1^{(i)} - y}{h^{(i)}}\right)
 \end{equation}
-
-
-
-
-Note that \cref{eqn_elasticity_1d} is steady. Under the assumption that the mesh deformation is quasi-steady, it can be applied at each time step within an ablation simulation. For instance, a known value of the wall temperature $T_w(t)$ specifies a Dirichlet boundary condition for the displacement, and the resulting nodal displacements within the ablator are determined from \cref{eqn_elasticity_pde}.
-
-Along the one-dimensional domain, the PDE in \cref{eqn_elasticity_pde} simplifies to,
+where $h^{(i)}$ is the length of the domain as shown in Fig.~\ref{fig_lcm_domain}. Differentiating with respect to time, the mesh velocity is given by,
 \begin{equation}
-    \frac{\partial^2 u^{(i)}}{\partial x^2} = 0
+    \frac{\partial w^{(i)}}{\partial t} = \dot{w}^{(i)}(0,t) \left(\frac{y_1^{(i)} - y}{h^{(i)}}\right)
 \end{equation}
-which has the analytical solution,
+where the surface velocity velocity is set to some non-linear function of the surface temperature,
 \begin{equation}
-    u^{(i)}(x,t) = a(t)x + b(t)
+    \dot{w}^{(i)}(0,t) = f(T_w(t))
 \end{equation}
-Imposing the boundary conditions leads to,
-\begin{equation}
-    u^{(i)}(x,t) = u^{(i)}(0,t)\left(\frac{x_1^{(i)} - x}{h^{(i)}}\right)
-\end{equation}
-The mesh velocity is the time derivative of the displacement,
-\begin{equation}
-    v^{(i)}(x,t) = \frac{\partial u^{(i)}(x,t)}{\partial t} = v^{(i)}(t)\left(\frac{x_1^{(i)} - x}{h^{(i)}}\right)
-\end{equation}
+\hl{discuss the tables or functions used for surface velocity}
 
 \subsection{Summary of Modeling Approaches}
 
@@ -152,16 +140,3 @@ The FOM (i.e., DG-FEM) and RPM (i.e., LCM) are two different but mathematically 
 Clearly, the LCM is a coarse zeroth-order DG model with the inverse of thermal resistance chosen as the element-wise penalty factors. Or conversely, the DG model is a refined version of LCM via \textit{hp}-adaptation.
 
 On one hand, the FOM is the most accurate but computationally expensive to evaluate due to the fine mesh discretizations to possibly millions of state variables. On the other hand, the RPM considers only the average temperature of the material as the state variable, considerably reducing the computational cost, but sacrificing the fidelity of the temperature predictiona and neglecting higher-order effects due to mesh motion. Thus, neigher the FOM nor the RPM is a universal approach for real-world analysis, design, and optimization tasks for ablating TPS, where thounds of high-fidelity model evaluations may be necessary. This issue motivates the development of the PIROM, which can achieve the fidelity of FOM at a computational cost close to the RPM, while maintaining the generalizability to model parameters.
-
-
-
-\subsubsection{Coupling Scheme}
-
-\subsubsection{Reduced-Physics Ablation Simulation}
-
-
-
-
-
-
-

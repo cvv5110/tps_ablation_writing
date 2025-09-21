@@ -14,7 +14,7 @@ Consider a conforming mesh partition of the domain, as shown in Fig.\hl{DOMAIN},
 
 Choosing appropriate basis functions $\phi_k$ and $\phi_l$ and using the Interior Penalty Galerkin (IPG) scheme ~\cite{Cohen and pernet 2018}, the variational bilinear form for \cref{eqn_thermal_pde} is,
 \begin{equation}
-    \sum_{i=1}^{M}a_{\epsilon,i}(\phi_k,\phi_l) = \sum_{i=1}^{m}L_i(\phi_k)
+    \sum_{i=1}^{M}a_{\epsilon,i}(\phi_k,\phi_l) = \sum_{i=1}^{M}L_i(\phi_k)
 \end{equation}
 where $\epsilon$ is an user-specified parameter and,
 \begin{subequations}
