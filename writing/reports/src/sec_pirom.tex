@@ -1,4 +1,14 @@
 \section{Physics-Infused Reduced-Order Modeling}\label{sec_pirom}
 
-The formulation of PIROM for ablating TPS starts by mathematically connecting the FOM, i.e.g, DG-FEM, and the reduced-physics model, i.e., the LCM, via a coarse-graining procedure. This procedure pinpoints the missing dynamics in the LCM when compared to DG-FEM. Subsequently, the Mori-Zwanzig formalism is employed to determine the model form for the missing dynamics in PIROM. Lastlty, the data-driven identification of the missing dynanmics in PIROM is presented.
+The formulation of PIROM for ablating TPS starts by connecting the FOM, i.e.g, DG-FEM, and the reduced-physics model, i.e., the LCM, via a coarse-graining procedure. This procedure pinpoints the missing dynamics in the LCM when compared to DG-FEM. Subsequently, the Mori-Zwanzig formalism is employed to determine the model form for the missing dynamics in PIROM. Lastly, the data-driven identification of the missing dynanmics in PIROM is presented.
+
+\subsection{Deriving the Reduced-Physics Model via Coarse-Graining}
+
+The LCM in \cref{eqn_lcm} not only resembles the functional form of the DG model in \cref{eqn_full_dg}, but can also be viewed as a special case of the latter, where the mesh partition is extremely coarse, and the trial and test functions are piece-wise constants. In this sense, the LCM is a coarse zeroth-order DG model with the inverse of thermal resistance chosen as the element-wise penalty factors. Or conversely, the DG model is a refined version of LCM via \textit{hp}-adaptation.s
+
+More precisely, the LCM can be obtained from a full-order DG model on a fine mesh via a projection process, i.e., coarse graining. This process constraints the trial function space of a full-order DG model to a subset of piece-wise constants, so that the variables $\vu$, matrices $\vA$, $\vB$, and $\vC$, and forcing vector $\vf$ are all approximated using a single state associated to the average temperature. The details of the projection are described next.
+
+\subsubsection{Coarse-Graining of States}
+
+
 
