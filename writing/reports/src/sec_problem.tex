@@ -4,7 +4,7 @@ This section presents the ablation problem for a non-decomposing TPS as a parame
 
 \subsection{Governing Equations}\label{sec_governing_equations}
 
-\paragraph*{Heat Conduction} Consider a generic domain $\Omega\subset$, $d=2$ or $3$, illustrated in Fig.~\ref{fig_general_domain}. A heat flux $q_b(x,t)$ is prescribed on the boundary $\Gamma_q$ (i.e., Neumann boundary condition), and the temperature $T_b(x,t)$ is prescribed on boundary $\Gamma_T$ (i.e., Dirichlet boundary condition), where $\Gamma_q\cup\Gamma_T = \partial\Omega$ and $\Gamma_q\cap\Gamma_T = \emptyset$. The ablation occurs only on the heated boundary $\Gamma_q$, and its effects are included into the energy equation using an Arbitrary Lagrangian-Eulerian (ALE) description. The ALE assumes that the mesh displacements $\vw(x,t)\in\mathbb{R}^d$ and velocities $\vv(x,t)\in\mathbb{R}^{d}$ evolve independently of the physical material's response~\hl{CITE}.
+\paragraph*{Heat Conduction} Consider a generic domain $\Omega\subset$, $d=2$ or $3$, illustrated in Fig.~\ref{fig_general_domain}. Let $\partial\Omega = \Gamma_q\cup\Gamma_T$ and $\Gamma_q\cap\Gamma_T = \emptyset$, where a Neumann $q_b(x,t)$ boundary condition is prescribed on the $\Gamma_q$ boundary, and a Dirichlet $T_b(x,t)$ boundary condition is prescribed on the boundary $\Gamma_T$. Ablation, modeled in this work as mesh motion, occurs only on the heated boundary $\Gamma_q$, and its effects on the energy equation are handled using the Arbitrary Lagrangian-Eulerian (ALE) description. The ALE assumes that the mesh displacements $\vw(x,t)\in\mathbb{R}^d$ evolve independently of the physical material's displacements, which are set to zero~\hl{CITE}.
 
 \begin{figure}
     \centering
@@ -54,6 +54,8 @@ The boundary conditions for the energy equation includes a heated surface (\cref
 
 \subsection{Full-Order Model: Finite-Element Method}\label{sec_fom}
 
+To obtain the full-order numerical solution, the governing equation is spatially discretized using variational principles of Discontinuous Galerkin (DG) to result in a high-dimensional system of ordinary differential equations (ODEs). Note that the choice of DG approach here is mainly for theoretical convenience in the coarse-graining formulation, and is performed exclusively on the energy equation since the quantities of interest correspond to the temperatures of the ablating surfaces. In Sec.~\hl{x}, the full-order ablating TPS solution for both the energy and elasticity equations is performed using standard FEM instead, and the equivalence between DG and standard FEM is noted upon their convergence.
+
 Consider a conforming mesh partition domain, where each element belongs to one and only one component. Denote the collection of all $M$ elements as $\left\{E_i\right\}_{i=1}^{M}$. In an element $E_i$, its shared boundaries with another element $E_j$, Neumann BC, and Dirichlet BC are denoted as $e_{ij}$, $e_{iq}$, and $e_{iT}$, respectively. Lastly, $\left|e\right|$ denotes the length $(n_d=2)$ or area $(n_d=3)$ of a component boundary $e$.
 
 For the $i$-th element, use a set of $P$ trial functions, such as polynomials, to represent the temperature distribution,
@@ -70,11 +72,9 @@ which is collected as the following ODE for the all the elements in the mesh,
 \end{equation}
 where $\vu = \left[\vu^{(1)}, \vu^{(2)}, \ldots, \vu^{(M)}\right]^T\in\mathbb{R}^{MP}$ includes all the DG variables, $\mathbf{f}\in\mathbb{R}^{MP}$ is the external forcing, and the system matrices $\vA$, $\vB$, and $\vC$ are the matrices due to heat capacity, heat conduction, and temperature advection due to mesh motion, respectively. A detailed derivation of \cref{eqn_element_dg,eqn_full_dg} and their matrices is provided in Appendix~\hl{DG-FEM}.
 
-\hl{need to discuss FOM for mesh displacement}
-
 \subsection{Reduced-Physics Model}
 
-The RPM for ablating TPS consists of two components: the lumped capacitance model (LCM) and a one-dimensional second-order pseudo-elastic PDE for predicting the mesh motion. The LCM consists of first-order ODEs for predicting average temperature distributions inside the ablating TPS. The LCM provides a (low-fidelity) estimate of the surface temperature, which specifies the boundary conditions for the mesh motion.
+The RPM for ablating TPS consists of two components: the lumped capacitance model (LCM) and a one-dimensional second-order pseudo-elastic PDE for predicting the mesh motion. The LCM consists of first-order ODEs for predicting average temperature distributions inside the ablating TPS, and provides the lowest-fidelity estimate of the ablating surface temperature. The LCM's surface temperature prediction defines the boundary conditions for the pseudo-elastic PDE.
 
 \subsubsection{Lumped Capacitance Model}
 
@@ -90,15 +90,23 @@ where,
     \end{align}
 \end{subequations}
 includes the average temperatures $\bar{\vu}$ and forcing inputs $\bar{\vf}$ for the $N$ components. For $i,j=1,2,\dots,N$ the $(i,j)$-th elements of the $\bar{\vA}\in\mathbb{R}^{N\times N}$ and $\bar{\vB}\in\mathbb{R}^{N\times N}$ matrices are given by,
-\begin{equation}
-    \bar{A}^{(i)} = \begin{cases}
-            \int_{\Omega^{(i)}}\rho c_p d\Omega^{(i)}, & i=j\\
+\begin{subequations}
+    \begin{gather}
+        \bar{A}^{(i)} = \begin{cases}
+                \int_{\Omega^{(i)}}\rho c_p d\Omega^{(i)}, & i=j\\
+                0, & i\neq j
+            \end{cases},\quad \bar{B}_{ij} = \begin{cases}
+            \sumneighbordirichlet\bar{B}^{(i)}_{ij}, &i=j \\
+            \bar{B}^{(j)}_{ij}, & i\neq j
+        \end{cases},\\ \barf^{(i)} = \begin{cases}
+            |\eiq|\bar{q}^{(i)} + \frac{|\eiT|}{R_{i}}\bar{T}^{(i)}, & i=j \\ 
             0, & i\neq j
-        \end{cases},\quad \bar{B}_{ij} = \begin{cases}
-        \sumneighbordirichlet\bar{B}^{(i)}_{ij}, &i=j \\
-        \bar{B}^{(j)}_{ij}, & i\neq j
-    \end{cases}
-\end{equation}
+        \end{cases}
+    \end{gather}
+\end{subequations}
+
+
+
 
 \begin{figure}
     \centering
@@ -133,7 +141,7 @@ where the surface velocity velocity is set to some non-linear function of the su
 
 \subsection{Summary of Modeling Approaches}
 
-The FOM (i.e., DG-FEM) and RPM (i.e., LCM) are two different but mathematically connected solution startegies. Specifically, the LCM in \cref{eqn_lcm} not only resembles the functional form of the DG model in \cref{eqn_dg_fem}, but can be viewed as a special case of the latter, where the mesh partition is extremely coarse, and the trial and test functions are piece-wise constants. For example, consider the case where each component $\Omega^{(i)}$ is treated as one single element, and each element employs one constant basis function $\phi^{(i)}=1$. The element-wise DG model in \cref{eqn_element_dg} simplifies into a scalar ODE that ignores effects due to mesh motion,
+The FOM (i.e., DG-FEM) and RPM (i.e., LCM) are two different but mathematically connected solution startegies. Specifically, the LCM in \cref{eqn_lcm} not only resembles the functional form of the DG model in \cref{eqn_full_dg}, but can be viewed as a special case of the latter, where the mesh partition is extremely coarse, and the trial and test functions are piece-wise constants. For example, consider the case where each component $\Omega^{(i)}$ is treated as one single element, and each element employs one constant basis function $\phi^{(i)}=1$. The element-wise DG model in \cref{eqn_element_dg} simplifies into a scalar ODE that ignores effects due to mesh motion,
 \begin{equation}
     \vAi = \bar{A}^{(i)},\quad \vCi = 0, \quad\vBiij = -\sigma|\eij|,\quad \vBjij=\sigma|\eij|,\quad \vf^{(i)} = |\eiq|\bar{q}^{(i)} + \sigma|\eiT|\bar{T}^{(i)}
 \end{equation}
