@@ -1,6 +1,6 @@
 \section{Modeling of Ablating Thermal Protection Systems}
 
-This section presents the ablation problem for a non-decomposing TPS as a parametrized system of non-linear PDEs. The ablation physics is described by the energy and pseudo-elasticity equations for heat conduction and mesh motion, respectively. Two different but mathematically-connected numerical solution strategies are provided: (1) a high-fidelity full-order model (FOM) based on a discontinuous Galerkin FEM, and (2) a thermo-elastic RPM based on a one-dimensional approximation to the energy and pseudo-elasticity equations.
+This section presents the problem of modeling ablation for a non-decomposing TPS as a parametrized system of coupled non-linear PDEs. The ablation physics is described by the energy and pseudo-elasticity PDEs for heat conduction and mesh motion, respectively. These governing PDEs are solved numerically using: (1) a high-fidelity FOM based on discontinuous Galerkin FEM, and (2) a reduced-physics model based on LCM. The mathematical details are provided next.
 
 \subsection{Governing Equations}\label{sec_governing_equations}
 
@@ -72,13 +72,13 @@ which is collected as the following ODE for the all the elements in the mesh,
 \end{equation}
 where $\vu = \left[\vu^{(1)}, \vu^{(2)}, \ldots, \vu^{(M)}\right]^T\in\mathbb{R}^{MP}$ includes all the DG variables, $\mathbf{f}\in\mathbb{R}^{MP}$ is the external forcing, and the system matrices $\vA$, $\vB$, and $\vC$ are the matrices due to heat capacity, heat conduction, and temperature advection due to mesh motion, respectively. A detailed derivation of \cref{eqn_element_dg,eqn_full_dg} and their matrices is provided in Appendix~\hl{DG-FEM}.
 
-\subsection{Reduced-Physics Model}
+\subsection{Reduced-Physics Model: Lumped Capacitance Model}
 
-The RPM for ablating TPS consists of two components: the lumped capacitance model (LCM) and a one-dimensional second-order pseudo-elastic PDE for predicting the mesh motion. The LCM consists of first-order ODEs for predicting average temperature distributions inside the ablating TPS, and provides the lowest-fidelity estimate of the ablating surface temperature. The LCM's surface temperature prediction defines the boundary conditions for the pseudo-elastic PDE.
+The RPM for ablating TPS consists of two components: (1) a lumped capacitance model (LCM), and (2) a one-dimensional second-order pseudo-elastic PDE for predicting the mesh motion. The LCM is described by a system of first-order ODEs for predicting average temperatures inside the ablating TPS, and provides a low-fidelity estimate for the ablating surface temperature. The LCM's surface temperature prediction defines the boundary conditions for the pseudo-elastic PDE.
 
 \subsubsection{Lumped Capacitance Model}
 
-The main results regarding the derivation of the lumped capacitance model (LCM) are provided in this section, with the mathematical details in Appendix \hl{A}. The LCM is a classical physics-based low-order model for predicting the temporal variation of average temperature in multiple connected components \hl{INCROPERA}. The LCM is derived at the component level from a point of view of energy conservation, and leads to the following system of ODEs for the average temperatures on the components,
+The main results regarding the derivation of the lumped capacitance model (LCM) are provided in this section, with the mathematical details in Appendix \hl{A}. The LCM is a classical physics-based low-order model for predicting the temporal variation of average temperature in multiple interconnected components\hl{INCROPERA}. The LCM is derived at the component level from a point of view of energy conservation, and leads to the following system of ODEs for the average temperatures on the components,
 \begin{equation}
     \bar{\vA}\dot{\bar{\vu}} = \bar{\vB}\left(\bar{\vu}\right)\bar{\vu} + \bar{\vf}(t)\label{eqn_lcm}
 \end{equation}
@@ -89,7 +89,7 @@ where,
         \bar{\vf} &= \left[\bar{f}^{(1)},\bar{f}^{(2)},\dots,\bar{f}^{(N)}\right]^T\in\mathbb{R}^{N}
     \end{align}
 \end{subequations}
-includes the average temperatures $\bar{\vu}$ and forcing inputs $\bar{\vf}$ for the $N$ components. For $i,j=1,2,\dots,N$ the $(i,j)$-th elements of the $\bar{\vA}\in\mathbb{R}^{N\times N}$ and $\bar{\vB}\in\mathbb{R}^{N\times N}$ matrices are given by,
+includes the average temperatures $\bar{\vu}$ and forcing inputs $\bar{\vf}$ for the $N$ components. For example, the TPS in Fig.~\ref{fig_lcm_domain} consists of $N=4$ interconnected components. For $i,j=1,2,\dots,N$ the $(i,j)$-th elements of the $\bar{\vA}\in\mathbb{R}^{N\times N}$, $\bar{\vB}\in\mathbb{R}^{N\times N}$, and $\bar{\vf}\in\mathbb{R}^{N}$ matrices are given by,
 \begin{subequations}
     \begin{gather}
         \bar{A}^{(i)} = \begin{cases}
@@ -102,11 +102,12 @@ includes the average temperatures $\bar{\vu}$ and forcing inputs $\bar{\vf}$ for
             |\eiq|\bar{q}^{(i)} + \frac{|\eiT|}{R_{i}}\bar{T}^{(i)}, & i=j \\ 
             0, & i\neq j
         \end{cases}
-    \end{gather}
+    \end{gather}\label{eqn_lcm_elements}
 \end{subequations}
-
-
-
+where,
+\begin{equation}
+    \bar{q}^{(i)} = \frac{1}{|\eiq|}\int_{\eiq} q_b d\eiq,\quad \bar{T}^{(i)} = \frac{1}{|\eiT|}\int_{\eiT}T_b d\eiT
+\end{equation}
 
 \begin{figure}
     \centering

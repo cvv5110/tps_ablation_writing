@@ -33,7 +33,7 @@ Furthermore, in the bi-linear form, the terms associated with $\sigma$ are intro
 
 \subsubsection{Discontinuous Galerkin Model}
 
-Next, the DG-based model is written in an element-wise form. For the $i$-th element, use a set of $P$ trial functions to represent the temperature as in \cref{eqn_element_temperature}. Without loss of generality, the trial functions are assumed to be orthogonal, so that $\int_{E^{(i)}} \phii_k(x) \phii_l(x) dx = \left|\Ei\right|\delta_{kl}$, where $\left|\Ei\right|$ is the area $(n_d=2)$ or volume $(n_d=3)$ of the $i$-th element, and $\delta_{kl}$ is the Kronecker delta. 
+Next, the DG-based model is written in an element-wise form. For the $i$-th element, use a set of $P$ trial functions to represent the temperature as in \cref{eqn_element_temperature}. Without loss of generality, the trial functions are assumed to be orthogonal, so that $\int_{E^{(i)}} \phii_k(x) \phii_l(x) dx = \left|\Ei\right|\delta_{kl}$, where $\left|\Ei\right|$ is the area $(n_d=2)$ or volume $(n_d=3)$ of the $i$-th element, and $\delta_{kl}$ is the Kronecker delta.
 
 Using test functions same as trial functions, the dynamics $\vu^{(i)}$ is obtained by evaluating the element-wise bi-linear forms,
 \begin{equation}
@@ -87,11 +87,4 @@ At component $i$, the dynamics of LCM are given by,
         &= \sumneighbordirichlet\left(\bar{B}^{(i)}_{ij}\barui + \bar{B}^{(j)}_{ij}\baruj\right) + \bar{f}^{(i)}\label{eqn_lcm_4}
     \end{align}
 \end{subequations}
-where in \cref{eqn_lcm_2} $|e|$ denotes the length $(d=2)$ or area $(d=3)$ of a component boundary $e$, and,
-\begin{equation}
-    \bar{A}^{(i)} = \int_{\Omega^{(i)}}\rho c_p d\Omega^{(i)},\quad \bar{q}^{(i)} = \frac{1}{|\eiq|}\int_{\eiq} q_b d\eiq,\quad \bar{T}^{(i)} = \frac{1}{|\eiT|}\int_{\eiT}T_b d\eiT
-\end{equation}
-
-
-
-
+where in \cref{eqn_lcm_2} $|e|$ denotes the length $(d=2)$ or area $(d=3)$ of a component boundary $e$. The $\bar{A}^{(i)}$, $\bar{B}_{ij}^{(i)}$, and $\bar{B}_{ij}^{(j)}$ quantities are provided in \cref{eqn_lcm_elements}.
