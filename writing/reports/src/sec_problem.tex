@@ -1,22 +1,22 @@
 \section{Modeling of Ablating Thermal Protection Systems}
 
-This section presents the problem of modeling ablation for a non-decomposing TPS as a parametrized system of coupled non-linear PDEs. The ablation physics is described by the energy and pseudo-elasticity PDEs for heat conduction and mesh motion, respectively. These governing PDEs are solved numerically using: (1) a high-fidelity FOM based on discontinuous Galerkin FEM, and (2) a reduced-physics model based on LCM. The mathematical details are provided next.
+This section presents the problem of modeling ablation for a non-decomposing TPS as a parametrized system of coupled non-linear PDEs. The ablation physics is decomposed into heat conduction and mesh motion, which are governed by the energy and pseudo-elasticity PDEs, respectively. Predictions for the ablating TPS response computed based on two models: (1) a high-fidelity FOM based on discontinuous Galerkin FEM (DG-FEM), and (2) an RPM based on the LCM. The mathematical details for the governing equations, FOM, and RPM, are provided next.
 
 \subsection{Governing Equations}\label{sec_governing_equations}
 
-\paragraph*{Heat Conduction} Consider a generic domain $\Omega\subset$, $d=2$ or $3$, illustrated in Fig.~\ref{fig_general_domain}. Let $\partial\Omega = \Gamma_q\cup\Gamma_T$ and $\Gamma_q\cap\Gamma_T = \emptyset$, where a Neumann $q_b(x,t)$ boundary condition is prescribed on the $\Gamma_q$ boundary, and a Dirichlet $T_b(x,t)$ boundary condition is prescribed on the boundary $\Gamma_T$. Ablation, modeled in this work as mesh motion, occurs only on the heated boundary $\Gamma_q$, and its effects on the energy equation are handled using the Arbitrary Lagrangian-Eulerian (ALE) description. The ALE assumes that the mesh displacements $\vw(x,t)\in\mathbb{R}^d$ evolve independently of the physical material's displacements, which are set to zero~\hl{CITE}.
+\paragraph*{Heat Conduction} Consider a generic domain $\Omega\subset$, $d=2$ or $3$, illustrated in Fig.~\ref{fig_general_domain}. Let $\partial\Omega = \Gamma_q\cup\Gamma_T$ and $\Gamma_q\cap\Gamma_T = \emptyset$, where a Neumann $q_b(x,t)$ boundary condition is prescribed on the $\Gamma_q$ boundary, and a Dirichlet $T_b(x,t)$ boundary condition is prescribed on the boundary $\Gamma_T$. The ablation is modeled as mesh motion, and occurs only on the heated boundary $\Gamma_q$. Ablating effects on the energy equation are handled using the Arbitrary Lagrangian-Eulerian (ALE) description. The ALE establishes that mesh displacements $w(x,t)\in\mathbb{R}^d$ and velocities $v(x,t)\in\mathbb{R}^d$ evolve independently of the physical material's displacements, which are set to zero~\hl{CITE}.
 
 \begin{figure}
     \centering
     \includegraphics[width=0.6\textwidth]{./figs/general_domain.png}
-    \caption{General domain $\Omega$ with prescribed heat flux $q_b(x,t)$ and temperature $T_b(x,t)$ on the boundaries $\Gamma_q$ and $\Gamma_T$, respectively. The mesh moves with a velocity $\mathbf{v}(x,t)$, while the material velocity is $\mathbf{w}(x,t)$.\hl{draw mesh next to arbitrary domain with moving boundaries.}}
+    \caption{General domain $\Omega$ with prescribed Neumann and Dirichlet boundary conditions on $\Gamma_q$ and $\Gamma_T$. Mesh displacement $w(x,t)$ occurs on the $\Gamma_q$ boundary.}
     \label{fig_general_domain}
 \end{figure}
 
 The transient heat conduction is described by the energy equation,
 \begin{subequations}
     \begin{align}
-        \rho c_p\left(\ppt{T} - \mathbf{v}(x,t)\cdot\nabla T\right) - \nabla\cdot (\mathbf{k}\nabla T) &= \cQ(x,t),\ x\in\Omega \label{eqn_thermal_pde}\\
+        \rho c_p\left(\ppt{T} - v(x,t)\cdot\nabla T\right) - \nabla\cdot (\mathbf{k}\nabla T) &= \cQ(x,t),\ x\in\Omega \label{eqn_thermal_pde}\\
         -\mathbf{k}\nabla T\cdot \vn &= q_b(x,t),\ x\in\Gamma_q\label{eqn_thermal_bc_neumann}\\
         T(x,t) &= T_b(x,t),\ x\in\Gamma_T\label{eqn_thermal_bc_dirichlet}\\
         T(x,0) &= T_0(x),\ x\in\Omega\label{eqn_thermal_ic}
@@ -27,15 +27,15 @@ where the density $\rho$ is constant, while the heat capacity $c_p$ and thermal 
 \paragraph*{Mesh Motion} The mesh motion is described by the pseudo-elasticity equation,
 \begin{subequations}
     \begin{align}
-        \nabla\cdot\boldsymbol{\sigma}(\mathbf{w}) &= 0\label{eqn_elasticity_pde}\\
-        \vw(x,t) &= \vw_q(x,t),\quad x\in\Gamma_q\label{eqn_displacement_heated_bc}\\
-        \vw(x,t) &= 0,\quad x\notin \Gamma_q\label{eqn_displacement_unheated_bc}\\
-        \vw(x,0) &= \boldsymbol{0}\label{eqn_displacement_initial_condition}
+        \nabla\cdot\sigma(w) &= 0\label{eqn_elasticity_pde}\\
+        w(x,t) &= w_q(x,t),\quad x\in\Gamma_q\label{eqn_displacement_heated_bc}\\
+        w(x,t) &= 0,\quad x\notin \Gamma_q\label{eqn_displacement_unheated_bc}\\
+        w(x,0) &= \boldsymbol{0}\label{eqn_displacement_initial_condition}
     \end{align}
 \end{subequations}
-where the stress tensor $\boldsymbol{\sigma}$ is related to the strain tensor $\bepsilon(\bw)$ through Hooke's law,
+where the stress tensor $\sigma$ is related to the strain tensor $\bepsilon(w)$ through Hooke's law,
 \[
-    \boldsymbol{\sigma}(\bw) = \mathbb{D}:\boldsymbol{\epsilon}(\bw)
+    \sigma(w) = \mathbb{D}:\boldsymbol{\epsilon}(w)
 \]
 where $\mathbb{D}$ is the constitutive operator, ``:'' is the double contraction of tensors, and $\bepsilon$ is the symmetric strain tensor given by,
 \[
@@ -54,7 +54,7 @@ The boundary conditions for the energy equation includes a heated surface (\cref
 
 \subsection{Full-Order Model: Finite-Element Method}\label{sec_fom}
 
-To obtain the full-order numerical solution, the governing equation is spatially discretized using variational principles of Discontinuous Galerkin (DG) to result in a high-dimensional system of ordinary differential equations (ODEs). Note that the choice of DG approach here is mainly for theoretical convenience in the coarse-graining formulation, and is performed exclusively on the energy equation since the quantities of interest correspond to the temperatures of the ablating surfaces. In Sec.~\hl{x}, the full-order ablating TPS solution for both the energy and elasticity equations is performed using standard FEM instead, and the equivalence between DG and standard FEM is noted upon their convergence.
+To obtain the full-order numerical solution, the governing equation is spatially discretized using variational principles of Discontinuous Galerkin (DG) to result in a high-dimensional system of ordinary differential equations (ODEs). Note that the choice of DG approach here is mainly for theoretical convenience in the coarse-graining formulation, and is exclusively performed on the energy equation as the quantities of interest correspond to the ablating surface temperatures. In Sec.~\hl{x}, the full-order ablating TPS solution for both the energy and elasticity equations is performed using standard FEM instead, and the equivalence between DG and standard FEM is noted upon their convergence.
 
 Consider a conforming mesh partition domain, where each element belongs to one and only one component. Denote the collection of all $M$ elements as $\left\{E_i\right\}_{i=1}^{M}$. In an element $E_i$, its shared boundaries with another element $E_j$, Neumann BC, and Dirichlet BC are denoted as $e_{ij}$, $e_{iq}$, and $e_{iT}$, respectively. Lastly, $\left|e\right|$ denotes the length $(n_d=2)$ or area $(n_d=3)$ of a component boundary $e$.
 
@@ -70,15 +70,15 @@ which is collected as the following ODE for the all the elements in the mesh,
 \begin{equation}
     \vA(\vu)\dot{\vu} = \left[\vB(\vu) + \vC(t,\vu)\right]\vu + \mathbf{f}(t)\label{eqn_full_dg}
 \end{equation}
-where $\vu = \left[\vu^{(1)}, \vu^{(2)}, \ldots, \vu^{(M)}\right]^T\in\mathbb{R}^{MP}$ includes all the DG variables, $\mathbf{f}\in\mathbb{R}^{MP}$ is the external forcing, and the system matrices $\vA$, $\vB$, and $\vC$ are the matrices due to heat capacity, heat conduction, and temperature advection due to mesh motion, respectively. A detailed derivation of \cref{eqn_element_dg,eqn_full_dg} and their matrices is provided in Appendix~\hl{DG-FEM}.
+where $\vu = \left[\vu^{(1)}, \vu^{(2)}, \ldots, \vu^{(M)}\right]^T\in\mathbb{R}^{MP}$ includes all the DG variables, $\mathbf{f}\in\mathbb{R}^{MP}$ is the external forcing, and the system matrices $\vA$, $\vB$, and $\vC$ are the matrices due to heat capacity, heat conduction, and temperature advection due to mesh motion, respectively. A detailed derivation of \cref{eqn_element_dg,eqn_full_dg} and their matrices is provided in Appendix~\cite{appendix_derivations}.
 
 \subsection{Reduced-Physics Model: Lumped Capacitance Model}
 
-The RPM for ablating TPS consists of two components: (1) a lumped capacitance model (LCM), and (2) a one-dimensional second-order pseudo-elastic PDE for predicting the mesh motion. The LCM is described by a system of first-order ODEs for predicting average temperatures inside the ablating TPS, and provides a low-fidelity estimate for the ablating surface temperature. The LCM's surface temperature prediction defines the boundary conditions for the pseudo-elastic PDE.
+The RPM for predicting the response of the ablating TPS consists of two components: (1) the LCM, and (2) tabulated data for ablating velocity as a function of surface temperature. The LCM is described as a first-order system of ODEs for predicting the average temperatures inside the ablating TPS, and provides a low-fidelity under-estimation for the ablating surface temperature. The temperature prediction from LCM is used in a B' table to determine the surface recession velocity, from which the displacements are obtained through integration.
 
 \subsubsection{Lumped Capacitance Model}
 
-The main results regarding the derivation of the lumped capacitance model (LCM) are provided in this section, with the mathematical details in Appendix \hl{A}. The LCM is a classical physics-based low-order model for predicting the temporal variation of average temperature in multiple interconnected components\hl{INCROPERA}. The LCM is derived at the component level from a point of view of energy conservation, and leads to the following system of ODEs for the average temperatures on the components,
+The main results regarding the derivation of the lumped capacitance model (LCM) are provided in this section, and the derivation details are provided in Appendix~\ref{appendix_derivations}. The LCM is a classical physics-based low-order model for predicting the temporal variation of average temperature in multiple interconnected components\hl{INCROPERA}. The LCM is derived at the component level from a point of view of energy conservation, and leads to the following system of ODEs for the average temperatures on the components,
 \begin{equation}
     \bar{\vA}\dot{\bar{\vu}} = \bar{\vB}\left(\bar{\vu}\right)\bar{\vu} + \bar{\vf}(t)\label{eqn_lcm}
 \end{equation}
@@ -89,7 +89,7 @@ where,
         \bar{\vf} &= \left[\bar{f}^{(1)},\bar{f}^{(2)},\dots,\bar{f}^{(N)}\right]^T\in\mathbb{R}^{N}
     \end{align}
 \end{subequations}
-includes the average temperatures $\bar{\vu}$ and forcing inputs $\bar{\vf}$ for the $N$ components. For example, the TPS in Fig.~\ref{fig_lcm_domain} consists of $N=4$ interconnected components. For $i,j=1,2,\dots,N$ the $(i,j)$-th elements of the $\bar{\vA}\in\mathbb{R}^{N\times N}$, $\bar{\vB}\in\mathbb{R}^{N\times N}$, and $\bar{\vf}\in\mathbb{R}^{N}$ matrices are given by,
+includes the average temperatures $\bar{\vu}$ and forcing inputs $\bar{\vf}$ for the $N$ components. For $i,j=1,2,\dots,N$ the $(i,j)$-th elements of the $\bar{\vA}\in\mathbb{R}^{N\times N}$, $\bar{\vB}\in\mathbb{R}^{N\times N}$, and $\bar{\vf}\in\mathbb{R}^{N}$ matrices are given by,
 \begin{subequations}
     \begin{gather}
         \bar{A}^{(i)} = \begin{cases}
@@ -98,15 +98,15 @@ includes the average temperatures $\bar{\vu}$ and forcing inputs $\bar{\vf}$ for
             \end{cases},\quad \bar{B}_{ij} = \begin{cases}
             \sumneighbordirichlet\bar{B}^{(i)}_{ij}, &i=j \\
             \bar{B}^{(j)}_{ij}, & i\neq j
-        \end{cases},\\ \barf^{(i)} = \begin{cases}
+        \end{cases},\\ \bf^{(i)} = \begin{cases}
             |\eiq|\bar{q}^{(i)} + \frac{|\eiT|}{R_{i}}\bar{T}^{(i)}, & i=j \\ 
             0, & i\neq j
         \end{cases}
-    \end{gather}\label{eqn_lcm_elements}
+    \end{gather}\label{eqn_lcm_matrices}
 \end{subequations}
 where,
 \begin{equation}
-    \bar{q}^{(i)} = \frac{1}{|\eiq|}\int_{\eiq} q_b d\eiq,\quad \bar{T}^{(i)} = \frac{1}{|\eiT|}\int_{\eiT}T_b d\eiT
+    \bar{q}^{(i)} = \frac{1}{|\eiq|}\int_{\eiq} q_b d\eiq,\quad \bar{T}^{(i)} = \frac{1}{|\eiT|}\int_{\eiT}T_b d\eiT,\quad \bar{B}^{(i)}_{ij} = -\frac{|\eij|}{R_{ij}},\quad \bar{B}_{ij}^{(j)} = \frac{|\eij|}{R_{ij}}\label{eqn_lcm_matrices_elements}
 \end{equation}
 
 \begin{figure}
@@ -116,29 +116,11 @@ where,
     \label{fig_lcm_domain}
 \end{figure}
 
-\subsubsection{Pseudo-Elastic Mesh Motion}
-
-The mesh deformation for each component is assumed to displace parallel to the direction of the applied heating, i.e., the $y$ direction in Fig.~\ref{fig_lcm_domain}. Therefore, the elasticity equation in \cref{eqn_elasticity_pde} for the $i$-th component simplifies to,
+Using the predicted temperature $\bu^{(i)}$ for the $i$-th component, the surface recession velocity and displacements are computed as,
 \begin{equation}
-    \frac{\partial^2 w^{(i)}}{\partial y^2} = 0
+    \dot{w}^{(i)}(t) = h^{(i)}(\bu^{(i)}),\quad w^{(i)}(t) = w^{(i)}(t_0) + \int_{t_0}^{t} h^{(i)}\left(\bu^{(i)}\right)d\tau
 \end{equation}
-which has the analytical solution,
-\begin{equation}
-    w^{(i)}(y,t) = a(t)y + b(t)
-\end{equation}
-Enforcing the boundary conditions leads to,
-\begin{equation}
-    w^{(i)}(y,t) = w^{(i)}(0,t)\left(\frac{y_1^{(i)} - y}{h^{(i)}}\right)
-\end{equation}
-where $h^{(i)}$ is the length of the domain as shown in Fig.~\ref{fig_lcm_domain}. Differentiating with respect to time, the mesh velocity is given by,
-\begin{equation}
-    \frac{\partial w^{(i)}}{\partial t} = \dot{w}^{(i)}(0,t) \left(\frac{y_1^{(i)} - y}{h^{(i)}}\right)
-\end{equation}
-where the surface velocity velocity is set to some non-linear function of the surface temperature,
-\begin{equation}
-    \dot{w}^{(i)}(0,t) = f(T_w(t))
-\end{equation}
-\hl{discuss the tables or functions used for surface velocity}
+where $h^{(i)}$ is a \hl{x} fit to the B' tabulated data for the material. \hl{Discussion of the B' tabulated data}.
 
 \subsection{Summary of Modeling Approaches}
 

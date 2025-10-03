@@ -1,10 +1,10 @@
 \appendix
 
-\section{Mathematical Details}\label{app_implementation}
+\section{Detailed Derivations}\label{appendix_derivations}
 
 \subsection{Full-Order Model}
 
-To obtain the full-order numerical solution, the governing equation is spatially discretized using variational principles of Discontinuous Galerkin (DG) to result in a high-dimensional system of ordinary differential equations (ODEs). Furthermore, the DG model is written in an element-wise form, which is beneficial for subsequent derivations for the lower-order models. Note that the choice of DG approach here is mainly for theoretical convenience in the subsequent coarse-graining formulation. In the numerical results, the full-order TPS ablation simulations is computed using standard FEM instead, and the equivalence between DG and standard FEM is noted upon their convergence.
+To obtain the full-order numerical solution, the governing equation is spatially discretized using variational principles of Discontinuous Galerkin (DG) to result in a high-dimensional system of ordinary differential equations (ODEs). The DG-FEM model is written in an element-wise form, which is beneficial for subsequent derivations of the lower-order models.Note that the choice of DG approach here is mainly for theoretical convenience in the subsequent coarse-graining formulation. In the numerical results, the full-order TPS ablation simulations is computed using standard FEM instead, and the equivalence between DG and standard FEM is noted upon their convergence.
 
 \subsubsection{Domain Discretization}
 
@@ -69,22 +69,31 @@ where $\vu = \left[\vu^{(1)},\vu^{(2)},\cdots,\vu^{(M)}\right]^T\in\mathbb{R}^{M
 \end{equation}
 The dependency of $\vA$, $\vB$, and $\vC$ on $\vu$ is explicitly noted in \cref{eqn_complete_model}, which is the source of non-linearity in the current TPS problem. Moreover, the mesh velocity $\vv$ varies with space and time, and thus the advection matrix $\vC$ varies with time as a function of $q_b$.
 
+\subsection{Lumped Capacitance Model}
 
-\subsection{Reduced-Physics Model: Lumped Capacitance Model}
-
-The following assumptions are employed: (1) in component $(i)$ all variations of temperature with respect to space are ignored, and the temperature is described by a single uniform temperature $\bar{u}^{(i)}$; (2) between neighboring components $(i)$ and $(j)$ the heat flux is,
+The following assumptions are employed: (1) the temperature in component $(i)$ is described by a scalar time-varying average temperature $\bar{u}^{(i)}$, (2) between neighboring components $(i)$ and $(j)$ the heat flux is approximated as,
 \begin{equation}
     q_{ij} = \frac{\baruj - \barui}{R_{ij}}
 \end{equation}
-where $R_{ij}$ is the thermal resistance. Empirically, for a component of istrisotropic heat conductivity $k$, length $\ell$, and cross-section area $A$, the thermal resistance is $R=\ell/kA$. Between components $i$ and $j$, define $R_{ij}=R_{i} + R_{j}$. In addition, the heat flux due to Dirichlet boundary condition is computed as $q_{iT} = (T_b - \barui)/R_{i}$.
+where $R_{ij}$ is the thermal resistance. Empirically, for a component of isotropic heat conductivity $k$, length $\ell$, and cross-section area $A$, the thermal resistance is $R=\ell/kA$. Between components $i$ and $j$, define $R_{ij}=R_{i} + R_{j}$. In addition, the heat flux due to Dirichlet boundary condition is computed as $q_{iT} = (T_b - \barui)/R_{i}$.
 
 At component $i$, the dynamics of LCM are given by,
 \begin{subequations}
     \begin{align}
         \int_{\Ei}\rho c_p \dot{\bar{u}}^{(i)} d\Ei &= \left(\sumneighbori\int_{\eij}\frac{\baruj - \barui}{R_{ij}}d\eij\right) + \int_{\eiq} q_b d\eiq + \int_{\eiT}\frac{T_b - \barui}{R_i}d\eiT\label{eqn_lcm_1}\\
         \bar{A}^{(i)}\dot{\bar{u}}^{(i)} &= \left(\sumneighbori\frac{|\eij|}{R_{ij}}\left(\baruj - \barui\right)\right) + |\eiq|\bar{q}^{(i)} + \frac{|\eiT|}{R_i}\left(\bar{T}^{(i)} - \barui\right) \label{eqn_lcm_2}\\ 
-        &= \sumneighbori\left(-\frac{|\eij|}{R_{ij}}\barui + \frac{|\eij|}{R_{ij}}\baruj\right) + \left(-\frac{|\eiT|}{R_{i}}\barui\right) + \left(|\eiq|\bar{q}^{(i)}\frac{|\eiT|}{R_i}\bar{T}^{(i)}\right)\label{eqn_lcm_3}\\
+        &= \sumneighbori\left(-\frac{|\eij|}{R_{ij}}\barui + \frac{|\eij|}{R_{ij}}\baruj\right) + \left(-\frac{|\eiT|}{R_{i}}\barui\right) + \left(|\eiq|\bar{q}^{(i)} + \frac{|\eiT|}{R_i}\bar{T}^{(i)}\right)\label{eqn_lcm_3}\\
         &= \sumneighbordirichlet\left(\bar{B}^{(i)}_{ij}\barui + \bar{B}^{(j)}_{ij}\baruj\right) + \bar{f}^{(i)}\label{eqn_lcm_4}
     \end{align}
 \end{subequations}
 where in \cref{eqn_lcm_2} $|e|$ denotes the length $(d=2)$ or area $(d=3)$ of a component boundary $e$. The $\bar{A}^{(i)}$, $\bar{B}_{ij}^{(i)}$, and $\bar{B}_{ij}^{(j)}$ quantities are provided in \cref{eqn_lcm_elements}.
+
+The lumped-mass representation for the four-component TPS in Fig.~\ref{fig_lcm_domain} is shown in Fig.~\ref{fig_lumped_mass_representation}. Leveraging the formulas from \cref{eqn_lcm_matrices,eqn_lcm_matrices_elements}, the LCM model takes
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\textwidth]{./figs/lumped_mass_representation.png}
+    \caption{Lumped mass representation for the four-component TPS.}
+    \label{fig_lumped_mass_representation}
+\end{figure}
+
