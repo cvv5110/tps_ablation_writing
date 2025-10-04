@@ -1,12 +1,10 @@
 \section{Physics-Infused Reduced-Order Modeling}\label{sec_pirom}
-
 The formulation of PIROM for ablating TPS starts by connecting the FOM, i.e., DG-FEM, and the RPM, i.e., the LCM, via a coarse-graining procedure. This procedure pinpoints the missing dynamics in the LCM when compared to DG-FEM. Subsequently, the Mori-Zwanzig (MZ) formalism is employed to determine the model form for the missing dynamics in PIROM. Lastly, the data-driven identification of the missing dynanmics in PIROM is presented.
 
 \subsection{Deriving the Reduced-Physics Model via Coarse-Graining}
-
 The LCM is derived from a full-order DG on a fine mesh via a projection process, i.e., coarse graining. This process constraints the trial function space of a full-order DF model to a subset of piece-wise constants, so that the variables $\vu$, matrices $\vA$, $\vB$, and $\vC$, and forcing vector $\vf$ are all approximated using a single state associated to the average temperature. The details of the projection are described next.
 
 \subsubsection{Coarse-Graining of States}
 
-
+Consider a DG model as in \cref{eqn_full_dg} for M elements and an LCM as in \cref{eqn_lcm} for $N$ components; clearly $M\gg N$. 
 

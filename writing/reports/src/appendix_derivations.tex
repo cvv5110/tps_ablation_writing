@@ -1,6 +1,6 @@
 \appendix
 
-\section{Detailed Derivations}\label{appendix_derivations}
+\section{Implementation Details}\label{appendix}
 
 \subsection{Full-Order Model}
 
@@ -88,12 +88,27 @@ At component $i$, the dynamics of LCM are given by,
 \end{subequations}
 where in \cref{eqn_lcm_2} $|e|$ denotes the length $(d=2)$ or area $(d=3)$ of a component boundary $e$. The $\bar{A}^{(i)}$, $\bar{B}_{ij}^{(i)}$, and $\bar{B}_{ij}^{(j)}$ quantities are provided in \cref{eqn_lcm_elements}.
 
-The lumped-mass representation for the four-component TPS in Fig.~\ref{fig_lcm_domain} is shown in Fig.~\ref{fig_lumped_mass_representation}. Leveraging the formulas from \cref{eqn_lcm_matrices,eqn_lcm_matrices_elements}, the LCM model takes
+The lumped-mass representation for the four-component TPS is shown in Fig.~\ref{fig_four_components}. Let $v_i$ represent the area of the $i$-th element, $\overline{\rho c_p}_{,i}$, the heat capacity evaluated using the average temperature $\bu^{(i)}$, and $1/R_{ij} = 1/R_{i}(\bu^{(i)}) + 1/R_{j}(\bu^{(j)})$ the equivalent thermal resistance between elements $i$ and $j$. Leveraging the formulas from \cref{eqn_lcm_matrices,eqn_lcm_matrices_elements}, the LCM matrices are given by,
+\begin{subequations}
+    \begin{gather}
+        \bar{\vA} = \begin{bmatrix}
+            \overline{\rho c_p}_{,1} v_1 & 0 & 0 & 0\\
+            0 & \overline{\rho c_p}_{,2} v_2 & 0 & 0\\
+            0 & 0 & \overline{\rho c_p}_{,3} v_3 & 0\\
+            0 & 0 & 0 & \overline{\rho c_p}_{,4} v_4
+        \end{bmatrix},\\
+        \bar{\vB} = \begin{bmatrix}
+            \frac{1}{R_{12}} + \frac{1}{R_{14}} & -\frac{1}{R_{12}} & 0 & -\frac{1}{R_{14}}\\
+            -\frac{1}{R_{12}} & \frac{1}{R_{12}} + \frac{1}{R_{24}} + \frac{1}{R_{23}} & -\frac{1}{R_{23}} & -\frac{1}{R_{24}}\\
+            0 & -\frac{1}{R_{32}} & \frac{1}{R_{32}} + \frac{1}{R_{34}} & -\frac{1}{R_{34}}\\
+            -\frac{1}{R_{14}} & -\frac{1}{R_{24}} & -\frac{1}{R_{34}} & \frac{1}{R_{14}} + \frac{1}{R_{24}} + \frac{1}{R_{34}}
+        \end{bmatrix},\quad \bar{\vf} = \begin{bmatrix}
+            \bar{q}^{(1)} \\
+            \bar{q}^{(2)} \\
+            \bar{q}^{(3)} \\
+            0
+        \end{bmatrix}
+    \end{gather}
+\end{subequations}
 
-\begin{figure}
-    \centering
-    \includegraphics[width=0.5\textwidth]{./figs/lumped_mass_representation.png}
-    \caption{Lumped mass representation for the four-component TPS.}
-    \label{fig_lumped_mass_representation}
-\end{figure}
 

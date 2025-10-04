@@ -54,7 +54,7 @@ The boundary conditions for the energy equation includes a heated surface (\cref
 
 \subsection{Full-Order Model: Finite-Element Method}\label{sec_fom}
 
-To obtain the full-order numerical solution, the governing equation is spatially discretized using variational principles of Discontinuous Galerkin (DG) to result in a high-dimensional system of ordinary differential equations (ODEs). Note that the choice of DG approach here is mainly for theoretical convenience in the coarse-graining formulation, and is exclusively performed on the energy equation as the quantities of interest correspond to the ablating surface temperatures. In Sec.~\hl{x}, the full-order ablating TPS solution for both the energy and elasticity equations is performed using standard FEM instead, and the equivalence between DG and standard FEM is noted upon their convergence.
+To obtain the full-order numerical solution, the governing equation is spatially discretized using variational principles of Discontinuous Galerkin (DG) to result in a high-dimensional system of ordinary differential equations (ODEs). Note that the choice of DG approach here is mainly for theoretical convenience in the coarse-graining formulation, and is exclusively performed on the energy equation as the quantities of interest correspond to the ablating surface temperatures. In Sec.~\hl{x}, the high-fidelity ablating TPS solution is performed using standard FEM for both the energy and elastictiy equations, and the equivalence between DG and standard FEM is noted upon their convergence.
 
 Consider a conforming mesh partition domain, where each element belongs to one and only one component. Denote the collection of all $M$ elements as $\left\{E_i\right\}_{i=1}^{M}$. In an element $E_i$, its shared boundaries with another element $E_j$, Neumann BC, and Dirichlet BC are denoted as $e_{ij}$, $e_{iq}$, and $e_{iT}$, respectively. Lastly, $\left|e\right|$ denotes the length $(n_d=2)$ or area $(n_d=3)$ of a component boundary $e$.
 
@@ -70,15 +70,13 @@ which is collected as the following ODE for the all the elements in the mesh,
 \begin{equation}
     \vA(\vu)\dot{\vu} = \left[\vB(\vu) + \vC(t,\vu)\right]\vu + \mathbf{f}(t)\label{eqn_full_dg}
 \end{equation}
-where $\vu = \left[\vu^{(1)}, \vu^{(2)}, \ldots, \vu^{(M)}\right]^T\in\mathbb{R}^{MP}$ includes all the DG variables, $\mathbf{f}\in\mathbb{R}^{MP}$ is the external forcing, and the system matrices $\vA$, $\vB$, and $\vC$ are the matrices due to heat capacity, heat conduction, and temperature advection due to mesh motion, respectively. A detailed derivation of \cref{eqn_element_dg,eqn_full_dg} and their matrices is provided in Appendix~\cite{appendix_derivations}.
+where $\vu = \left[\vu^{(1)}, \vu^{(2)}, \ldots, \vu^{(M)}\right]^T\in\mathbb{R}^{MP}$ includes all the DG variables, $\mathbf{f}\in\mathbb{R}^{MP}$ is the external forcing, and the system matrices $\vA$, $\vB$, and $\vC$ are the matrices due to heat capacity, heat conduction, and temperature advection due to mesh motion, respectively. A detailed derivation of \cref{eqn_element_dg,eqn_full_dg} and their matrices is provided in Appendix~\cite{appendix}.
 
-\subsection{Reduced-Physics Model: Lumped Capacitance Model}
-
+\subsection{Reduced-Physics Model}
 The RPM for predicting the response of the ablating TPS consists of two components: (1) the LCM, and (2) tabulated data for ablating velocity as a function of surface temperature. The LCM is described as a first-order system of ODEs for predicting the average temperatures inside the ablating TPS, and provides a low-fidelity under-estimation for the ablating surface temperature. The temperature prediction from LCM is used in a B' table to determine the surface recession velocity, from which the displacements are obtained through integration.
 
 \subsubsection{Lumped Capacitance Model}
-
-The main results regarding the derivation of the lumped capacitance model (LCM) are provided in this section, and the derivation details are provided in Appendix~\ref{appendix_derivations}. The LCM is a classical physics-based low-order model for predicting the temporal variation of average temperature in multiple interconnected components\hl{INCROPERA}. The LCM is derived at the component level from a point of view of energy conservation, and leads to the following system of ODEs for the average temperatures on the components,
+The main results regarding the LCM are provided in this section; details of the implementation for the TPS in Fig.~\ref{fig_four_components} are provided in Appendix~\ref{appendix}. The LCM is a classical physics-based low-order model for predicting the temporal variation of average temperature in multiple interconnected components\hl{INCROPERA}. The LCM is derived at the component level from a point of view of energy conservation, and leads to the following system of ODEs for the average temperatures on the components,
 \begin{equation}
     \bar{\vA}\dot{\bar{\vu}} = \bar{\vB}\left(\bar{\vu}\right)\bar{\vu} + \bar{\vf}(t)\label{eqn_lcm}
 \end{equation}
@@ -111,23 +109,25 @@ where,
 
 \begin{figure}
     \centering
-    \includegraphics[width=0.8\textwidth]{./figs/three_components.png}
-    \caption{Partition of the TPS into three layers.}
-    \label{fig_lcm_domain}
+    \includegraphics[width=0.45\textwidth]{./figs/four_components.png}
+    \includegraphics[width=0.45\textwidth]{./figs/lumped_mass_representation.png}
+    \caption{Partition of the TPS into three ablating and one non-ablating components with the corresponding lumped-mass representation}
+    \label{fig_four_components}
 \end{figure}
 
-Using the predicted temperature $\bu^{(i)}$ for the $i$-th component, the surface recession velocity and displacements are computed as,
+\subsubsection{Surface Recession Velocity and Displacements}
+Using the predicted $i$-th average temperature $\bu^{(i)}$ from LCM, the surface recession velocity and displacements are computed as,
 \begin{equation}
     \dot{w}^{(i)}(t) = h^{(i)}(\bu^{(i)}),\quad w^{(i)}(t) = w^{(i)}(t_0) + \int_{t_0}^{t} h^{(i)}\left(\bu^{(i)}\right)d\tau
 \end{equation}
-where $h^{(i)}$ is a \hl{x} fit to the B' tabulated data for the material. \hl{Discussion of the B' tabulated data}.
+where $h^{(i)}$ is a \hl{x} fit to the B' tabulated data for the material. \hl{Discussion of the B' tabulated data}. The B' table is pre-computed based on high-fidelity simulations of the ablation process for a one-dimensional slab of the material, and is independent of the TPS geometry and boundary conditions.
 
 \subsection{Summary of Modeling Approaches}
 
-The FOM (i.e., DG-FEM) and RPM (i.e., LCM) are two different but mathematically connected solution startegies. Specifically, the LCM in \cref{eqn_lcm} not only resembles the functional form of the DG model in \cref{eqn_full_dg}, but can be viewed as a special case of the latter, where the mesh partition is extremely coarse, and the trial and test functions are piece-wise constants. For example, consider the case where each component $\Omega^{(i)}$ is treated as one single element, and each element employs one constant basis function $\phi^{(i)}=1$. The element-wise DG model in \cref{eqn_element_dg} simplifies into a scalar ODE that ignores effects due to mesh motion,
+The FOM (i.e., DG-FEM) and RPM (i.e., LCM) are two different but mathematically connected solution strategies. Specifically, the LCM in \cref{eqn_lcm} not only resembles the functional form of the DG model in \cref{eqn_full_dg}, but can be viewed as a special case of the latter, where the mesh partition is extremely coarse, and the trial and test functions are piece-wise constants. For example, consider the case where each component $\Omega^{(i)}$ is treated as one single element, and each element employs one constant basis function $\phi^{(i)}=1$. The element-wise DG model in \cref{eqn_element_dg} simplifies into a scalar ODE that ignores advection effects due to mesh motion,
 \begin{equation}
     \vAi = \bar{A}^{(i)},\quad \vCi = 0, \quad\vBiij = -\sigma|\eij|,\quad \vBjij=\sigma|\eij|,\quad \vf^{(i)} = |\eiq|\bar{q}^{(i)} + \sigma|\eiT|\bar{T}^{(i)}
 \end{equation}
 Clearly, the LCM is a coarse zeroth-order DG model with the inverse of thermal resistance chosen as the element-wise penalty factors. Or conversely, the DG model is a refined version of LCM via \textit{hp}-adaptation.
 
-On one hand, the FOM is the most accurate but computationally expensive to evaluate due to the fine mesh discretizations to possibly millions of state variables. On the other hand, the RPM considers only the average temperature of the material as the state variable, considerably reducing the computational cost, but sacrificing local temperature information and thus neglecting higher-order effects due to mesh motion. Thus, neigher the FOM nor the RPM is a universal approach for real-world analysis, design, and optimization tasks for ablating TPS, where thounds of high-fidelity model evaluations may be necessary. This issue motivates the development of the PIROM, which can achieve the fidelity of FOM at a computational cost close to the RPM, while maintaining the generalizability to model parameters.
+The FOM and RPM represent two extremes in the modeling fidelity and computational cost spectrum. On one hand, the FOM is the most accurate but computationally expensive to evaluate due to the fine mesh discretizations for both the temperature and displacement fields, leading to possibly millions of state variables. On the other hand, the RPM considers only the average temperature of the material as the state variable, considerably reducing the computational cost, but sacrificing local temperature information and thus neglecting higher-order effects due to mesh motion. Thus, neither the FOM nor the RPM is a universal approach for real-world analysis, design, and optimization tasks for ablating TPS, where thousands of high-fidelity model evaluations may be necessary. This issue motivates the development of the PIROM, which can achieve the fidelity of FOM at a computational cost close to the RPM, while maintaining the generalizability to model parameters.
