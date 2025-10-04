@@ -1,5 +1,4 @@
-\appendix
-
+\newpage\appendix
 \section{Technical Details}\label{appendix}
 
 This appendix presents the technical details of the PIROM framework applied to the TPS ablation problem. The first section provides the mathematical details for the definition of the DG-FEM. The second section follows the projection procedures from Ref.\hl{x}, and demonstrates the effects of coarse-graining on the advection matrix. The third section presents the derivation of the LCM model from an energy-conservation perspective.
@@ -56,7 +55,7 @@ where for $k,l=1,2,\dots,P$,
         \left[\vf^{(i)}\right]_k &= \int_{\eiq}\phik^{(i)}q_bd\eiq + \sigma\int_{\eiT}\phik^{(i)}d\eiT
     \end{align}
 \end{subequations}
-Note that the matrices $\vA^{(i)}$, $\vC^{(i)}$, and $\vB_{ij}$ depend on $\rho$, $c_p$, and $\vk$, respectively, and hence can be a non-linear function of $\vu$. Since the trial functions are orthogonal, if $\rho c_p$ is constant within an element, $\vAi$ is diagonal; otherwise, $\vA_i$ is symmetric and positive definite as $\rho c_p > 0$.
+The matrices $\vA^{(i)}\in\mathbb{R}^{P\times P}$, $\vB^{(i)}\in\mathbb{R}^{P\times P}$, and $\vC^{(i)}\in\mathbb{R}^{P\times P}$ are respectively the capacitance, conductivity, and advection matrices for element $i$. These matrices depend on $\rho$, $c_p$, and $\vk$, and hence can be non-linear functions of $\vu^{(i)}$. Since the trial functions are orthogonal, if $\rho c_p$ is constant within an element, $\vAi$ is diagonal; otherwise, $\vA_i$ is symmetric and positive definite as $\rho c_p > 0$.
 
 For compactness, the element-wise model in \cref{eqn_element_wise_model} is also written in matrix form,
 \begin{equation}
@@ -73,7 +72,31 @@ The dependency of $\vA$, $\vB$, and $\vC$ on $\vu$ is explicitly noted in \cref{
 
 \subsection{Coarse-Graining of Dynamics}
 
-The coarse-graining of the dynamics is achieved by projecting the high-dimensional system onto a lower-dimensional subspace. 
+The LCM is obtained by coarse-graining the full-order DG-FEM. This coarse-graining procedure produces resolved $\vr^{(1)}(\vu,t)$ and residual $\vr^{(2)}(\vu,t)$ dynamics as in \cref{eqn_coarse_grained_dynamics}. This section presents the detail derivations and magnitude analysis for the resolved and residual dynamics.
+
+\subsubsection{Resolved Dynamics}
+
+Using \cref{eqn_projection_operator}, the resolved dynamics is computed as follows,
+\begin{subequations}
+    \begin{align}
+        &\vr^{(1)}(\vu,t) = \cP\left[\vPhiplus\vA(\vu)^{-1}\left(\vB(\vu)\vu + \vC(t,\vu)\vu + \vf(t,\vu)\right)\right]\\
+        &= \vPhiplus\vA\left(\vP\vu\right)^{-1}\vP\vB\left(\vP\vu\right)\vP\vu + \vPhiplus\vA\left(\vP\vu\right)^{-1}\vP\vC\left(t,\vP\vu\right)\vP\vu + \vPhiplus\vA\left(\vP\vu\right)^{-1}\vP\vf(t,\vP\vu)\\
+        &= \underbrace{\vPhiplus\vA\left(\vPhi\bvu\right)^{-1}\vPhi}_{\text{\#1}}\underbrace{\vPhiplus\vB\left(\vPhi\bvu\right)\vPhi\bvu}_{\text{\#2}} + \vPhiplus\vA\left(\vPhi\bvu\right)^{-1}\vPhi\underbrace{\vPhiplus\vC\left(t,\vPhi\bvu\right)\vPhi}_{\text{\#3}}\bvu + \vPhiplus\vA\left(\vPhi\bvu\right)^{-1}\vPhi\underbrace{\vPhiplus\vf(t,\vPhi\bvu)}_{\text{\#4}}
+    \end{align}
+\end{subequations}
+Detailed derivations for the \#1, \#2, and \#4 terms can be found in Ref.\hl{x}. The effects of coarse-graining on term \#3 are analyzed next.
+
+The $\vC(t,\vu)\in\mathbb{R}^{MP\times MP}$ matrix is block diagonal, since the basis functions are defined locally on each element, therefore, $\left[\vC(t,\vu)\right]_{ij} = \vzero$ for all $i \neq j$. Moreover, since the first basis function is constant, $\nabla\phi_1^{(i)} = 0$ and thus the first row and first column of each block $\vCi$ are zero. It follows that for $k,l=1,2,\cdots,N$,
+\begin{subequations}
+    \begin{align}
+        \left[\vPhiplus\vC(t,\vPhi\bvu)\vPhi\right]_{kl} &= \sum_{i=1}^{M}\sum_{j=1}^{M}\vvarphi_{i}^{k+}\left[\vC(t,\vPhi\bvu)\right]_{ij}\vvarphi_{j}^{l}\\
+        &= \sum_{i=1}^{M}\vvarphi_{i}^{k+}\left[\vC(t,\vPhi\bvu)\right]_{ii}\vvarphi_{i}^{l}\\
+        &= 
+    \end{align}
+\end{subequations}
+
+
+\subsubsection{Magnitude Analysis for Residual Dynamics}
 
 \subsection{Lumped Capacitance Model}
 

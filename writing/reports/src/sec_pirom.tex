@@ -44,7 +44,7 @@ Apply the projection operator $\cP$ and the residual operator $\cQ$ to the right
 \begin{equation}
     \dot{\bvu} = \cP\left[\vPhiplus\vr(\vu,t)\right] + \cQ\left[\vPhiplus\vr(\vu,t)\right]\equiv \vr^{(1)}(\vu,t) + \vr^{(2)}(\vu,t)\label{eqn_coarse_grained_dynamics}
 \end{equation}
-where $\vr^{(1)}(\vu,t)$ is resolved dynamics that depends on $\bvu$ only, and $\vr^{(2)}(\vu,t)$ is the un-resolved or residual dynamics. Detailed derivations and analysis of $\vr^{(1)}(\vu,t)$ and $\vr^{(2)}(\vu,t)$  can be found in Ref.~\hl{x} and the Appendix. 
+where $\vr^{(1)}(\vu,t)$ is resolved dynamics that depends on $\bvu$ only, and $\vr^{(2)}(\vu,t)$ is the un-resolved or residual dynamics. Detailed derivations and analysis of $\vr^{(1)}(\vu,t)$ and $\vr^{(2)}(\vu,t)$ can be found in the Appendix. 
 
 It follows from Ref.\hl{x} that the resolved dynamics is exactly the LCM, where the advection term reduces to zero, i.e., $\bvC(t,\vu) = \vzero$ as shown in the Appendix. Using the notation from \cref{eqn_lcm}, it follows that,
 \begin{align}
@@ -59,5 +59,5 @@ where the following relations hold,
         \bvf(t) &= \vW\vPhiplus\vf
     \end{align}\label{eqn_coarse_grained_matrices}
 \end{subequations}
-with a diagonal weight matrix $\vW\in\mathbb{R}^{M\times M}$, such the $i$-th diagonal element $[\vW]_i=\left|\cV_k\right|$ if $i\in\cV_k$.  The derivation of \cref{eqn_coarse_grained_matrices} is provided in Ref.~\hl{x} and the Appendix.
+where $\vW\in\mathbb{R}^{N\times N}$ is a diagonal matrix with the $i$-th element as $\left[\vW\right]_{ii} = \left|\cV_k\right|$ if $i\in\cV_k$. The derivation of \cref{eqn_coarse_grained_matrices} is provided in the Appendix.
 
