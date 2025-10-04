@@ -1,6 +1,8 @@
 \appendix
 
-\section{Implementation Details}\label{appendix}
+\section{Technical Details}\label{appendix}
+
+This appendix presents the technical details of the PIROM framework applied to the TPS ablation problem. The first section provides the mathematical details for the definition of the DG-FEM. The second section follows the projection procedures from Ref.\hl{x}, and demonstrates the effects of coarse-graining on the advection matrix. The third section presents the derivation of the LCM model from an energy-conservation perspective.
 
 \subsection{Full-Order Model}
 
@@ -69,6 +71,10 @@ where $\vu = \left[\vu^{(1)},\vu^{(2)},\cdots,\vu^{(M)}\right]^T\in\mathbb{R}^{M
 \end{equation}
 The dependency of $\vA$, $\vB$, and $\vC$ on $\vu$ is explicitly noted in \cref{eqn_complete_model}, which is the source of non-linearity in the current TPS problem. Moreover, the mesh velocity $\vv$ varies with space and time, and thus the advection matrix $\vC$ varies with time as a function of $q_b$.
 
+\subsection{Coarse-Graining of Dynamics}
+
+The coarse-graining of the dynamics is achieved by projecting the high-dimensional system onto a lower-dimensional subspace. 
+
 \subsection{Lumped Capacitance Model}
 
 The following assumptions are employed: (1) the temperature in component $(i)$ is described by a scalar time-varying average temperature $\bar{u}^{(i)}$, (2) between neighboring components $(i)$ and $(j)$ the heat flux is approximated as,
@@ -86,7 +92,7 @@ At component $i$, the dynamics of LCM are given by,
         &= \sumneighbordirichlet\left(\bar{B}^{(i)}_{ij}\barui + \bar{B}^{(j)}_{ij}\baruj\right) + \bar{f}^{(i)}\label{eqn_lcm_4}
     \end{align}
 \end{subequations}
-where in \cref{eqn_lcm_2} $|e|$ denotes the length $(d=2)$ or area $(d=3)$ of a component boundary $e$. The $\bar{A}^{(i)}$, $\bar{B}_{ij}^{(i)}$, and $\bar{B}_{ij}^{(j)}$ quantities are provided in \cref{eqn_lcm_elements}.
+where in \cref{eqn_lcm_2} $|e|$ denotes the length $(d=2)$ or area $(d=3)$ of a component boundary $e$. The $\bar{A}^{(i)}$, $\bar{B}_{ij}^{(i)}$, and $\bar{B}_{ij}^{(j)}$ quantities are provided in \cref{eqn_lcm_matrices_elements}.
 
 The lumped-mass representation for the four-component TPS is shown in Fig.~\ref{fig_four_components}. Let $v_i$ represent the area of the $i$-th element, $\overline{\rho c_p}_{,i}$, the heat capacity evaluated using the average temperature $\bu^{(i)}$, and $1/R_{ij} = 1/R_{i}(\bu^{(i)}) + 1/R_{j}(\bu^{(j)})$ the equivalent thermal resistance between elements $i$ and $j$. Leveraging the formulas from \cref{eqn_lcm_matrices,eqn_lcm_matrices_elements}, the LCM matrices are given by,
 \begin{subequations}

@@ -2,9 +2,62 @@
 The formulation of PIROM for ablating TPS starts by connecting the FOM, i.e., DG-FEM, and the RPM, i.e., the LCM, via a coarse-graining procedure. This procedure pinpoints the missing dynamics in the LCM when compared to DG-FEM. Subsequently, the Mori-Zwanzig (MZ) formalism is employed to determine the model form for the missing dynamics in PIROM. Lastly, the data-driven identification of the missing dynanmics in PIROM is presented.
 
 \subsection{Deriving the Reduced-Physics Model via Coarse-Graining}
-The LCM is derived from a full-order DG on a fine mesh via a projection process, i.e., coarse graining. This process constraints the trial function space of a full-order DF model to a subset of piece-wise constants, so that the variables $\vu$, matrices $\vA$, $\vB$, and $\vC$, and forcing vector $\vf$ are all approximated using a single state associated to the average temperature. The details of the projection are described next.
+The LCM is derived from a full-order DG on a fine mesh via coarse graining. This process constraints the trial function space of a full-order DG model to a subset of piece-wise constants, so that the variables $\vu$, matrices $\vA$, $\vB$, and $\vC$, and forcing vector $\vf$ are all approximated using a single state associated to the average temperature. The details of the projection are described next.
 
 \subsubsection{Coarse-Graining of States}
 
-Consider a DG model as in \cref{eqn_full_dg} for M elements and an LCM as in \cref{eqn_lcm} for $N$ components; clearly $M\gg N$. 
+Consider a DG model as in \cref{eqn_full_dg} for M elements and an LCM as in \cref{eqn_lcm} for $N$ components; clearly $M\gg N$. Let $\cV_j = \left\{i \big| E_i\in\Omega_j\right\}$ be the indices of the elements belonging to the $j$-th component, so $E_i\in\Omega_j$ for all $i\in \cV_j$. The number of elements in the $j$-th component is $|\cV_j|$. The average temperature on $\Omega_j$ is,
+\begin{equation}
+    \bar{u}_j = \frac{1}{|\Omega_j|}\sum_{i\in\cV_j}\intEi \vphi^{(i)}(x)^T\vu^{(i)} d\Omega = \frac{1}{\left|\Omega_j\right|}\sum_{i\in\cV_j} \left|E_i\right|\vvarphi_i^{j\top}\vu^{(i)},\quad j=1,2,\dots,N\label{eqn_average_temperature}
+\end{equation}
+where $\left|\Omega_j\right|$ and $\left|E_i\right|$ denote the area $(d=2)$ or volume $(d=3)$ of component $j$ and element $i$, respectively. The orthogonal basis functions are defined as $\vvarphi_i^{j\top} = \left[1,0,\dots,0\right]^{\top}\in\mathbb{R}^{P}$.
+
+Conversely, given the average temperatures of the $N$ components, $\bvu$, the states of an arbitrary element $E_i$ is written as,
+\begin{equation}
+    \vu^{(i)} = \sum_{k=1}^{N}\vvarphi_i^{k}\bar{u}_k + \deltavu^{(i)}, \quad i=1,2,\dots,M\label{eqn_element_states}
+\end{equation}
+where $\vvarphi_{i}^{k}=0$ if $i\notin\cV_k$, and $\deltavu^{(i)}$ represents the deviation from the average temperature and satisfies the orthogonality condition $\vvarphi_{i}^{k\top}\deltavu^{(i)}=0$ for all $k$.
+
+Equations \cref{eqn_average_temperature,eqn_element_states} are combined and written in matrix form as,
+\begin{equation}
+    \bvu = \vPhiplus\vu,\quad \vu = \vPhi\vu + \deltavu
+\end{equation}
+where $\vPhi\in\mathbb{R}^{MP\times N}$ is a matrix of $M\times N$ blocks, with the $(i,j)$-th block as $\vvarphiij$, $\vPhiplus\in\mathbb{R}^{N\times MP}$ is the left inverse of $\vPhi$, with the $(i,j)$-th block as $\vvarphi_{i}^{j+} = \frac{|E_i|}{|\Omega_j|}\vvarphiijT$, and $\deltavu$ is the collection of deviations. By their definitions, $\vPhiplus\vPhi = \vI$ and $\vPhiplus\deltavu = \vzero$.
+
+\subsubsection{Coarse-Graining of Dynamics}
+Next, consider a function of states in the form of $\vM\left(\vu\right)\vg(\vu)$, where $\vg:\mathbb{R}^{MP} \to \mathbb{R}^{MP}$ is a vector-valued function, and $\vM:\mathbb{R}^{MP} \to \mathbb{R}^{p\times MP}$ is a matrix-valued function with an arbitrary dimension $p$. Define the projection matrix $\vP=\vPhi\vPhiplus$ and the projection operator $\cP$ as,
+\begin{align}
+    \cP\left[\vM(\vu)\vg(\vu)\right] &= \vM\left(\vP{\vu}\right)\vg\left(\vP{\vu}\right)\notag\\
+    &= \vM\left(\vPhi\bvu\right)\vg\left(\vPhi\bvu\right)\label{eqn_projection_operator}
+\end{align}
+so that the resulting function depends only on the average temperatures $\bvu$. Correspondingly, the residual operator $\cQ = \cI - \cP$, and $\cQ\left[\vM(\vu)\vg(\vu)\right] = \vM(\vu)\vg(\vu) - \vM\left(\vPhi\bvu\right)\vg\left(\vPhi\bvu\right)$. When the function is not separable, the projection operator is simply defined as $\cP\left[\vg(\vu)\right] = \vg\left(\vP\vu\right)$.
+
+Subsequently, the operators defined above are applied to coarse-grain the dynamics. First, write the DG-FEM in \cref{eqn_full_dg} as,
+\begin{equation}
+    \dot{\vu} = \vA(\vu)^{-1}\vB(\vu)\vu + \vA(\vu)^{-1}\vC(t,\vu)\vu + \vA(\vu)^{-1}\vf(t,\vu)\label{eqn_full_dg_rearranged}
+\end{equation}
+and multiply both sides by $\vPhiplus$ to obtain,
+\begin{equation}
+    \vPhiplus\dot{\vu} = \vPhiplus\left(\vPhi\dot{\bvu} + \delta\dot{\vu}\right) = \dot{\bvu} = \vPhiplus\vr(\vu,t)
+\end{equation}
+Apply the projection operator $\cP$ and the residual operator $\cQ$ to the right-hand side to obtain,
+\begin{equation}
+    \dot{\bvu} = \cP\left[\vPhiplus\vr(\vu,t)\right] + \cQ\left[\vPhiplus\vr(\vu,t)\right]\equiv \vr^{(1)}(\vu,t) + \vr^{(2)}(\vu,t)\label{eqn_coarse_grained_dynamics}
+\end{equation}
+where $\vr^{(1)}(\vu,t)$ is resolved dynamics that depends on $\bvu$ only, and $\vr^{(2)}(\vu,t)$ is the un-resolved or residual dynamics. Detailed derivations and analysis of $\vr^{(1)}(\vu,t)$ and $\vr^{(2)}(\vu,t)$  can be found in Ref.~\hl{x} and the Appendix. 
+
+It follows from Ref.\hl{x} that the resolved dynamics is exactly the LCM, where the advection term reduces to zero, i.e., $\bvC(t,\vu) = \vzero$ as shown in the Appendix. Using the notation from \cref{eqn_lcm}, it follows that,
+\begin{align}
+    \vr^{(1)}(\vu,t) &= \bvA(\bvu)^{-1}\bvB(\bvu)\bvu + \bvA(\bvu)^{-1}\bvC(t,\bvu)\bvu + \bvA(\bvu)^{-1}\bvf(t,\bvu)\notag\\
+    &= \bvA(\bvu)^{-1}\bvB(\bvu)\bvu + \bvA(\bvu)^{-1}\bvf(t)\label{eqn_resolved_dynamics_no_advection}
+\end{align}
+where the following relations hold,
+\begin{subequations}
+    \begin{align}
+        \bvA(\bvu) &= \vW\left(\vPhiplus\vA\left(\vPhi\bvu\right)^{-1}\vPhi\right)^{-1}\\
+        \bvB(\bvu) &= \vW\vPhiplus\vB\left(\vPhi\bvu\right)\vPhi\\
+        \bvf(t) &= \vW\vPhiplus\vf
+    \end{align}\label{eqn_coarse_grained_matrices}
+\end{subequations}
+with a diagonal weight matrix $\vW\in\mathbb{R}^{M\times M}$, such the $i$-th diagonal element $[\vW]_i=\left|\cV_k\right|$ if $i\in\cV_k$.  The derivation of \cref{eqn_coarse_grained_matrices} is provided in Ref.~\hl{x} and the Appendix.
 

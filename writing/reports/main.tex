@@ -6,6 +6,7 @@
 \usepackage{amsfonts}
 \usepackage{amssymb}
 \usepackage{cleveref}
+\usepackage{subfigure}
 
 \newcommand{\hl}[1]{\colorbox{yellow}{#1}}
 
@@ -20,16 +21,27 @@
 \newcommand{\bv}{\mathbf{v}}
 \newcommand{\vv}{\mathbf{v}}
 \newcommand{\cN}{\mathcal{N}}
+\newcommand{\cI}{\mathcal{I}}
 \newcommand{\vr}{\mathbf{r}}
 \newcommand{\cQnet}{\mathcal{Q}_{\text{net}}}
 \newcommand{\cP}{\mathcal{P}}
 \newcommand{\bk}{\mathbf{k}}
 \newcommand{\cQ}{\mathcal{Q}}
+\newcommand{\vP}{\mathbf{P}}
+\newcommand{\bvC}{\bar{\mathbf{C}}}
+\newcommand{\bvA}{\bar{\mathbf{A}}}
+\newcommand{\bvB}{\bar{\mathbf{B}}}
+\newcommand{\vW}{\mathbf{W}}
 \newcommand{\vPhi}{\boldsymbol{\Phi}}
+\newcommand{\vPhiplus}{\boldsymbol{\Phi}^{+}}
 \newcommand{\bu}{\bar{u}}
 \newcommand{\bepsilon}{\boldsymbol{\epsilon}}
 \newcommand{\bsigma}{\boldsymbol{\sigma}}
 \newcommand{\phii}{\phi^{(i)}}
+\newcommand{\vI}{\mathbf{I}}
+\newcommand{\vzero}{\boldsymbol{0}}
+\newcommand{\vM}{\mathbf{M}}
+\newcommand{\vg}{\mathbf{g}}
 \newcommand{\vk}{\mathbf{k}}
 \newcommand{\phij}{\phi^{(j)}}
 \newcommand{\Ti}{T^{(i)}}
@@ -40,6 +52,11 @@
 \newcommand{\vuj}{\mathbf{u}^{(j)}}
 \newcommand{\cV}{\mathcal{V}}
 \newcommand{\bvf}{\bar{\mathbf{f}}}
+\newcommand{\vphi}{\boldsymbol{\phi}}
+\newcommand{\vvarphi}{\boldsymbol{\varphi}}
+\newcommand{\deltavu}{\delta\mathbf{u}}
+\newcommand{\vvarphiij}{\boldsymbol{\varphi}_{i}^{j}}
+\newcommand{\vvarphiijT}{\boldsymbol{\varphi}_{i}^{j\top}}
 
 \newcommand{\vf}{\mathbf{f}}
 \newcommand{\vfBC}{\mathbf{f}_{\text{BC}}}
@@ -47,7 +64,6 @@
 \newcommand{\vCi}{\mathbf{C}^{(i)}}
 \newcommand{\vfQ}{\mathbf{f}_{\mathcal{Q}}}
 \newcommand{\bvu}{\bar{\mathbf{u}}}
-\newcommand{\vM}{\mathbf{M}}
 \newcommand{\phik}{\phi_k}
 \newcommand{\phil}{\phi_l}
 \newcommand{\Ei}{E^{(i)}}
@@ -70,6 +86,11 @@
 \newcommand{\vBjij}{\mathbf{B}^{(j)}_{ij}}
 \newcommand{\vfi}{\mathbf{f}^{(i)}}
 
+% graphics
+\newcommand\insertfigs[3]{
+\subfigure[\label{#1}#3]{\includegraphics[width=#2\linewidth]{#1}}
+}
+
 % d#/dt
 \newcommand{\ddt}[1]{\frac{\dd #1}{\dd t}}
 \newcommand{\ddtb}[1]{\frac{\dd^2#1}{\dd t^2}}
@@ -83,13 +104,17 @@
 
 \begin{document}
 
+\title{Physics-Infused Reduced-Order Modeling for Analysis of Ablating Hypersonic Thermal Protection Systems}
+
+\maketitle
+
 \begin{abstract}
-    This work presents a physics-infused reduced-order modeling (PIROM) framework towards the design, analysis, and optimization of ablating hypersonic thermal protection systems (TPS). 
+    This work presents a physics-infused reduced-order modeling (PIROM) framework towards the design, analysis, and optimization of non-decomposing ablating hypersonic thermal protection systems (TPS). 
 \end{abstract}
 
 \input{./src/sec_intro}
 \input{./src/sec_problem}
 \input{./src/sec_pirom}
-\input{./src/appendix_derivations}
+\input{./src/appendix_details}
 
 \end{document}
