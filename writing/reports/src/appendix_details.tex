@@ -5,7 +5,7 @@ This appendix presents the technical details of the PIROM framework applied to t
 
 \subsection{Full-Order Model}
 
-To obtain the full-order numerical solution, the governing equation is spatially discretized using variational principles of Discontinuous Galerkin (DG) to result in a high-dimensional system of ordinary differential equations (ODEs). The DG-FEM model is written in an element-wise form, which is beneficial for subsequent derivations of the lower-order models.Note that the choice of DG approach here is mainly for theoretical convenience in the subsequent coarse-graining formulation. In the numerical results, the full-order TPS ablation simulations is computed using standard FEM instead, and the equivalence between DG and standard FEM is noted upon their convergence.
+To obtain the full-order numerical solution, the governing equation is spatially discretized using variational principles of Discontinuous Galerkin (DG) to result in a high-dimensional system of ordinary differential equations (ODEs). The DG-FEM model is written in an element-wise form, which is beneficial for subsequent derivations of the lower-order models. Note that the choice of DG approach here is mainly for theoretical convenience in the subsequent coarse-graining formulation. In the numerical results, the full-order TPS ablation simulations is computed using standard FEM instead, and the equivalence between DG and standard FEM is noted upon their convergence.
 
 \subsubsection{Domain Discretization}
 
@@ -84,19 +84,49 @@ Using \cref{eqn_projection_operator}, the resolved dynamics is computed as follo
         &= \underbrace{\vPhiplus\vA\left(\vPhi\bvu\right)^{-1}\vPhi}_{\text{\#1}}\underbrace{\vPhiplus\vB\left(\vPhi\bvu\right)\vPhi\bvu}_{\text{\#2}} + \vPhiplus\vA\left(\vPhi\bvu\right)^{-1}\vPhi\underbrace{\vPhiplus\vC\left(t,\vPhi\bvu\right)\vPhi}_{\text{\#3}}\bvu + \vPhiplus\vA\left(\vPhi\bvu\right)^{-1}\vPhi\underbrace{\vPhiplus\vf(t,\vPhi\bvu)}_{\text{\#4}}
     \end{align}
 \end{subequations}
-Detailed derivations for the \#1, \#2, and \#4 terms can be found in Ref.\hl{x}. The effects of coarse-graining on term \#3 are analyzed next.
+Detailed derivations for the \#1, \#2, and \#4 terms can be found in Ref.\hl{x}. The effects of coarse-graining on term \#3 are analyzed as follows.
 
-The $\vC(t,\vu)\in\mathbb{R}^{MP\times MP}$ matrix is block diagonal, since the basis functions are defined locally on each element, therefore, $\left[\vC(t,\vu)\right]_{ij} = \vzero$ for all $i \neq j$. Moreover, since the first basis function is constant, $\nabla\phi_1^{(i)} = 0$ and thus the first row and first column of each block $\vCi$ are zero. It follows that for $k,l=1,2,\cdots,N$,
+\paragraph*{\textit{Term \#3}} The $\vC(t,\vu)\in\mathbb{R}^{MP\times MP}$ matrix contains $M$ diagonal of size $P\times P$, since the basis functions are defined locally on each element. Therefore, $\left[\vC(t,\vu)\right]_{ij} = \vzero$ for all $i \neq j$ with $i,j=1,2,\dots,M$. Moreover, since the first basis function is constant, $\nabla\phi_1^{(i)} = 0$ and thus the $(1,1)$-th element of each diagonal block is zero, i.e., $\left[\vC(t,\vu)\right]_{ii}=0$ is zero. It follows that for $k,l=1,2,\cdots,N$,
 \begin{subequations}
     \begin{align}
         \left[\vPhiplus\vC(t,\vPhi\bvu)\vPhi\right]_{kl} &= \sum_{i=1}^{M}\sum_{j=1}^{M}\vvarphi_{i}^{k+}\left[\vC(t,\vPhi\bvu)\right]_{ij}\vvarphi_{j}^{l}\\
         &= \sum_{i=1}^{M}\vvarphi_{i}^{k+}\left[\vC(t,\vPhi\bvu)\right]_{ii}\vvarphi_{i}^{l}\\
-        &= 
+        &= \sum_{i\in\cV_k} \vvarphi_{i}^{k+}\left[\vC(t,\vPhi\bvu)\right]_{ii}\vvarphi_{i}^{l}
+    \end{align}
+\end{subequations}
+where in the second row, the fact that $\left[\vC(t,\vu)\right]_{ij} = 0$ for all $i\neq j$ is used, and in the last row, the fact that $\vvarphi_{i}^{k+}=0$ for all $i\notin\cV_k$ is used. Noting that $\left[\vC(t,\vu)\right]_{ii}$ has a zero first row and first column, it follows that $\left[\vPhiplus\vC(t,\vPhi\bvu)\vPhi\right]_{kl} = 0$ for all $k,l=1,2,\dots,N$. Thus the matrix
+\begin{equation}
+    \bvC\left(t,\bvu\right) = \vPhiplus\vC\left(t,\vPhi\bvu\right)\vPhi = \vzero
+\end{equation}
+vanishes as in \cref{eqn_lcm}.
+
+\subsubsection{Magnitude Analysis for Residual Dynamics}
+
+Next, the magnitude of the residual dynamics $\vr^{(2)}(\vu,t)$ is analyzed to pinpoint the missing physics in the LCM. By definition,
+\begin{subequations}
+\begin{align}
+    \vr^{(2)}(\vu,t) &= \dot{\bvu} - \vr^{(1)}(\bvu,t) \\ 
+    &= \vPhiplus\vr(\vu,t) - \vr^{(1)}(\vu,t)\\
+    &= \begin{array}[t]{@{}l@{\;}c@{\;}l@{}}
+       \underbrace{\vPhiplus\vA(\vu)^{-1}\vB(\vu)\vu - \bvA(\bvu)^{-1}\bvB(\bvu)\bvu}_{\text{\#1}}
+       & + &
+       \underbrace{\vPhiplus\vA(\vu)^{-1}\vC(t,\vu)\vu - \bvA(\bvu)^{-1}\bvC(t,\bvu)\bvu}_{\text{\#2}} \\
+       & + &
+       \underbrace{\vPhiplus\vA(\vu)^{-1}\vf(t) - \bvA(\bvu)^{-1}\bvf(t)}_{\text{\#3}}
+       \end{array}
+\end{align}
+\end{subequations}
+The magnitude analysis for terms \#1 and \#3 can be found in Ref.\hl{x}. The analysis for term \#2 is presented next. Let $\vD(\bvu) = \vA(\vPhi\bvu)^{-1}\vP\vC(t,\vPhi\bvu)$, then,
+\begin{subequations}
+    \begin{align}
+        &\vPhiplus\vA(\vu)^{-1}\vC(t,\vu)\vu - \bvA(\bvu)^{-1}\bvC(t,\bvu)\bvu\\
+        &= \vPhiplus\vA(\vu)^{-1}\vC(t,\vu)\vu - \vPhiplus\vA(\vPhi\bvu)^{-1}\vPhi\vPhiplus\vC(t,\vPhi\bvu)\vPhi\vPhiplus\vu\\
     \end{align}
 \end{subequations}
 
 
-\subsubsection{Magnitude Analysis for Residual Dynamics}
+
+
 
 \subsection{Lumped Capacitance Model}
 
