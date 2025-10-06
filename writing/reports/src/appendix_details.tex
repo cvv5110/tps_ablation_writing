@@ -49,7 +49,7 @@ where for $k,l=1,2,\dots,P$,
     \begin{align}
         \left[\vA^{(i)}\right]_{kl} &= \intEi\rho c_p\phik^{(i)}\phil^{(i)}d\Ei\\
         \left[\vB^{(i)}\right]_{kl} &= -\intEi\left(\nabla\phik^{(i)}\right)\cdot\left(\vk\nabla\phil^{(i)}\right)d\Ei\\
-        \left[\vC^{(i)}\right]_{kl} &= \intEi\rho c_p \phik^{(i)}\vv^{(i)}\cdot\nabla\phil^{(i)}d\Ei\\
+        \left[\vC^{(i)}\right]_{kl} &= \intEi\rho c_p \phik^{(i)}\vv^{(i)}\cdot\nabla\phil^{(i)}d\Ei\label{eqn_advection_matrix_element_kl}\\
         \left[\vBi_{ij}\right] &= \int_{\eij}\average{\vk\nabla\phik^{(i)}\cdot\hat{n}}\phil^{(i)} - \sigma\jump{\phik^{(i)}}\phil^{(i)}d\eij\\
         \left[\vBj_{ij}\right] &= \int_{\eij}-\average{\vk\nabla\phik^{(i)}\cdot\hat{n}}\phil^{(j)} + \sigma\jump{\phik^{(i)}}\phil^{(j)}d\eij\\
         \left[\vf^{(i)}\right]_k &= \int_{\eiq}\phik^{(i)}q_bd\eiq + \sigma\int_{\eiT}\phik^{(i)}d\eiT
@@ -79,14 +79,26 @@ The LCM is obtained by coarse-graining the full-order DG-FEM. This coarse-graini
 Using \cref{eqn_projection_operator}, the resolved dynamics is computed as follows,
 \begin{subequations}
     \begin{align}
-        &\vr^{(1)}(\vu,t) = \cP\left[\vPhiplus\vA(\vu)^{-1}\left(\vB(\vu)\vu + \vC(t,\vu)\vu + \vf(t,\vu)\right)\right]\\
-        &= \vPhiplus\vA\left(\vP\vu\right)^{-1}\vP\vB\left(\vP\vu\right)\vP\vu + \vPhiplus\vA\left(\vP\vu\right)^{-1}\vP\vC\left(t,\vP\vu\right)\vP\vu + \vPhiplus\vA\left(\vP\vu\right)^{-1}\vP\vf(t,\vP\vu)\\
-        &= \underbrace{\vPhiplus\vA\left(\vPhi\bvu\right)^{-1}\vPhi}_{\text{\#1}}\underbrace{\vPhiplus\vB\left(\vPhi\bvu\right)\vPhi\bvu}_{\text{\#2}} + \vPhiplus\vA\left(\vPhi\bvu\right)^{-1}\vPhi\underbrace{\vPhiplus\vC\left(t,\vPhi\bvu\right)\vPhi}_{\text{\#3}}\bvu + \vPhiplus\vA\left(\vPhi\bvu\right)^{-1}\vPhi\underbrace{\vPhiplus\vf(t,\vPhi\bvu)}_{\text{\#4}}
+        &\vr^{(1)}(\vu,t) = 
+        \cP\left[\vPhiplus\vA(\vu)^{-1}\left(\vB(\vu)\vu + \vC(t,\vu)\vu + \vf(t,\vu)\right)\right]\\[4pt]
+        &\begin{array}{rl}
+            =\vPhiplus\vA\left(\vP\vu\right)^{-1}\vP\vB\left(\vP\vu\right)\vP\vu
+            &+~\vPhiplus\vA\left(\vP\vu\right)^{-1}\vP\vC\left(t,\vP\vu\right)\vP\vu \\[6pt]
+            &+~\vPhiplus\vA\left(\vP\vu\right)^{-1}\vP\vf(t,\vP\vu)
+        \end{array}\\[4pt]
+        &\begin{array}{rl}
+            =\underbrace{\vPhiplus\vA\left(\vPhi\bvu\right)^{-1}\vPhi}_{\text{\#1}}
+            \underbrace{\vPhiplus\vB\left(\vPhi\bvu\right)\vPhi\bvu}_{\text{\#2}}
+            &+~\vPhiplus\vA\left(\vPhi\bvu\right)^{-1}\vPhi
+            \underbrace{\vPhiplus\vC\left(t,\vPhi\bvu\right)\vPhi}_{\text{\#3}}\bvu \\[6pt]
+            &+~\vPhiplus\vA\left(\vPhi\bvu\right)^{-1}\vPhi
+            \underbrace{\vPhiplus\vf(t,\vPhi\bvu)}_{\text{\#4}}
+        \end{array}
     \end{align}
 \end{subequations}
-Detailed derivations for the \#1, \#2, and \#4 terms can be found in Ref.\hl{x}. The effects of coarse-graining on term \#3 are analyzed as follows.
+Detailed derivations for the \#1, \#2, and \#4 terms can be found in Ref.\hl{x}. The effects of coarse-graining on the advection term \#3 are analyzed next.
 
-\paragraph*{\textit{Term \#3}} The $\vC(t,\vu)\in\mathbb{R}^{MP\times MP}$ matrix contains $M$ diagonal of size $P\times P$, since the basis functions are defined locally on each element. Therefore, $\left[\vC(t,\vu)\right]_{ij} = \vzero$ for all $i \neq j$ with $i,j=1,2,\dots,M$. Moreover, since the first basis function is constant, $\nabla\phi_1^{(i)} = 0$ and thus the $(1,1)$-th element of each diagonal block is zero, i.e., $\left[\vC(t,\vu)\right]_{ii}=0$ is zero. It follows that for $k,l=1,2,\cdots,N$,
+\paragraph*{\textit{Term \#3}} The $\vC(t,\vu)\in\mathbb{R}^{MP\times MP}$ matrix contains $M$ diagonal of size $P\times P$, since the basis functions are defined locally on each element. Therefore, $\left[\vC(t,\vu)\right]_{ij} = \vzero$ for all $i \neq j$ with $i,j=1,2,\dots,M$. It follows that for $k,l=1,2,\cdots,N$,
 \begin{subequations}
     \begin{align}
         \left[\vPhiplus\vC(t,\vPhi\bvu)\vPhi\right]_{kl} &= \sum_{i=1}^{M}\sum_{j=1}^{M}\vvarphi_{i}^{k+}\left[\vC(t,\vPhi\bvu)\right]_{ij}\vvarphi_{j}^{l}\\
@@ -94,11 +106,15 @@ Detailed derivations for the \#1, \#2, and \#4 terms can be found in Ref.\hl{x}.
         &= \sum_{i\in\cV_k} \vvarphi_{i}^{k+}\left[\vC(t,\vPhi\bvu)\right]_{ii}\vvarphi_{i}^{l}
     \end{align}
 \end{subequations}
-where in the second row, the fact that $\left[\vC(t,\vu)\right]_{ij} = 0$ for all $i\neq j$ is used, and in the last row, the fact that $\vvarphi_{i}^{k+}=0$ for all $i\notin\cV_k$ is used. Noting that $\left[\vC(t,\vu)\right]_{ii}$ has a zero first row and first column, it follows that $\left[\vPhiplus\vC(t,\vPhi\bvu)\vPhi\right]_{kl} = 0$ for all $k,l=1,2,\dots,N$. Thus the matrix
+where in the second row, the fact that $\left[\vC(t,\vu)\right]_{ij} = 0$ for all $i\neq j$ is used, and in the last row, the fact that $\vvarphi_{i}^{k+}=0$ for all $i\notin\cV_k$ is used. Now, considering that $\left[\vC(t,\vu)\right]_{ii}$ has a $(1,1)$-th zero element, i.e., $\left[C_{11}(t,\vPhi\bvu)\right]_{ii} = 0$, and that if $k\neq l$ then $i\notin\cV_l$ and thus $\vvarphi_i^{l}=\vzero$, it follows that for some index $i\in\cV_k$,
+\begin{equation}
+    \vvarphi_{i}^{k+}\left[\vC(t,\vPhi\bvu)\right]_{ii}\vvarphi_{i}^{l} = \vvarphi_{i}^{k+}\left[\vC(t,\vPhi\bvu)\right]_{ii}\vvarphi_{i}^{k} = \frac{|E_i|}{|\Omega_k|}\left[C_{11}(t,\vPhi\bvu)\right]_{ii} = 0
+\end{equation}
+The matrix $\left[\vPhiplus\vC(t,\vPhi\bvu)\vPhi\right]_{kl} = 0$ for all $k,l=1,2,\dots,N$, and thus,
 \begin{equation}
     \bvC\left(t,\bvu\right) = \vPhiplus\vC\left(t,\vPhi\bvu\right)\vPhi = \vzero
 \end{equation}
-vanishes as in \cref{eqn_lcm}.
+as indicated by the LCM in \cref{eqn_lcm}.
 
 \subsubsection{Magnitude Analysis for Residual Dynamics}
 
@@ -120,13 +136,19 @@ The magnitude analysis for terms \#1 and \#3 can be found in Ref.\hl{x}. The ana
 \begin{subequations}
     \begin{align}
         &\vPhiplus\vA(\vu)^{-1}\vC(t,\vu)\vu - \bvA(\bvu)^{-1}\bvC(t,\bvu)\bvu\\
-        &= \vPhiplus\vA(\vu)^{-1}\vC(t,\vu)\vu - \vPhiplus\vA(\vPhi\bvu)^{-1}\vPhi\vPhiplus\vC(t,\vPhi\bvu)\vPhi\vPhiplus\vu\\
+        &= \vPhiplus\vA(\vu)^{-1}\vC(t,\vu)\vu - \vPhiplus\vA(\vPhi\bvu)^{-1}\vP\vC(t,\vPhi\bvu)\vPhi\vPhiplus\vu\\
+        &= \vPhiplus\vA^{-1}(\vu)\vC(t,\vu)\vu - \vPhiplus\vD(\bvu)\vPhi\vPhiplus\vu\\
     \end{align}
 \end{subequations}
-
-
-
-
+where $\vP=\vPhi\vPhiplus$. Thus,
+\begin{subequations}
+    \begin{align}
+        &\left\|\vPhiplus\vA(\vu)^{-1}\vC(t,\vu)\vu - \bvA^{-1}(\bvu)\bvC(t,\bvu)\bvu\right\| \\
+        &\leq \left\|\vPhiplus\vA^{-1}(\vu)\vC(t,\vu)\vu - \vPhiplus\vD(\bvu)\vu\right\| + \left\|\vPhiplus\vD(\bvu)\vu - \vPhiplus\vD(\bvu)\vPhi\vPhiplus\vu\right\|\\
+        &\leq \left\|\vPhiplus\right\|\underbrace{\left\|\vA^{-1}(\vu)\vC(t,\vu)\vu - \vD(\bvu)\vu\right\|}_{\#1} + \left\|\vPhiplus\vD(\bvu)\right\|\underbrace{\left\|\vu - \vPhi\vPhiplus\vu\right\|}_{\#2}
+    \end{align}
+\end{subequations}
+where term \#2 is due to the appriximation of non-uniform temperaeture as constants, and term \#1 is the error in the advection dynamics due to coarse-graining. 
 
 \subsection{Lumped Capacitance Model}
 

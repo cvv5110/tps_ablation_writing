@@ -1,5 +1,5 @@
 \documentclass[12pt]{article}
-\usepackage[margin=0.5in]{geometry}
+\usepackage[margin=1in]{geometry}
 \usepackage{graphicx}
 \usepackage{xcolor}
 \usepackage{amsmath}
@@ -7,6 +7,8 @@
 \usepackage{amssymb}
 \usepackage{cleveref}
 \usepackage{subfigure}
+\usepackage{lineno}
+\usepackage{setspace}
 
 \newcommand{\hl}[1]{\colorbox{yellow}{#1}}
 
@@ -40,9 +42,9 @@
 \newcommand{\phii}{\phi^{(i)}}
 \newcommand{\vI}{\mathbf{I}}
 \newcommand{\vzero}{\boldsymbol{0}}
+\newcommand{\vz}{\mathbf{z}}
 \newcommand{\vM}{\mathbf{M}}
 \newcommand{\vg}{\mathbf{g}}
-\newcommand{\vk}{\mathbf{k}}
 \newcommand{\phij}{\phi^{(j)}}
 \newcommand{\Ti}{T^{(i)}}
 \newcommand{\Tj}{T^{(j)}}
@@ -85,6 +87,26 @@
 \newcommand{\vBiij}{\mathbf{B}^{(i)}_{ij}}
 \newcommand{\vBjij}{\mathbf{B}^{(j)}_{ij}}
 \newcommand{\vfi}{\mathbf{f}^{(i)}}
+\newcommand{\vK}{\mathbf{K}}
+\newcommand{\tvK}{\tilde{\mathbf{K}}}
+\newcommand{\tk}{\tilde{k}}
+\newcommand{\cK}{\mathcal{K}}
+\newcommand{\vk}{\boldsymbol{k}}
+\newcommand{\tcK}{\tilde{\mathcal{K}}}
+\newcommand{\tvk}{\tilde{\boldsymbol{k}}}
+\newcommand{\tvkappa}{\tilde{\boldsymbol{\kappa}}}
+\newcommand{\vkappa}{\boldsymbol{\kappa}}
+\newcommand{\vp}{\mathbf{p}}
+\newcommand{\vd}{\mathbf{d}}
+\newcommand{\vq}{\mathbf{q}}
+\newcommand{\vLambda}{\boldsymbol{\Lambda}}
+\newcommand{\vG}{\mathbf{G}}
+\newcommand{\vR}{\mathbf{R}}
+\newcommand{\vbeta}{\boldsymbol{\beta}}
+\newcommand{\vQ}{\mathbf{Q}}
+\newcommand{\vO}{\mathbf{O}}
+\newcommand{\vy}{\mathbf{y}}
+\newcommand{\vE}{\mathbf{E}}
 
 % graphics
 \newcommand\insertfigs[3]{
@@ -103,6 +125,8 @@
 \newcommand\vn{{\mathbf{n}}}
 
 \begin{document}
+\onehalfspacing
+\linenumbers
 
 \title{Physics-Infused Reduced-Order Modeling for Analysis of Ablating Hypersonic Thermal Protection Systems}
 

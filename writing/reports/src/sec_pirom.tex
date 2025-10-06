@@ -54,10 +54,102 @@ It follows from Ref.\hl{x} that the resolved dynamics is exactly the LCM, where 
 where the following relations hold,
 \begin{subequations}
     \begin{align}
-        \bvA(\bvu) &= \vW\left(\vPhiplus\vA\left(\vPhi\bvu\right)^{-1}\vPhi\right)^{-1}\\
-        \bvB(\bvu) &= \vW\vPhiplus\vB\left(\vPhi\bvu\right)\vPhi\\
-        \bvf(t) &= \vW\vPhiplus\vf
+        \bvA(\bvu) &= \vW\left(\vPhiplus\vA\left(\vPhi\bvu\right)^{-1}\vPhi\right)^{-1} &\quad \bvC(t,\bvu) &= \vzero \\
+        \bvB(\bvu) &= \vW\vPhiplus\vB\left(\vPhi\bvu\right)\vPhi &\quad \bvf(t) &= \vW\vPhiplus\vf
     \end{align}\label{eqn_coarse_grained_matrices}
 \end{subequations}
-where $\vW\in\mathbb{R}^{N\times N}$ is a diagonal matrix with the $i$-th element as $\left[\vW\right]_{ii} = \left|\cV_k\right|$ if $i\in\cV_k$. The derivation of \cref{eqn_coarse_grained_matrices} is provided in the Appendix.
+where $\vW\in\mathbb{R}^{N\times N}$ is a diagonal matrix with the $i$-th element as $\left[\vW\right]_{ii} = \left|\cV_k\right|$ if $i\in\cV_k$. As shown in the Appendix, the examination of the second residual term $\vr^{(2)}(\vu,t)$ in \cref{eqn_coarse_grained_dynamics} reveals the physical sources of missing dynamics in the LCM: the approximation of non-uniform temperature within each component as a constant, and the elimination of the advection term due to coarse-graining.
+
+In sum, the above results not only show that the LCM is a result of coarse-graining of the full-order DG-FEM, but also reveal the discrepancies between the LCM and the DG-FEM. In the subsequent section, the discrepancies will be corrected to produce the proposed PIROM.
+
+\subsection{Formulation of Reduced-Order Model}
+
+The Mori-Zwanzig (MZ) formalism is an operator-projection technique used to derive ROMs for high-dimensional dynamical systems, especially in statistical mechanics and fluid dynamics \hl{Parish,Duraisamy}. It provides an exact reformulation of the full-order dynamics in terms of a subset of resolved variables. The proposed ROM is subsequently developed based on such reformulation. Equation \cref{eqn_coarse_grained_dynamics} shows that the DG-FEM dynamics can be decomposed into the resolved dynamics $\vr^{(1)}(\vu,t)$ and the orthogonal dynamics $\vr^{(2)}(\vu,t)$, in the sense of $\cP\vr^{(2)}=0$. In this case, the MZ formalism can be invoked to express the dynamics $\bvu$ in terms of $\bvu$ alone as the projected Generalized Langevin Equation (GLE) \hl{Parish,Duraisamy},
+\begin{equation}
+    \dot{\bvu}(t) = \vr^{(1)}(\bvu,t) + \int_{0}^{t}\tvkappa(t,s,\bvu)ds\label{eqn_gle}
+\end{equation}
+where the first term is Markovian, and the integral term is referred to as the memory. The integral term is non-Markovian, accounting for impact of past resolved states on the current states through their interactions with the un-resolved states.
+
+Next, to further inform the subsequent derivation of the ROM, the kernel $\tvk$ is examined via a leading-order expansion, based on prior work \hl{x}; this can be viewed as an analog of zeroth-order holding in linear system theory with a sufficiently small time step. In this case, the memory kernel is approximated as,
+\begin{equation}
+    \tvkappa(t,s,\bvu) \approx \vr^{(1)}(\bvu,t) \cdot \nabla_{\bvu}\vr^{(2)}\left(\vPhi\bvu,t\right)
+\end{equation}
+Note that the terms in $\vr^{(1)}$ have a common factor $\bvA^{-1}$; this motivates the following heuristic modification of the model form in \cref{eqn_gle},
+\begin{subequations}
+    \begin{align}
+        \dot{\bvu} &= \vr^{(1)}(\bvu,t) + \bvA^{-1}(\bvu)\int_{0}^{t}\vkappa(t,s,\bvu)ds\label{eqn_pirom_gle}\\
+        \bvA(\bvu) &= \bvB\left(\bvu\right)\bvu + \bvf(t) + \int_{0}^{t}\vkappa(t,s,\bvu)ds\label{eqn_lcm_gle}
+    \end{align}
+\end{subequations}
+where the original kernel $\tvkappa$ is effectively normalized by $\bvA^{-1}$. Intuitively, such choice of kernel reduces its dependency on the averaged material properties, and simplifies the subsequent design of model form.
+
+Subsequently, the hidden states are introduced to make the non-Markovian system in \cref{eqn_gle}, Markovian. In this manner, \cref{eqn_lcm_gle} is converted into a pure state-space model, with the functional form of the LCM retained; since LCM is a physics-based model, then it encodes the physical information and retains explicit parametric dependence of the problem. Consider the representation of the kernel as a finite sum of simpler functions, e.g., exponentials,
+\begin{equation}
+    \vkappa(t,s,\bvu) = \sum_{j=1}^{m}\cK_j(t,s)\left[\vp_j + \vd_j(t)\right]\phi_j(s)
+\end{equation}
+where,
+\begin{equation}
+    \cK_j(t,s) = e^{\int_{s}^{t}\left(-\lambda_j + e_j(\tau)\right)d\tau},\quad \phi_j(s) = \vq_j^{\top}\bvu(s) + \vg_j(s)^{\top}\bvu(s) + \vr_j^{\top}\bvf(s)
+\end{equation}
+with suitable coefficients $\vp_j,\vd_j,\vq_j,\vg_j,\vr_j\in\mathbb{R}^{N}$ and decay rates $\lambda_j,e_j(\tau)>0$, that need to be identified from data. 
+
+Define the hidden states as,
+\begin{equation}
+    \beta_j(t) = \int_{0}^{t}\cK_j(s,t)\phi_j(s)ds
+\end{equation}
+then through its differentiation with respect to time,
+\begin{equation}
+    \dot{\beta}_j(t) = (-\lambda_j + e_j(t))\beta_j(t) + \vq_j^{\top}\bvu(t) + \vg_j(t)^{\top}\bvu(t) + \vr_j^{\top}\bvf(t)
+\end{equation}
+and the memory term becomes,
+\begin{equation}
+    \int_{0}^{t}\vkappa(t,s,\bvu)ds = \sum_{j=1}^{m}\left[\vp_j + \vd_j(t)\right]\beta_j(t)
+\end{equation}
+Then, \cref{eqn_lcm_gle} is recast as the extended Markovian s ystem,
+\begin{subequations}
+    \begin{align}
+        \bvA(\bvu)\dot{\bvu} &= \bvB(\bvu)\bvu + \bvf(t) + \left[\vP + \vD(t)\right]\vbeta \\
+        \dot{\vbeta} &= \left[-\vLambda + \vE(t)\right]\vbeta + \left[\vQ + \vG(t)\right]\bvu + \vR\bvf(t)
+    \end{align}
+\end{subequations}
+where,
+\begin{subequations}
+    \begin{align}
+        \vLambda &= \text{diag}\left(\lambda_1,\lambda_2,\dots,\lambda_m\right)\in\mathbb{R}^{N\times m},\quad & \vP &= \left[\vp_1,\vp_2,\dots,\vp_m\right]\in\mathbb{R}^{N\times m}\\
+        \vD(t) &= \left[\vd_1(t),\vd_2(t),\dots,\vd_m(t)\right]\in\mathbb{R}^{N\times m},\quad & \vQ &= \left[\vq_1,\vq_2,\dots,\vq_m\right]\in\mathbb{R}^{N\times m}\\
+        \vG(t) &= \left[\vg_1(t),\vg_2(t),\dots,\vg_m(t)\right]\in\mathbb{R}^{N\times m},\quad & \vR &= \left[\vr_1,\vr_2,\dots,\vr_m\right]\in\mathbb{R}^{N\times m}
+    \end{align}
+\end{subequations}
+Since the hidden states $\vbeta$ serve as the memory, their initial conditions are set to zero, i.e., $\vbeta(t_0) = \vzero$, no memory at the beginning.
+
+Lastly, denote the collection of resolved and hidden states as $\vy = \left[\bvu,\vbeta\right]^T\in\mathbb{R}^{n_y}$ with $n_y = N+m$, then the proposed PIROM is summarized as,
+\begin{subequations}
+    \begin{align}
+        \tilde{\vA}\dot{\vy} &= \left[\tilde{\vB} +\tilde{\vC}(t)\right]\vy + \tilde{\vf}(t)\\
+        \vz &= \vO\vy
+    \end{align}
+\end{subequations}
+where,
+\begin{gather}
+    \tilde{\vA} = \begin{bmatrix}
+        \bvA(\bvu) & \vO\\
+        \vO & \vI
+    \end{bmatrix},\quad \tilde{\vB} = \begin{bmatrix}
+        \bvB(\bvu) & \vP\\
+        \vQ & -\vLambda
+    \end{bmatrix},\quad\tilde{\vC}(t) = \begin{bmatrix}
+        \vzero & \vD(t)\\
+        \vG(t) & \vE(t)
+    \end{bmatrix},\quad
+    \tilde{\vf}(t) = \begin{bmatrix}
+        \bvf(t)\\
+        \vR^{\top}\bvf(t)
+    \end{bmatrix},\quad
+    \vO = \begin{bmatrix}
+        \vI & \vzero
+    \end{bmatrix}
+\end{gather}
+
+
+
 
