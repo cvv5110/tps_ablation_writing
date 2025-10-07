@@ -1,5 +1,5 @@
 # Fdb version 4
-["pdflatex"] 1759791521.10599 "/home/cavarga/tps_ablation_writing/writing/reports/main.tex" "main.pdf" "main" 1759791524.17293 0
+["pdflatex"] 1759863474.43588 "/home/cavarga/tps_ablation_writing/writing/reports/main.tex" "main.pdf" "main" 1759863478.21561 0
   "/etc/texmf/web2c/texmf.cnf" 1738619132.31217 475 c0e671620eb5563b2130f56340a5fde8 ""
   "/home/cavarga/tps_ablation_writing/writing/reports/main.tex" 1759791476.73146 4596 0837521af528bba1231cebcbc7393984 ""
   "/usr/share/texlive/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
@@ -97,11 +97,11 @@
   "figs/four_components.png" 1759763566.97538 233261 2d3977a0c645e3677462d20e1bde7d7a ""
   "figs/general_domain.png" 1756925867.07071 1126974 245c2f657b5c1dda907264430a22a01c ""
   "figs/lumped_mass_representation.png" 1759763566.97638 95012 1ac2a55bbb5044ac2155988619863c7b ""
-  "main.aux" 1759791524.03756 8220 78230c85ec68917b3804660922c76791 "pdflatex"
+  "main.aux" 1759863477.78553 8220 78230c85ec68917b3804660922c76791 "pdflatex"
   "main.tex" 1759791476.73146 4596 0837521af528bba1231cebcbc7393984 ""
   "src/appendix_details.tex" 1759768952.9223 16512 5a3434cf8f5cdd0a8223f182f2dcff19 ""
   "src/sec_intro.tex" 1756925867.09171 2013 ca25c5ca0f5ad5205172ee78f46125b5 ""
-  "src/sec_pirom.tex" 1759791520.78656 12436 eee904c42848a96e8cd92f6329d25d09 ""
+  "src/sec_pirom.tex" 1759863474.10152 12436 7b7459702c73a6e4a3b9aaf811c65251 ""
   "src/sec_problem.tex" 1759769722.40683 13089 b7d03d3d5affd9f1b6b1e6c91034f1bc ""
   (generated)
   "main.aux"

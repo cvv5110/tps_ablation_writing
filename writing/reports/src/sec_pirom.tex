@@ -89,7 +89,7 @@ Subsequently, the hidden states are introduced to make the non-Markovian system 
 \end{equation}
 where,
 \begin{equation}
-    \cK_j(t,s) = e^{\int_{s}^{t}\left(-\lambda_j + e_j(\tau)\right)d\tau},\quad \phi_j(s) = \vq_j^{\top}\bvu(s) + \vg_j(s)^{\top}\bvu(s) + \vr_j^{\top}\bvf(s)
+    \cK_j(t,s) = e^{-\int_{s}^{t}\left(\lambda_j + e_j(\tau)\right)d\tau},\quad \phi_j(s) = \vq_j^{\top}\bvu(s) + \vg_j(s)^{\top}\bvu(s) + \vr_j^{\top}\bvf(s)
 \end{equation}
 with suitable coefficients $\vp_j,\vd_j,\vq_j,\vg_j,\vr_j\in\mathbb{R}^{N}$ and decay rates $\lambda_j,e_j(\tau)>0$, that need to be identified from data. 
 
