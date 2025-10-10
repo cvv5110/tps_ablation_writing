@@ -47,7 +47,11 @@ For instance, an isotropic material assumption results in,
 \]
 where $\lambda$ and $\mu$ are Lame constants that are arbitrarily selected to model the mesh motion. The ``material'' properties $\lambda$ and $\mu$ can be chosen to tailor the mesh deformation and need not represent the actual material being modeled~\hl{Amar2016}. 
 
-The boundary conditions for the energy equation includes a heated surface (\cref{eqn_thermal_bc_neumann}) and a constant-temperature surface (\cref{eqn_thermal_bc_dirichlet}). The boundary conditions for the pseudo-elasticity equation are a function of the surface temperature $T_q(x,t)$ for $x\in\Gamma_q$ using a B' table. The B' table....
+The boundary conditions for the energy equation includes a heated surface (\cref{eqn_thermal_bc_neumann}) and a constant-temperature surface (\cref{eqn_thermal_bc_dirichlet}). The boundary conditions for the pseudo-elasticity equation are a function of the surface temperature $T_q(x,t)$ for $x\in\Gamma_q$ on the heated boundary. For the $i$-th component, the surface velocities are imposed based on the following relation,
+\begin{equation}
+    \hat{\vn}\cdot\vv(x,t) = f(T_q(x,t))\label{eqn_boundary_velocity}
+\end{equation}
+where $\hat{\vn}$ is the unit normal vector on the heated boundary $\Gamma_q$, and $f$ is a function obtained from tabulated data for the material, commonly referred to as a B' table. The B' table provides the recession velocity as a function of surface temperature, and is pre-computed based on high-fidelity simulations of the ablation process for a one-dimensional slab of the material, and is independent of the TPS geometry and boundary conditions. The surface displacements are then computed by integrating the surface velocities over time,
 \begin{equation}
     \bw_q(x,t) = \int_{0}^{t} \mathbf{v}(x,\tau)d\tau = \int_{0}^{t}\mathbf{f}\left(T_q(x,\tau)\right)d\tau\label{eqn_boundary_displacement}
 \end{equation}
@@ -64,11 +68,11 @@ For the $i$-th element, use a set of $P$ trial functions, such as polynomials, t
 \end{equation}
 By standard variational processes, e.g., \hl{Cohen2018}, the element-wise governing equation is denoted as,
 \begin{equation}
-    \vA^{(i)}\dot{\vu}^{(i)} = \left(\vB^{(i)} + \vC^{(i)}(t)\right)\vui + \sumneighbordirichlet\left(\vB^{(i)}_{ij}\vui + \vB^{(j)}_{ij}\vuj\right) + \vf^{(i)}(t),\quad\text{for }i=1,2,\dots,M\label{eqn_element_dg}
+    \vA^{(i)}\dot{\vu}^{(i)} = \left(\vB^{(i)} + \vC^{(i)}\right)\vui + \sumneighbordirichlet\left(\vB^{(i)}_{ij}\vui + \vB^{(j)}_{ij}\vuj\right) + \vf^{(i)}(t),\quad\text{for }i=1,2,\dots,M\label{eqn_element_dg}
 \end{equation}
 which is collected as the following ODE for the all the elements in the mesh,
 \begin{equation}
-    \vA(\vu)\dot{\vu} = \left[\vB(\vu) + \vC(t,\vu)\right]\vu + \mathbf{f}(t)\label{eqn_full_dg}
+    \vA(\vu)\dot{\vu} = \left[\vB(\vu) + \vC(\vu)\right]\vu + \mathbf{f}(t)\label{eqn_full_dg}
 \end{equation}
 where $\vu = \left[\vu^{(1)}, \vu^{(2)}, \ldots, \vu^{(M)}\right]^T\in\mathbb{R}^{MP}$ includes all the DG variables, $\mathbf{f}\in\mathbb{R}^{MP}$ is the external forcing, and the system matrices $\vA$, $\vB$, and $\vC$ are the matrices due to heat capacity, heat conduction, and temperature advection due to mesh motion, respectively. A detailed derivation of \cref{eqn_element_dg,eqn_full_dg} and their matrices is provided in Appendix~\cite{appendix}.
 
@@ -96,7 +100,7 @@ includes the average temperatures $\bar{\vu}$ and forcing inputs $\bar{\vf}$ for
             \end{cases},\quad \bar{B}_{ij} = \begin{cases}
             \sumneighbordirichlet\bar{B}^{(i)}_{ij}, &i=j \\
             \bar{B}^{(j)}_{ij}, & i\neq j
-        \end{cases},\\ \bf^{(i)} = \begin{cases}
+        \end{cases},\\ \vf^{(i)} = \begin{cases}
             |\eiq|\bar{q}^{(i)} + \frac{|\eiT|}{R_{i}}\bar{T}^{(i)}, & i=j \\ 
             0, & i\neq j
         \end{cases}
@@ -116,11 +120,14 @@ where,
 \end{figure}
 
 \subsubsection{Surface Recession Velocity and Displacements}
-Surface displacements are assumed to be one-dimensional and parallel to the surface normal $\vn$ of the heated boundary $\Gamma_q$. Thus, based on the $i$-th average temperature $\bu^{(i)}$ from LCM, the surface recession velocity and displacements are computed as,
+The surface velocity on the heated boundary $\Gamma_q$ is computed based on the temperature predicted by the LCM using \cref{eqn_boundary_velocity}. Thus, based on the $i$-th average temperature $\bar{u}^{(i)}$, the wall-normal surface velocity is computed as,
 \begin{equation}
-    \dot{w}^{(i)}(t) = h^{(i)}(\bu^{(i)}),\quad w^{(i)}(t) = w^{(i)}(t_0) + \int_{t_0}^{t} h^{(i)}\left(\bu^{(i)}\right)d\tau
+    \hat{\vn}\cdot\vv^{(i)}(x,t) = f\left(\bar{u}^{(i)}(t)\right)\label{eqn_lcm_boundary_velocity}
 \end{equation}
-where $h^{(i)}$ is a \hl{x} fit to the B' tabulated data for the material. \hl{Discussion of the B' tabulated data}. The B' table is pre-computed based on high-fidelity simulations of the ablation process for a one-dimensional slab of the material, and is independent of the TPS geometry and boundary conditions.
+Due 
+
+
+
 
 \subsection{Summary of Modeling Approaches}
 

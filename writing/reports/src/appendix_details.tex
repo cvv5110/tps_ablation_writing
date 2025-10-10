@@ -55,7 +55,7 @@ where for $k,l=1,2,\dots,P$,
         \left[\vf^{(i)}\right]_k &= \int_{\eiq}\phik^{(i)}q_bd\eiq + \sigma\int_{\eiT}\phik^{(i)}d\eiT
     \end{align}
 \end{subequations}
-The matrices $\vA^{(i)}\in\mathbb{R}^{P\times P}$, $\vB^{(i)}\in\mathbb{R}^{P\times P}$, and $\vC^{(i)}\in\mathbb{R}^{P\times P}$ are respectively the capacitance, conductivity, and advection matrices for element $i$. These matrices depend on $\rho$, $c_p$, and $\vk$, and hence can be non-linear functions of $\vu^{(i)}$. Since the trial functions are orthogonal, if $\rho c_p$ is constant within an element, $\vAi$ is diagonal; otherwise, $\vA_i$ is symmetric and positive definite as $\rho c_p > 0$.
+The matrices $\vA^{(i)}\in\mathbb{R}^{P\times P}$, $\vB^{(i)}\in\mathbb{R}^{P\times P}$, and $\vC^{(i)}\in\mathbb{R}^{P\times P}$ are respectively the capacitance, conductivity, and advection matrices for element $i$. These matrices depend on $\rho$, $c_p$, $\vk$, and $\vv$, and hence can be non-linear functions of $\vu^{(i)}$. Since the trial functions are orthogonal, if $\rho c_p$ is constant within an element, $\vAi$ is diagonal; otherwise, $\vA_i$ is symmetric and positive definite as $\rho c_p > 0$.
 
 For compactness, the element-wise model in \cref{eqn_element_wise_model} is also written in matrix form,
 \begin{equation}

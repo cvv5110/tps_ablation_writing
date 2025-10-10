@@ -34,7 +34,7 @@ so that the resulting function depends only on the average temperatures $\bvu$. 
 
 Subsequently, the operators defined above are applied to coarse-grain the dynamics. First, write the DG-FEM in \cref{eqn_full_dg} as,
 \begin{equation}
-    \dot{\vu} = \vA(\vu)^{-1}\vB(\vu)\vu + \vA(\vu)^{-1}\vC(t,\vu)\vu + \vA(\vu)^{-1}\vf(t,\vu)\label{eqn_full_dg_rearranged}
+    \dot{\vu} = \vA(\vu)^{-1}\vB(\vu)\vu + \vA(\vu)^{-1}\vC(\vu)\vu + \vA(\vu)^{-1}\vf(t)\label{eqn_full_dg_rearranged}
 \end{equation}
 and multiply both sides by $\vPhiplus$ to obtain,
 \begin{equation}
@@ -46,15 +46,15 @@ Apply the projection operator $\cP$ and the residual operator $\cQ$ to the right
 \end{equation}
 where $\vr^{(1)}(\vu,t)$ is resolved dynamics that depends on $\bvu$ only, and $\vr^{(2)}(\vu,t)$ is the un-resolved or residual dynamics. Detailed derivations and analysis of $\vr^{(1)}(\vu,t)$ and $\vr^{(2)}(\vu,t)$ can be found in the Appendix. 
 
-It follows from Ref.\hl{x} that the resolved dynamics is exactly the LCM, where the advection term reduces to zero, i.e., $\bvC(t,\vu) = \vzero$ as shown in the Appendix. Using the notation from \cref{eqn_lcm}, it follows that,
+It follows from Ref.\hl{x} that the resolved dynamics is exactly the LCM, where the advection term reduces to zero, i.e., $\bvC(\bvu) = \vzero$ as shown in the Appendix. Using the notation from \cref{eqn_lcm}, it follows that,
 \begin{align}
-    \vr^{(1)}(\vu,t) &= \bvA(\bvu)^{-1}\bvB(\bvu)\bvu + \bvA(\bvu)^{-1}\bvC(t,\bvu)\bvu + \bvA(\bvu)^{-1}\bvf(t,\bvu)\notag\\
+    \vr^{(1)}(\vu,t) &= \bvA(\bvu)^{-1}\bvB(\bvu)\bvu + \bvA(\bvu)^{-1}\bvC(\bvu)\bvu + \bvA(\bvu)^{-1}\bvf(\bvu)\notag\\
     &= \bvA(\bvu)^{-1}\bvB(\bvu)\bvu + \bvA(\bvu)^{-1}\bvf(t)\label{eqn_resolved_dynamics_no_advection}
 \end{align}
 where the following relations hold,
 \begin{subequations}
     \begin{align}
-        \bvA(\bvu) &= \vW\left(\vPhiplus\vA\left(\vPhi\bvu\right)^{-1}\vPhi\right)^{-1} &\quad \bvC(t,\bvu) &= \vzero \\
+        \bvA(\bvu) &= \vW\left(\vPhiplus\vA\left(\vPhi\bvu\right)^{-1}\vPhi\right)^{-1} &\quad \bvC(\bvu) &= \vzero \\
         \bvB(\bvu) &= \vW\vPhiplus\vB\left(\vPhi\bvu\right)\vPhi &\quad \bvf(t) &= \vW\vPhiplus\vf
     \end{align}\label{eqn_coarse_grained_matrices}
 \end{subequations}
@@ -78,78 +78,84 @@ Note that the terms in $\vr^{(1)}$ have a common factor $\bvA^{-1}$; this motiva
 \begin{subequations}
     \begin{align}
         \dot{\bvu} &= \vr^{(1)}(\bvu,t) + \bvA^{-1}(\bvu)\int_{0}^{t}\vkappa(t,s,\bvu)ds\label{eqn_pirom_gle}\\
-        \bvA(\bvu) &= \bvB\left(\bvu\right)\bvu + \bvf(t) + \int_{0}^{t}\vkappa(t,s,\bvu)ds\label{eqn_lcm_gle}
+        \bvA(\bvu)\dot{\bvu} &= \bvB\left(\bvu\right)\bvu + \bvf(t) + \int_{0}^{t}\vkappa(t,s,\bvu)ds\label{eqn_lcm_gle}
     \end{align}
 \end{subequations}
 where the original kernel $\tvkappa$ is effectively normalized by $\bvA^{-1}$. Intuitively, such choice of kernel reduces its dependency on the averaged material properties, and simplifies the subsequent design of model form.
 
-Subsequently, the hidden states are introduced to make the non-Markovian system in \cref{eqn_gle}, Markovian. In this manner, \cref{eqn_lcm_gle} is converted into a pure state-space model, with the functional form of the LCM retained; since LCM is a physics-based model, then it encodes the physical information and retains explicit parametric dependence of the problem. Consider the representation of the kernel as a finite sum of simpler functions, e.g., exponentials,
+Subsequently, the hidden states are introduced to ``Markovianize'' the system \cref{eqn_gle}. In this manner, \cref{eqn_lcm_gle} is converted into a pure state-space model, with the functional form of the LCM retained; since LCM is a physics-based model, then it encodes the physical information and retains explicit parametric dependence of the problem. Consider the representation of the kernel as a finite sum of simpler functions, e.g., exponentials,
 \begin{equation}
-    \vkappa(t,s,\bvu) = \sum_{j=1}^{m}\cK_j(t,s)\left[\vp_j + \vd_j(t)\right]\phi_j(s)
+    \vkappa(t,s,\bvu) = \sum_{j=1}^{m}\cK_j(t,s,\bvu)\left[\vp_j + \vd_j(\bvu)\right]\phi_j(s,\bvu)
 \end{equation}
 where,
 \begin{equation}
-    \cK_j(t,s) = e^{-\int_{s}^{t}\left(\lambda_j + e_j(\tau)\right)d\tau},\quad \phi_j(s) = \vq_j^{\top}\bvu(s) + \vg_j(s)^{\top}\bvu(s) + \vr_j^{\top}\bvf(s)
+    \cK_j(t,s,\bvu) = e^{-\int_{s}^{t}\left(\lambda_j + e_j(\bvu)\right)d\tau},\quad \phi_j(s,\bvu) = \vq_j^{\top}\bvu(s) + \vg_j(\bvu)^{\top}\bvu(s) + \vr_j^{\top}\bvf(s)
 \end{equation}
-with suitable coefficients $\vp_j,\vd_j,\vq_j,\vg_j,\vr_j\in\mathbb{R}^{N}$ and decay rates $\lambda_j,e_j(\tau)>0$, that need to be identified from data. 
+with suitable coefficients $\vp_j,\vd_j,\vq_j,\vg_j,\vr_j\in\mathbb{R}^{N}$ and decay rates $\lambda_j,e_j(\bvu)>0$, that need to be identified from data. 
 
 Define the hidden states as,
 \begin{equation}
-    \beta_j(t) = \int_{0}^{t}\cK_j(s,t)\phi_j(s)ds
+    \beta_j(t) = \int_{0}^{t}\cK_j(s,\bvu)\phi_j(s,\bvu)ds
 \end{equation}
 then through its differentiation with respect to time,
 \begin{equation}
-    \dot{\beta}_j(t) = (-\lambda_j + e_j(t))\beta_j(t) + \vq_j^{\top}\bvu(t) + \vg_j(t)^{\top}\bvu(t) + \vr_j^{\top}\bvf(t)
+    \dot{\beta}_j(t) = -\left[\lambda_j + e_j(\bvu)\right]\beta_j(t) + \vq_j^{\top}\bvu(t) + \vg_j(\bvu)^{\top}\bvu(t) + \vr_j^{\top}\bvf(t)
 \end{equation}
 and the memory term becomes,
 \begin{equation}
-    \int_{0}^{t}\vkappa(t,s,\bvu)ds = \sum_{j=1}^{m}\left[\vp_j + \vd_j(t)\right]\beta_j(t)
+    \int_{0}^{t}\vkappa(t,s,\bvu)ds = \sum_{j=1}^{m}\left[\vp_j + \vd_j(\bvu)\right]\beta_j(t)
 \end{equation}
-Then, \cref{eqn_lcm_gle} is recast as the extended Markovian s ystem,
+Then, \cref{eqn_lcm_gle} is recast as the extended Markovian system,
 \begin{subequations}
     \begin{align}
-        \bvA(\bvu)\dot{\bvu} &= \bvB(\bvu)\bvu + \bvf(t) + \left[\vP + \vD(t)\right]\vbeta \\
-        \dot{\vbeta} &= \left[-\vLambda + \vE(t)\right]\vbeta + \left[\vQ + \vG(t)\right]\bvu + \vR\bvf(t)
-    \end{align}
+        \bvA(\bvu)\dot{\bvu} &= \bvB(\bvu)\bvu + \left[\vP + \vD(\bvu)\right]\vbeta + \bvf(t)\\
+        \dot{\vbeta} &= \left[-\vLambda + \vE(\bvu)\right]\vbeta + \left[\vQ + \vG(\bvu)\right]\bvu + \vR\bvf(t)
+    \end{align}\label{eqn_extended_markovian_system}
 \end{subequations}
 where,
 \begin{subequations}
     \begin{align}
         \vLambda &= \text{diag}\left(\lambda_1,\lambda_2,\dots,\lambda_m\right)\in\mathbb{R}^{N\times m},\quad & \vP &= \left[\vp_1,\vp_2,\dots,\vp_m\right]\in\mathbb{R}^{N\times m}\\
-        \vD(t) &= \left[\vd_1(t),\vd_2(t),\dots,\vd_m(t)\right]\in\mathbb{R}^{N\times m},\quad & \vQ &= \left[\vq_1,\vq_2,\dots,\vq_m\right]\in\mathbb{R}^{N\times m}\\
-        \vG(t) &= \left[\vg_1(t),\vg_2(t),\dots,\vg_m(t)\right]\in\mathbb{R}^{N\times m},\quad & \vR &= \left[\vr_1,\vr_2,\dots,\vr_m\right]\in\mathbb{R}^{N\times m}
+        \vD(\bvu) &= \left[\vd_1(\bvu),\vd_2(\bvu),\dots,\vd_m(\bvu)\right]\in\mathbb{R}^{N\times m},\quad & \vQ &= \left[\vq_1,\vq_2,\dots,\vq_m\right]\in\mathbb{R}^{N\times m}\\
+        \vG(\bvu) &= \left[\vg_1(\bvu),\vg_2(\bvu),\dots,\vg_m(\bvu)\right]\in\mathbb{R}^{N\times m},\quad & \vR &= \left[\vr_1,\vr_2,\dots,\vr_m\right]\in\mathbb{R}^{N\times m}\\
+        \vE(\bvu) &= \text{diag}\left(e_1(\bvu),e_2(\bvu),\dots,e_m(\bvu)\right)\in\mathbb{R}^{m\times m}&&
     \end{align}
 \end{subequations}
-Since the hidden states $\vbeta$ serve as the memory, their initial conditions are set to zero, i.e., $\vbeta(t_0) = \vzero$, no memory at the beginning.
+Since the hidden states $\vbeta$ serve as the memory, their initial conditions are set to zero, i.e., $\vbeta(t_0) = \vzero$, no memory at the beginning. The physics-infused model in \cref{eqn_extended_markovian_system} retains the structure of the LCM, while the hidden states account for missing physics through corrections to the stiffness and advection matrices, as well as the forcing term.
 
 Lastly, denote the collection of resolved and hidden states as $\vy = \left[\bvu,\vbeta\right]^T\in\mathbb{R}^{n_y}$ with $n_y = N+m$, then the proposed PIROM is summarized as,
 \begin{subequations}
     \begin{align}
-        \tilde{\vA}\dot{\vy} &= \left[\tilde{\vB} +\tilde{\vC}(t)\right]\vy + \tilde{\vf}(t)\\
-        \vz &= \vO\vy
-    \end{align}
+        \tilde{\vA}\dot{\vy} &= \left[\tilde{\vB} +\tilde{\vC}\right]\vy + \vH\bvf(t)\\
+        \vz &= \vM\vy
+    \end{align}\label{eqn_pirom_general}
 \end{subequations}
 where,
-\begin{gather}
-    \tilde{\vA} = \begin{bmatrix}
-        \bvA(\bvu) & \vO\\
-        \vO & \vI
-    \end{bmatrix},\quad \tilde{\vB} = \begin{bmatrix}
-        \bvB(\bvu) & \vP\\
-        \vQ & -\vLambda
-    \end{bmatrix},\quad\tilde{\vC}(t) = \begin{bmatrix}
-        \vzero & \vD(t)\\
-        \vG(t) & \vE(t)
-    \end{bmatrix},\quad
-    \tilde{\vf}(t) = \begin{bmatrix}
-        \bvf(t)\\
-        \vR^{\top}\bvf(t)
-    \end{bmatrix},\quad
-    \vO = \begin{bmatrix}
-        \vI & \vzero
-    \end{bmatrix}
-\end{gather}
+\begin{subequations}
+    \begin{gather}
+        \tilde{\vA} = \begin{bmatrix}
+            \bvA(\bvu) & \vO\\
+            \vO & \vI
+        \end{bmatrix}\in\mathbb{R}^{n_y\times n_y},\quad \tilde{\vB} = \begin{bmatrix}
+            \bvB(\bvu) & \vP\\
+            \vQ & -\vLambda
+        \end{bmatrix}\in\mathbb{R}^{n_y\times n_y},\quad \tilde{\vC} = \begin{bmatrix}
+            \vzero & \vD(\bvu)\\
+            \vG(\bvu) & \vE(\bvu)
+        \end{bmatrix}\in\mathbb{R}^{n_y\times n_y},\\
+        \vH = \begin{bmatrix}
+            \vI \\
+            \vR
+        \end{bmatrix}\in\mathbb{R}^{n_y\times N},\quad  \vM\in\mathbb{R}^{n_z\times n_y}
+    \end{gather}
+\end{subequations}
 
-
-
-
+In \cref{eqn_pirom_general}, the terms $\bvA$, $\bvB$, and $\bvf$ are the LCM terms. The collection of matrices,
+\begin{equation}
+    \vTheta = \left\{\vP,\vD(\bvu),\vG(\bvu),\vLambda,\vE(\bvu),\vQ,\vG(\bvu),\vR,\vM\right\},\in\mathbb{R}^{n_{\theta}}
+\end{equation}
+are learnable parameters to capture the memory effects. Particularly, the matrices $\vP,\vLambda,\vQ,\vR$ are constant, and capture the effects of coarse graining on the stiffness and forcing matrices. The matrices $\vD(\bvu),\vE(\bvu),\vG(\bvu)$ are state-dependent matrices, and capture the effects of coarse-graining on the advection matrix. Leveraging the DG-FEM formula for the advection matrix in \cref{eqn_advection_matrix_element_kl} from the Appendix, the state-dependent matrices for the $i$-th component are written as,
+\begin{equation}
+    \vD^{(i)}(\bvu) = f^{(i)}(\bu^{(i)})\vD^{(i)}, \quad \vE^{(i)}(\bvu) = f^{(i)}(\bu^{(i)})\vE^{(i)}, \quad \vG^{(i)}(\bvu) = f^{(i)}(\bu^{(i)})\vG^{(i)}\label{eqn_advection_matrix_corrections}
+\end{equation}
+where $f^{(i)}(\bu^{(i)})$ is the surface recession velocity function in \cref{eqn_lcm_boundary_velocity} for the $i$-th component, and $\vD^{(i)},\vE^{(i)},\vG^{(i)}$ are constant matrices to be identified from data. In \cref{eqn_pirom_general}, $\vM$ is a fully-populated matrix that extracts the observables, i.e., the surface temperatures, from the PIROM states $\vy$. The PIROM now incorporates explicit information on the temperature-dependent material properties through the LCM matrices, as well as the surface recession velocity function through \cref{eqn_advection_matrix_corrections}.
