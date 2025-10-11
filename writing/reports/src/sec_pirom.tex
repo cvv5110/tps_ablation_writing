@@ -124,11 +124,11 @@ where,
 Since the hidden states $\vbeta$ serve as the memory, their initial conditions are set to zero, i.e., $\vbeta(t_0) = \vzero$, no memory at the beginning. The physics-infused model in \cref{eqn_extended_markovian_system} retains the structure of the LCM, while the hidden states account for missing physics through corrections to the stiffness and advection matrices, as well as the forcing term.
 
 Lastly, denote the collection of resolved and hidden states as $\vy = \left[\bvu,\vbeta\right]^T\in\mathbb{R}^{n_y}$ with $n_y = N+m$, then the proposed PIROM is summarized as,
-\begin{subequations}
+\begin{subequations}\label{eqn_pirom_general}
     \begin{align}
         \tilde{\vA}\dot{\vy} &= \left[\tilde{\vB} +\tilde{\vC}\right]\vy + \vH\bvf(t)\\
         \vz &= \vM\vy
-    \end{align}\label{eqn_pirom_general}
+    \end{align}
 \end{subequations}
 where,
 \begin{subequations}
@@ -154,8 +154,30 @@ In \cref{eqn_pirom_general}, the terms $\bvA$, $\bvB$, and $\bvf$ are the LCM te
 \begin{equation}
     \vTheta = \left\{\vP,\vD(\bvu),\vG(\bvu),\vLambda,\vE(\bvu),\vQ,\vG(\bvu),\vR,\vM\right\},\in\mathbb{R}^{n_{\theta}}
 \end{equation}
-are learnable parameters to capture the memory effects. Particularly, the matrices $\vP,\vLambda,\vQ,\vR$ are constant, and capture the effects of coarse graining on the stiffness and forcing matrices. The matrices $\vD(\bvu),\vE(\bvu),\vG(\bvu)$ are state-dependent matrices, and capture the effects of coarse-graining on the advection matrix. Leveraging the DG-FEM formula for the advection matrix in \cref{eqn_advection_matrix_element_kl} from the Appendix, the state-dependent matrices for the $i$-th component are written as,
+are learnable parameters to capture the memory effects. Particularly, the matrices $\vP,\vLambda,\vQ,\vR$ are constants that need to be identified from data, and account for the effects of coarse-graining on the stiffness and forcing matrices. The matrices $\vD(\bvu),\vE(\bvu),\vG(\bvu)$ are state-dependent matrices, and account for the effects of coarse-graining on the advection matrix. Leveraging the DG-FEM formula for the advection matrix in \cref{eqn_advection_matrix_element_kl} in the Appendix, the state-dependent matrices for the $i$-th component are written as,
 \begin{equation}
     \vD^{(i)}(\bvu) = f^{(i)}(\bu^{(i)})\vD^{(i)}, \quad \vE^{(i)}(\bvu) = f^{(i)}(\bu^{(i)})\vE^{(i)}, \quad \vG^{(i)}(\bvu) = f^{(i)}(\bu^{(i)})\vG^{(i)}\label{eqn_advection_matrix_corrections}
 \end{equation}
-where $f^{(i)}(\bu^{(i)})$ is the surface recession velocity function in \cref{eqn_lcm_boundary_velocity} for the $i$-th component, and $\vD^{(i)},\vE^{(i)},\vG^{(i)}$ are constant matrices to be identified from data. In \cref{eqn_pirom_general}, $\vM$ is a fully-populated matrix that extracts the observables, i.e., the surface temperatures, from the PIROM states $\vy$. The PIROM now incorporates explicit information on the temperature-dependent material properties through the LCM matrices, as well as the surface recession velocity function through \cref{eqn_advection_matrix_corrections}.
+where $f^{(i)}(\bu^{(i)})$ is the surface recession velocity function in \cref{eqn_lcm_boundary_velocity} for the $i$-th component, and $\vD^{(i)},\vE^{(i)},\vG^{(i)}$ are constant matrices to be identified from data. In \cref{eqn_pirom_general}, $\vM$ is a fully-populated matrix that extracts the observables, i.e., the surface temperatures, from the PIROM states $\vy$. The PIROM incorporates explicit information on the temperature-dependent material properties through the LCM matrices, as well as the surface recession velocity function through \cref{eqn_advection_matrix_corrections}.
+
+\subsection{Learning the Hidden Dynamics from Data}
+
+The learning of the PIROM is achieved through a neural-ODE like approach~\hl{Chen2018}. For ease of presentation, consider the following compact form of the PIROM in \cref{eqn_pirom_general},
+\begin{equation}
+    \vcF\left(\dot{\vy},\vy;\vxi,\vTheta\right) = \vzero\label{eqn_pirom_compact}
+\end{equation}
+where $\vxi$ defines the parametrization of the problem, i.e., operating conditions, such as the BC's, as well as the material properties. Consider a dataset of $N_s$ high-fidelity trajectories of observables over a time interval $[t_0,t_f]$,
+\begin{equation}
+    \cD = \left\{\left(t_k,\vz^{(l)}_{\text{HF}}(t_k),\vxi^{(l)}\right)\right\}_{l=1}^{N_s},\quad k=0,1,\dots,K
+\end{equation}
+
+The learning problem is formulated as the following differentially-constrained problem,
+\begin{subequations}
+    \begin{align}
+        \min_{\vTheta} &\quad \frac{1}{N_s}\sum_{l=1}^{N_s}\frac{1}{K}\sum_{k=0}^{K}\left\|\vz^{(l)}_{\text{HF}}(t_k) - \vM\vy^{(l)}(t_k)\right\|_2^2 \\
+        \text{s.t.} &\quad \vcF\left(\dot{\vy}^{(l)},\vy^{(l)};\vxi^{(l)},\vTheta\right) = \vzero,\quad t\in[t_0,t_f],\quad l=1,2,\dots,N_s\\
+        &\quad \vy^{(l)}(t_0) = \vy_0(\vxi^{(l)}),\quad l=1,2,\dots,N_s
+    \end{align}
+\end{subequations}
+
+
