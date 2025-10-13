@@ -59,7 +59,7 @@ The matrices $\vA^{(i)}\in\mathbb{R}^{P\times P}$, $\vB^{(i)}\in\mathbb{R}^{P\ti
 
 For compactness, the element-wise model in \cref{eqn_element_wise_model} is also written in matrix form,
 \begin{equation}
-    \vA(\dot{\vu}) = \left[\vB(\vu) + \vC(t,\vu)\right]\vu + \mathbf{f}(t)\label{eqn_complete_model}
+    \vA(\dot{\vu}) = \left[\vB(\vu) + \vC(\vu)\right]\vu + \mathbf{f}(t)\label{eqn_complete_model}
 \end{equation}
 where $\vu = \left[\vu^{(1)},\vu^{(2)},\cdots,\vu^{(M)}\right]^T\in\mathbb{R}^{MP}$ includes all DG variables, $\vf=\left[\vf^{(1)},\vf^{(2)},\dots,\vf^{(M)}\right]^T\in\mathbb{R}^{MP}$, $\vA$ and $\vC$ are matrices of $M$ diagonal blocks whose $i$-th blocks are $\vAi$ and $\vCi$, and $\vB$ is a matrix of $M\times M$ blocks whose $(i,j)$-th block is,
 \begin{equation}
@@ -80,17 +80,17 @@ Using \cref{eqn_projection_operator}, the resolved dynamics is computed as follo
 \begin{subequations}
     \begin{align}
         &\vr^{(1)}(\vu,t) = 
-        \cP\left[\vPhiplus\vA(\vu)^{-1}\left(\vB(\vu)\vu + \vC(t,\vu)\vu + \vf(t,\vu)\right)\right]\\[4pt]
+        \cP\left[\vPhiplus\vA(\vu)^{-1}\left(\vB(\vu)\vu + \vC(\vu)\vu + \vf(t)\right)\right]\\[4pt]
         &\begin{array}{rl}
             =\vPhiplus\vA\left(\vP\vu\right)^{-1}\vP\vB\left(\vP\vu\right)\vP\vu
-            &+~\vPhiplus\vA\left(\vP\vu\right)^{-1}\vP\vC\left(t,\vP\vu\right)\vP\vu \\[6pt]
+            &+~\vPhiplus\vA\left(\vP\vu\right)^{-1}\vP\vC\left(\vP\vu\right)\vP\vu \\[6pt]
             &+~\vPhiplus\vA\left(\vP\vu\right)^{-1}\vP\vf(t,\vP\vu)
         \end{array}\\[4pt]
         &\begin{array}{rl}
             =\underbrace{\vPhiplus\vA\left(\vPhi\bvu\right)^{-1}\vPhi}_{\text{\#1}}
             \underbrace{\vPhiplus\vB\left(\vPhi\bvu\right)\vPhi\bvu}_{\text{\#2}}
             &+~\vPhiplus\vA\left(\vPhi\bvu\right)^{-1}\vPhi
-            \underbrace{\vPhiplus\vC\left(t,\vPhi\bvu\right)\vPhi}_{\text{\#3}}\bvu \\[6pt]
+            \underbrace{\vPhiplus\vC\left(\vPhi\bvu\right)\vPhi}_{\text{\#3}}\bvu \\[6pt]
             &+~\vPhiplus\vA\left(\vPhi\bvu\right)^{-1}\vPhi
             \underbrace{\vPhiplus\vf(t,\vPhi\bvu)}_{\text{\#4}}
         \end{array}
@@ -98,7 +98,7 @@ Using \cref{eqn_projection_operator}, the resolved dynamics is computed as follo
 \end{subequations}
 Detailed derivations for the \#1, \#2, and \#4 terms can be found in Ref.\hl{x}. The effects of coarse-graining on the advection term \#3 are analyzed next.
 
-\paragraph*{\textit{Term \#3}} The $\vC(t,\vu)\in\mathbb{R}^{MP\times MP}$ matrix contains $M$ diagonal of size $P\times P$, since the basis functions are defined locally on each element. Therefore, $\left[\vC(t,\vu)\right]_{ij} = \vzero$ for all $i \neq j$ with $i,j=1,2,\dots,M$. It follows that for $k,l=1,2,\cdots,N$,
+\paragraph*{\textit{Term \#3}} The $\vC(\vu)\in\mathbb{R}^{MP\times MP}$ matrix contains $M$ diagonal of size $P\times P$, since the basis functions are defined locally on each element. Therefore, $\left[\vC(\vu)\right]_{ij} = \vzero$ for all $i \neq j$ with $i,j=1,2,\dots,M$. It follows that for $k,l=1,2,\cdots,N$,
 \begin{subequations}
     \begin{align}
         \left[\vPhiplus\vC(t,\vPhi\bvu)\vPhi\right]_{kl} &= \sum_{i=1}^{M}\sum_{j=1}^{M}\vvarphi_{i}^{k+}\left[\vC(t,\vPhi\bvu)\right]_{ij}\vvarphi_{j}^{l}\\
@@ -106,7 +106,7 @@ Detailed derivations for the \#1, \#2, and \#4 terms can be found in Ref.\hl{x}.
         &= \sum_{i\in\cV_k} \vvarphi_{i}^{k+}\left[\vC(t,\vPhi\bvu)\right]_{ii}\vvarphi_{i}^{l}
     \end{align}
 \end{subequations}
-where in the second row, the fact that $\left[\vC(t,\vu)\right]_{ij} = 0$ for all $i\neq j$ is used, and in the last row, the fact that $\vvarphi_{i}^{k+}=0$ for all $i\notin\cV_k$ is used. Now, considering that $\left[\vC(t,\vu)\right]_{ii}$ has a $(1,1)$-th zero element, i.e., $\left[C_{11}(t,\vPhi\bvu)\right]_{ii} = 0$, and that if $k\neq l$ then $i\notin\cV_l$ and thus $\vvarphi_i^{l}=\vzero$, it follows that for some index $i\in\cV_k$,
+where in the second row, the fact that $\left[\vC(\vu)\right]_{ij} = 0$ for all $i\neq j$ is used, and in the last row, the fact that $\vvarphi_{i}^{k+}=0$ for all $i\notin\cV_k$ is used. Now, considering that $\left[\vC(\vu)\right]_{ii}$ has a $(1,1)$-th zero element, i.e., $\left[C_{11}(t,\vPhi\bvu)\right]_{ii} = 0$, and that if $k\neq l$ then $i\notin\cV_l$ and thus $\vvarphi_i^{l}=\vzero$, it follows that for some index $i\in\cV_k$,
 \begin{equation}
     \vvarphi_{i}^{k+}\left[\vC(t,\vPhi\bvu)\right]_{ii}\vvarphi_{i}^{l} = \vvarphi_{i}^{k+}\left[\vC(t,\vPhi\bvu)\right]_{ii}\vvarphi_{i}^{k} = \frac{|E_i|}{|\Omega_k|}\left[C_{11}(t,\vPhi\bvu)\right]_{ii} = 0
 \end{equation}
@@ -126,7 +126,7 @@ Next, the magnitude of the residual dynamics $\vr^{(2)}(\vu,t)$ is analyzed to p
     &= \begin{array}[t]{@{}l@{\;}c@{\;}l@{}}
        \underbrace{\vPhiplus\vA(\vu)^{-1}\vB(\vu)\vu - \bvA(\bvu)^{-1}\bvB(\bvu)\bvu}_{\text{\#1}}
        & + &
-       \underbrace{\vPhiplus\vA(\vu)^{-1}\vC(t,\vu)\vu - \bvA(\bvu)^{-1}\bvC(t,\bvu)\bvu}_{\text{\#2}} \\
+       \underbrace{\vPhiplus\vA(\vu)^{-1}\vC(\vu)\vu - \bvA(\bvu)^{-1}\bvC(t,\bvu)\bvu}_{\text{\#2}} \\
        & + &
        \underbrace{\vPhiplus\vA(\vu)^{-1}\vf(t) - \bvA(\bvu)^{-1}\bvf(t)}_{\text{\#3}}
        \end{array}
@@ -135,17 +135,17 @@ Next, the magnitude of the residual dynamics $\vr^{(2)}(\vu,t)$ is analyzed to p
 The magnitude analysis for terms \#1 and \#3 can be found in Ref.\hl{x}. The analysis for term \#2 is presented next. Let $\vD(\bvu) = \vA(\vPhi\bvu)^{-1}\vP\vC(t,\vPhi\bvu)$, then,
 \begin{subequations}
     \begin{align}
-        &\vPhiplus\vA(\vu)^{-1}\vC(t,\vu)\vu - \bvA(\bvu)^{-1}\bvC(t,\bvu)\bvu\\
-        &= \vPhiplus\vA(\vu)^{-1}\vC(t,\vu)\vu - \vPhiplus\vA(\vPhi\bvu)^{-1}\vP\vC(t,\vPhi\bvu)\vPhi\vPhiplus\vu\\
-        &= \vPhiplus\vA^{-1}(\vu)\vC(t,\vu)\vu - \vPhiplus\vD(\bvu)\vPhi\vPhiplus\vu\\
+        &\vPhiplus\vA(\vu)^{-1}\vC(\vu)\vu - \bvA(\bvu)^{-1}\bvC(t,\bvu)\bvu\\
+        &= \vPhiplus\vA(\vu)^{-1}\vC(\vu)\vu - \vPhiplus\vA(\vPhi\bvu)^{-1}\vP\vC(t,\vPhi\bvu)\vPhi\vPhiplus\vu\\
+        &= \vPhiplus\vA^{-1}(\vu)\vC(\vu)\vu - \vPhiplus\vD(\bvu)\vPhi\vPhiplus\vu\\
     \end{align}
 \end{subequations}
 where $\vP=\vPhi\vPhiplus$. Thus,
 \begin{subequations}
     \begin{align}
-        &\left\|\vPhiplus\vA(\vu)^{-1}\vC(t,\vu)\vu - \bvA^{-1}(\bvu)\bvC(t,\bvu)\bvu\right\| \\
-        &\leq \left\|\vPhiplus\vA^{-1}(\vu)\vC(t,\vu)\vu - \vPhiplus\vD(\bvu)\vu\right\| + \left\|\vPhiplus\vD(\bvu)\vu - \vPhiplus\vD(\bvu)\vPhi\vPhiplus\vu\right\|\\
-        &\leq \left\|\vPhiplus\right\|\underbrace{\left\|\vA^{-1}(\vu)\vC(t,\vu)\vu - \vD(\bvu)\vu\right\|}_{\#1} + \left\|\vPhiplus\vD(\bvu)\right\|\underbrace{\left\|\vu - \vPhi\vPhiplus\vu\right\|}_{\#2}
+        &\left\|\vPhiplus\vA(\vu)^{-1}\vC(\vu)\vu - \bvA^{-1}(\bvu)\bvC(t,\bvu)\bvu\right\| \\
+        &\leq \left\|\vPhiplus\vA^{-1}(\vu)\vC(\vu)\vu - \vPhiplus\vD(\bvu)\vu\right\| + \left\|\vPhiplus\vD(\bvu)\vu - \vPhiplus\vD(\bvu)\vPhi\vPhiplus\vu\right\|\\
+        &\leq \left\|\vPhiplus\right\|\underbrace{\left\|\vA^{-1}(\vu)\vC(\vu)\vu - \vD(\bvu)\vu\right\|}_{\#1} + \left\|\vPhiplus\vD(\bvu)\right\|\underbrace{\left\|\vu - \vPhi\vPhiplus\vu\right\|}_{\#2}
     \end{align}
 \end{subequations}
 where term \#2 is due to the appriximation of non-uniform temperaeture as constants, and term \#1 is the error in the advection dynamics due to coarse-graining. 

@@ -1,7 +1,7 @@
 # Fdb version 4
-["pdflatex"] 1759863474.43588 "/home/cavarga/tps_ablation_writing/writing/reports/main.tex" "main.pdf" "main" 1759863478.21561 0
+["pdflatex"] 1760394374.07353 "/home/cavarga/tps_ablation_writing/writing/reports/main.tex" "main.pdf" "main" 1760394377.12986 0
   "/etc/texmf/web2c/texmf.cnf" 1738619132.31217 475 c0e671620eb5563b2130f56340a5fde8 ""
-  "/home/cavarga/tps_ablation_writing/writing/reports/main.tex" 1759791476.73146 4596 0837521af528bba1231cebcbc7393984 ""
+  "/home/cavarga/tps_ablation_writing/writing/reports/main.tex" 1760393631.58006 4837 725226ca252b3cb8480d5c19df549418 ""
   "/usr/share/texlive/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmbsy6.tfm" 1246382020 1124 14ccf5552bc7f77ca02a8a402bea8bfb ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmbsy8.tfm" 1246382020 1120 200be8b775682cdf80acad4be5ef57e4 ""
@@ -34,6 +34,7 @@
   "/usr/share/texlive/texmf-dist/fonts/tfm/public/cm/cmsy6.tfm" 1136768653 1116 933a60c408fc0a863a92debe84b2d294 ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/public/cm/cmsy8.tfm" 1136768653 1120 8b7d695260f3cff42e636090a8002094 ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/public/cm/cmti12.tfm" 1136768653 1484 ed72f8f5cf654cda15ecc8e32bfcbee5 ""
+  "/usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbsy10.pfb" 1248133631 34793 87a84b12f86dfd35a1cf1bb142b75602 ""
   "/usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb" 1248133631 34811 78b52f49e893bcba91bd7581cdc144c0 ""
   "/usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb" 1248133631 32080 340ef9bf63678554ee606688e7b5339d ""
   "/usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx8.pfb" 1248133631 32166 b0c356b15f19587482a9217ce1d8fa67 ""
@@ -97,12 +98,12 @@
   "figs/four_components.png" 1759763566.97538 233261 2d3977a0c645e3677462d20e1bde7d7a ""
   "figs/general_domain.png" 1756925867.07071 1126974 245c2f657b5c1dda907264430a22a01c ""
   "figs/lumped_mass_representation.png" 1759763566.97638 95012 1ac2a55bbb5044ac2155988619863c7b ""
-  "main.aux" 1759863477.78553 8220 78230c85ec68917b3804660922c76791 "pdflatex"
-  "main.tex" 1759791476.73146 4596 0837521af528bba1231cebcbc7393984 ""
-  "src/appendix_details.tex" 1759768952.9223 16512 5a3434cf8f5cdd0a8223f182f2dcff19 ""
+  "main.aux" 1760394377.01908 9114 89f8608cad62161c6d331b11ca7ec68a "pdflatex"
+  "main.tex" 1760393631.58006 4837 725226ca252b3cb8480d5c19df549418 ""
+  "src/appendix_details.tex" 1760394373.81207 16485 09f886bc333f41e0a3f1297b961a998f ""
   "src/sec_intro.tex" 1756925867.09171 2013 ca25c5ca0f5ad5205172ee78f46125b5 ""
-  "src/sec_pirom.tex" 1759863474.10152 12436 7b7459702c73a6e4a3b9aaf811c65251 ""
-  "src/sec_problem.tex" 1759769722.40683 13089 b7d03d3d5affd9f1b6b1e6c91034f1bc ""
+  "src/sec_pirom.tex" 1760394258.13075 16232 4b13dcdb829a00ead1b5e301489bcc30 ""
+  "src/sec_problem.tex" 1760394036.61116 13269 f7792247f7d42816368be45ac281d9a9 ""
   (generated)
   "main.aux"
   "main.log"

@@ -22,7 +22,7 @@ The transient heat conduction is described by the energy equation,
         T(x,0) &= T_0(x),\ x\in\Omega\label{eqn_thermal_ic}
     \end{align}\label{eqn_governing_equations}
 \end{subequations}
-where the density $\rho$ is constant, while the heat capacity $c_p$ and thermal conductivity $\mathbf{k}\in\mathbb{R}^{d\times d}$, are temperature dependent. In the order they appear, the terms in \cref{eqn_thermal_pde} include, the unsteady energy storage, heat conduction, temperature advection due to mesh motion, and source terms due to boundary conditions.
+where the density $\rho$ is constant, while the heat capacity $c_p$ and thermal conductivity $\mathbf{k}\in\mathbb{R}^{d\times d}$, are temperature dependent. In the order they appear, the terms in \cref{eqn_thermal_pde} include, the unsteady energy storage, heat conduction, temperature advection due to mesh motion, and source terms due to boundary conditions. The boundary conditions for the energy equation includes Neumann \cref{eqn_thermal_bc_neumann} on $\Gamma_1$ and Dirichlet \cref{eqn_thermal_bc_dirichlet} on $\Gamma_T$.
 
 \paragraph*{Mesh Motion} The mesh motion is described by the pseudo-elasticity equation,
 \begin{subequations}
@@ -41,15 +41,11 @@ where $\mathbb{D}$ is the constitutive operator, ``:'' is the double contraction
 \[
     \bepsilon(\bw) = \frac{1}{2}\left(\nabla\bw + \nabla\bw^T\right)
 \]
-For instance, an isotropic material assumption results in,
-\[
-    \bsigma = \lambda\left(\nabla\cdot\bw\right) \mathbf{I} + 2\mu\bepsilon(\bw)
-\]
-where $\lambda$ and $\mu$ are Lame constants that are arbitrarily selected to model the mesh motion. The ``material'' properties $\lambda$ and $\mu$ can be chosen to tailor the mesh deformation and need not represent the actual material being modeled~\hl{Amar2016}. 
+The ``material'' properties for the mesh are chosen to tailor the mesh deformation, and need not represent the actual material being modeled~\hl{Amar2016}. 
 
-The boundary conditions for the energy equation includes a heated surface (\cref{eqn_thermal_bc_neumann}) and a constant-temperature surface (\cref{eqn_thermal_bc_dirichlet}). The boundary conditions for the pseudo-elasticity equation are a function of the surface temperature $T_q(x,t)$ for $x\in\Gamma_q$ on the heated boundary. For the $i$-th component, the surface velocities are imposed based on the following relation,
+For the pseudo-elasticity equations, the surface velocity due to the ablating material is a function of the surface temperature $T_q(x,t)$ for $x\in\Gamma_q$ on the heated boundary. For the $i$-th material component, the surface velocity is imposed based on the following relation,
 \begin{equation}
-    \hat{\vn}\cdot\vv(x,t) = f(T_q(x,t))\label{eqn_boundary_velocity}
+    \hat{\vn}\cdot\vv(x,t) = f(T_q(x,t)),\quad x\in\Gamma_q\label{eqn_boundary_velocity}
 \end{equation}
 where $\hat{\vn}$ is the unit normal vector on the heated boundary $\Gamma_q$, and $f$ is a function obtained from tabulated data for the material, commonly referred to as a B' table. The B' table provides the recession velocity as a function of surface temperature, and is pre-computed based on high-fidelity simulations of the ablation process for a one-dimensional slab of the material, and is independent of the TPS geometry and boundary conditions. The surface displacements are then computed by integrating the surface velocities over time,
 \begin{equation}
