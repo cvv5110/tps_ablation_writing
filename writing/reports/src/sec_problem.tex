@@ -49,7 +49,7 @@ For the pseudo-elasticity equations, the surface velocity due to the ablating ma
 \end{equation}
 where $\hat{\vn}$ is the unit normal vector on the heated boundary $\Gamma_q$, and $f$ is a function obtained from tabulated data for the material, commonly referred to as a B' table. The B' table provides the recession velocity as a function of surface temperature, and is pre-computed based on high-fidelity simulations of the ablation process for a one-dimensional slab of the material, and is independent of the TPS geometry and boundary conditions. The surface displacements are then computed by integrating the surface velocities over time,
 \begin{equation}
-    \bw_q(x,t) = \int_{0}^{t} \mathbf{v}(x,\tau)d\tau = \int_{0}^{t}\mathbf{f}\left(T_q(x,\tau)\right)d\tau\label{eqn_boundary_displacement}
+    \bw_q(x,t) = \int_{0}^{t} \mathbf{v}(x,\tau)d\tau = \int_{0}^{t}f\left(T_q(x,\tau)\right)d\tau\label{eqn_boundary_displacement}
 \end{equation}
 
 \subsection{Full-Order Model: Finite-Element Method}\label{sec_fom}
