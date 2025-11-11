@@ -9,8 +9,7 @@
 \usepackage{subfigure}
 \usepackage{lineno}
 \usepackage{setspace}
-
-
+\usepackage[numbers]{natbib}
 
 \newcommand{\hl}[1]{\colorbox{yellow}{#1}}
 \newcommand{\vA}{\mathbf{A}}
@@ -19,16 +18,13 @@
 \newcommand{\vBj}{\mathbf{B}^{(j)}}
 \newcommand{\vC}{\mathbf{C}}
 \newcommand{\vu}{\mathbf{u}}
-\newcommand{\bw}{\mathbf{w}}
-\newcommand{\vw}{\mathbf{w}}
-\newcommand{\bv}{\mathbf{v}}
+\newcommand{\vzero}{\boldsymbol{0}}
 \newcommand{\vv}{\mathbf{v}}
 \newcommand{\cN}{\mathcal{N}}
 \newcommand{\cI}{\mathcal{I}}
 \newcommand{\vr}{\mathbf{r}}
 \newcommand{\cQnet}{\mathcal{Q}_{\text{net}}}
 \newcommand{\cP}{\mathcal{P}}
-\newcommand{\bk}{\mathbf{k}}
 \newcommand{\cQ}{\mathcal{Q}}
 \newcommand{\cD}{\mathcal{D}}
 \newcommand{\vP}{\mathbf{P}}
@@ -37,14 +33,15 @@
 \newcommand{\bvB}{\bar{\mathbf{B}}}
 \newcommand{\vW}{\mathbf{W}}
 \newcommand{\vxi}{\boldsymbol{\xi}}
+\newcommand{\vx}{\mathbf{x}}
+\newcommand{\cT}{\mathcal{T}}
 \newcommand{\vPhi}{\boldsymbol{\Phi}}
 \newcommand{\vPhiplus}{\boldsymbol{\Phi}^{+}}
 \newcommand{\bu}{\bar{u}}
-\newcommand{\bepsilon}{\boldsymbol{\epsilon}}
+\newcommand{\vepsilon}{\boldsymbol{\epsilon}}
 \newcommand{\bsigma}{\boldsymbol{\sigma}}
 \newcommand{\phii}{\phi^{(i)}}
 \newcommand{\vI}{\mathbf{I}}
-\newcommand{\vzero}{\boldsymbol{0}}
 \newcommand{\vz}{\mathbf{z}}
 \newcommand{\vM}{\mathbf{M}}
 \newcommand{\vg}{\mathbf{g}}
@@ -93,13 +90,15 @@
 \newcommand{\cE}{\mathcal{E}}
 \newcommand{\cG}{\mathcal{G}}
 \newcommand{\vBiij}{\mathbf{B}^{(i)}_{ij}}
+\newcommand{\vsigma}{\boldsymbol{\sigma}}
+\newcommand{\vw}{\mathbf{w}}
 \newcommand{\vBjij}{\mathbf{B}^{(j)}_{ij}}
 \newcommand{\vfi}{\mathbf{f}^{(i)}}
 \newcommand{\vK}{\mathbf{K}}
 \newcommand{\tvK}{\tilde{\mathbf{K}}}
 \newcommand{\tk}{\tilde{k}}
 \newcommand{\cK}{\mathcal{K}}
-\newcommand{\vk}{\boldsymbol{k}}
+\newcommand{\vk}{\mathbf{k}}
 \newcommand{\tcK}{\tilde{\mathcal{K}}}
 \newcommand{\tvk}{\tilde{\boldsymbol{k}}}
 \newcommand{\tvkappa}{\tilde{\boldsymbol{\kappa}}}
@@ -148,5 +147,9 @@
 \input{./src/sec_problem}
 \input{./src/sec_pirom}
 \input{./src/appendix_details}
+
+\bibliographystyle{plain}
+\bibliography{references}
+
 
 \end{document}

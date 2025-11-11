@@ -4,9 +4,9 @@ This section presents the problem of modeling a non-decomposing ablating TPS sub
 
 \subsection{Governing Equations}\label{sec_governing_equations}
 
-The multi-physics for a non-decomposing ablating TPS involves the transient heat conduction coupled with mesh motion due to surface recession. The governing equations for the ablating TPS are summarized in this section. 
+The multi-physics for a non-decomposing ablating TPS involves the \textit{energy equation} which models the transient heat conduction inside the TPS, and the \textit{pseudo-elasticity equation}, which models the mesh motion due to surface recession. The governing PDEs for the ablating TPS are summarized in this section.
 
-\paragraph*{Heat Conduction} Consider a generic domain $\Omega\subset$, $d=2$ or $3$, illustrated in Fig.~\ref{fig_general_domain}. Let $\partial\Omega = \Gamma_q\cup\Gamma_T$ and $\Gamma_q\cap\Gamma_T = \emptyset$, where a Neumann $q_b(x,t)$ boundary condition is prescribed on the $\Gamma_q$ boundary, and a Dirichlet $T_b(x,t)$ boundary condition is prescribed on the boundary $\Gamma_T$.  The ALE establishes that mesh displacements $w(x,t)\in\mathbb{R}^d$ and velocities $v(x,t)\in\mathbb{R}^d$ evolve independently of the physical material's displacements, which are set to zero~\hl{CITE}.
+\paragraph*{Energy Equation} Consider a generic domain $\Omega\subset$, $d=2$ or $3$, illustrated in Fig.~\ref{fig_general_domain}. Let $\partial\Omega = \Gamma_q\cup\Gamma_T$ and $\Gamma_q\cap\Gamma_T = \emptyset$, where a Neumann $q_b(x,t)$ boundary condition is prescribed on the $\Gamma_q$ boundary, and represents the surface exposed to the hypersonic boundary layer. The Dirichlet $T_b(x,t)$ boundary condition is prescribed on the boundary $\Gamma_T$. The TPS is divided into $N$ non-overlapping components $\left\{\Omega_i\right\}_{i=1}^{N}$, as illustrated in Fig.~\ref{fig_general_domain} for $N=2$. The $i$-th component $\Omega_i$ is associated with material properties $\left(\rho^{(i)},c^{(i)}_p, \vk^{(i)}\right)$, that are assumed to be continuous within one component, and can be discontinuous across two neighboring components. 
 
 \begin{figure}
     \centering
@@ -18,45 +18,52 @@ The multi-physics for a non-decomposing ablating TPS involves the transient heat
 The transient heat conduction is described by the energy equation,
 \begin{subequations}
     \begin{align}
-        \rho c_p\left(\ppt{T} - v(x,t)\cdot\nabla T\right) - \nabla\cdot (\mathbf{k}\nabla T) &= \cQ(x,t),\ x\in\Omega \label{eqn_thermal_pde}\\
+        \rho c_p\left(\ppt{T} + \tilde{\vv}(x,t)\cdot\nabla T\right) - \nabla\cdot (\mathbf{k}\nabla T) &= 0,\ x\in\Omega \label{eqn_thermal_pde}\\
         -\mathbf{k}\nabla T\cdot \vn &= q_b(x,t),\ x\in\Gamma_q\label{eqn_thermal_bc_neumann}\\
         T(x,t) &= T_b(x,t),\ x\in\Gamma_T\label{eqn_thermal_bc_dirichlet}\\
         T(x,0) &= T_0(x),\ x\in\Omega\label{eqn_thermal_ic}
     \end{align}\label{eqn_governing_equations}
 \end{subequations}
-where the density $\rho$ is constant, while the heat capacity $c_p$ and thermal conductivity $\mathbf{k}\in\mathbb{R}^{d\times d}$, are temperature dependent. In the order they appear, the terms in \cref{eqn_thermal_pde} include, the unsteady energy storage, heat conduction, temperature advection due to mesh motion, and source terms due to boundary conditions. The boundary conditions for the energy equation includes Neumann \cref{eqn_thermal_bc_neumann} on $\Gamma_1$ and Dirichlet \cref{eqn_thermal_bc_dirichlet} on $\Gamma_T$.
+where the density $\rho$ is constant, while the heat capacity $c_p$ and thermal conductivity $\mathbf{k}\in\mathbb{R}^{d\times d}$ may depend on temperature. In the order they appear, the terms in \cref{eqn_thermal_pde} include, the unsteady energy storage, heat conduction, temperature advection due to mesh motion, and source terms due to boundary conditions. The boundary conditions for the energy equation includes Neumann \cref{eqn_thermal_bc_neumann} on $\Gamma_1$ and Dirichlet \cref{eqn_thermal_bc_dirichlet} on $\Gamma_T$. 
 
-\paragraph*{Mesh Motion} The mesh motion is described by the pseudo-elasticity equation,
+An Abirtrary Lagrangian-Eulerian (ALE) description is used to account for mesh motion due to surface recession, where $\tilde{\vv}(x,t)$ is the relative velocity of the material with respect to the mesh,
+\begin{equation}
+    \tilde{\vv}(x,t) = \vv_s(x,t) - \vv_m(x,t)\label{eqn_relative_velocity}
+\end{equation}
+where $\vv_s(x,t)$ and $\vv_m(x,t)$ are the physical material velocity and mesh velocity, respectively. For ablating TPS, the physical material velocity is assumed to be zero, i.e., $\vv_s(x,t)=\vzero$, and thus the relative velocity is simply the negative of the mesh velocity, $\tilde{\vv}(x,t) = -\vv_m(x,t)$.
+
+\paragraph*{Pseudo-Elasticity Equation} The mesh motion is described by the steady-state pseudo-elasticity equation without body forces,
 \begin{subequations}
     \begin{align}
-        \nabla\cdot\sigma(w) &= 0\label{eqn_elasticity_pde}\\
-        w(x,t) &= w_q(x,t),\quad x\in\Gamma_q\label{eqn_displacement_heated_bc}\\
-        w(x,t) &= 0,\quad x\notin \Gamma_q\label{eqn_displacement_unheated_bc}\\
-        w(x,0) &= \boldsymbol{0}\label{eqn_displacement_initial_condition}
+        \nabla\cdot\vsigma(\vw) &= \vzero,\quad \forall\:t\in\cT,\:\vx\in\Omega\quad\label{eqn_elasticity_pde}\\
+        \vw(\vx,t) &= \vw_q(\vx,t),\quad \forall\:t\in\cT,\: \vx\in\Gamma_q\label{eqn_displacement_heated_bc}\\
+        \vw(\vx,t) &= \vzero,\quad \forall\:t\in\cT,\: \vx\notin \Gamma_q\label{eqn_displacement_unheated_bc}\\
+        \vw(\vx,0) &= \vzero,\quad \forall\:\vx\in\Omega\label{eqn_displacement_initial_condition}
     \end{align}
 \end{subequations}
-where the stress tensor $\sigma$ is related to the strain tensor $\bepsilon(w)$ through Hooke's law,
+where the stress tensor $\vsigma$ is related to the strain tensor $\vepsilon(\vw)$ through Hooke's law,
 \[
-    \sigma(w) = \mathbb{D}:\boldsymbol{\epsilon}(w)
+    \vsigma(\vw) = \mathbb{D}:\vepsilon(\vw)
 \]
-where $\mathbb{D}$ is the constitutive operator, ``:'' is the double contraction of tensors, and $\bepsilon$ is the symmetric strain tensor given by,
+where $\mathbb{D}$ is the fourth-order positive definite elasticity tensor, and ``:'' is the double contraction of the full-order tensor $\mathbb{D}$ with the second-order tensor $\vepsilon$. The elasticity tensor ordinarily possess a number of symmetries, effectively reducing the number of components that describe it~\cite{Bergel2022}. The symmetric strain tensor $\vepsilon$ measures the deformation of the mesh due to displacements $\vw(x,t)$, and is defined as,
 \[
-    \bepsilon(\bw) = \frac{1}{2}\left(\nabla\bw + \nabla\bw^T\right)
+    \vepsilon(\vw) = \frac{1}{2}\left(\nabla\vw + \nabla\vw^T\right)
 \]
-The ``material'' properties for the mesh are chosen to tailor the mesh deformation, and need not represent the actual material being modeled~\hl{Amar2016}. 
+The ``material'' properties for the mesh are chosen to tailor the mesh deformation, and need not represent the actual material being modeled~\cite{Amar2016}.
 
-Ablating effects on the energy equation are handled using the Arbitrary Lagrangian-Eulerian (ALE) description.
-
-The ablation is modeled as mesh motion, and occurs only on the heated boundary $\Gamma_q$. 
-
-For the pseudo-elasticity equations, the surface velocity due to the ablating material is a function of the surface temperature $T_q(x,t)$ for $x\in\Gamma_q$ on the heated boundary. For the $i$-th material component, the surface velocity is imposed based on the following relation,
+For the pseudo-elasticity equations, the boundary conditions include prescribed displacements $\vw_q(x,t)$ on the heated boundary $\Gamma_q$ in \cref{eqn_displacement_heated_bc}, and zero displacements on the unheated boundaries in \cref{eqn_displacement_unheated_bc}. The initial condition for the mesh displacements is zero in \cref{eqn_displacement_initial_condition}. Particularly, the surface velocity due to the ablating material is a function of the surface temperature $T_q(x,t)$ for $x\in\Gamma_q$ on the heated boundary. For the $i$-th material component, the surface velocity is imposed based on the following relation,
 \begin{equation}
-    \hat{\vn}\cdot\vv(x,t) = f(T_q(x,t)),\quad x\in\Gamma_q\label{eqn_boundary_velocity}
+    \hat{\vn}\cdot\vv_m(x,t) = f(T_q(x,t)),\quad x\in\Gamma_q\label{eqn_boundary_velocity}
 \end{equation}
-where $\hat{\vn}$ is the unit normal vector on the heated boundary $\Gamma_q$, and $f$ is a function obtained from tabulated data for the material, commonly referred to as a B' table. The B' table provides the recession velocity as a function of surface temperature, and is pre-computed based on high-fidelity simulations of the ablation process for a one-dimensional slab of the material, and is independent of the TPS geometry and boundary conditions. The surface displacements are then computed by integrating the surface velocities over time,
+where $\hat{\vn}$ is the unit normal vector on the heated boundary $\Gamma_q$, and $f$ is a function obtained from tabulated data for the material, commonly referred to as a B' table~\cite{Amar2016}. The B' table provides the recession velocity as a function of surface temperature, and is pre-computed based on high-fidelity simulations of the ablation process for a one-dimensional slab of the material, and is independent of the TPS geometry and boundary conditions. The surface displacements correspond to the boundary 
+
+are then computed by integrating the surface velocities over time,
 \begin{equation}
-    \bw_q(x,t) = \int_{0}^{t} \mathbf{v}(x,\tau)d\tau = \int_{0}^{t}f\left(T_q(x,\tau)\right)d\tau\label{eqn_boundary_displacement}
+    \vw_q(x,t) = \int_{0}^{t} \mathbf{v}_m(x,\tau)d\tau\label{eqn_boundary_displacement}
 \end{equation}
+
+
+
 
 \subsection{Full-Order Model: Finite-Element Method}\label{sec_fom}
 

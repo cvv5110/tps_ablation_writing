@@ -13,7 +13,7 @@ Consider a conforming mesh partition of the domain, as shown in Fig.\hl{DOMAIN},
 
 \subsubsection{Weak Form of Discontinuous Galerkin Method}
 
-Choosing appropriate basis functions $\phi_k$ and $\phi_l$ and using the Interior Penalty Galerkin (IPG) scheme ~\cite{Cohen and pernet 2018}, the variational bilinear form for \cref{eqn_thermal_pde} is,
+Choosing appropriate basis functions $\phi_k$ and $\phi_l$ and using the Interior Penalty Galerkin (IPG) scheme ~\cite{Cohen2018}, the variational bilinear form for \cref{eqn_thermal_pde} is,
 \begin{equation}
     \sum_{i=1}^{M}a_{\epsilon,i}(\phi_k,\phi_l) = \sum_{i=1}^{M}L_i(\phi_k)
 \end{equation}
@@ -21,9 +21,9 @@ where $\epsilon$ is an user-specified parameter and,
 \begin{subequations}
     \begin{align}
         a_{\epsilon,i}(\phi_k,\phi_l) &= \int_{E^{(i)}}\left(\rho c_p \phik \frac{\partial \phil}{\partial t} + \nabla \phik\cdot\left(\mathbf{k}\nabla \phil\right) - \rho c_p \phik \vv\cdot\nabla\phil\right)dE^{(i)}\\
-        &= -\sum_{j\in\cN_i\cup\dirichletset}\int_{\eij}\average{\bk\nabla\phik\cdot n}\jump{\phil}d\eij + \epsilon\sum_{j\in\cN_i\cup\dirichletset}\int_{\eij}\average{\bk\nabla\phil\cdot n}\jump{\phik}d\eij \notag\\
+        &= -\sum_{j\in\cN_i\cup\dirichletset}\int_{\eij}\average{\vk\nabla\phik\cdot n}\jump{\phil}d\eij + \epsilon\sum_{j\in\cN_i\cup\dirichletset}\int_{\eij}\average{\vk\nabla\phil\cdot n}\jump{\phik}d\eij \notag\\
         &+ \sigma\sumneighbordirichlet\int_{\eij}\jump{\phik}\jump{\phil}d\eij\\
-        L_i(v) &= \epsilon\sumneighbordirichlet\int_{\eij}\left(\bk\nabla\phil\cdot n\right)T_b d\eij + \int_{\eiq}\phik q_b d\eiq + \sigma\int_{\eiT}\phik T_b d\eiT
+        L_i(v) &= \epsilon\sumneighbordirichlet\int_{\eij}\left(\vk\nabla\phil\cdot n\right)T_b d\eij + \int_{\eiq}\phik q_b d\eiq + \sigma\int_{\eiT}\phik T_b d\eiT
     \end{align}
 \end{subequations}
 In the bi-linear form above, the notations $\jump{}$ and $\average{}$ are respectively the jumps and averages at the boundary $\eij$ share by two elements $E_i$ and $E_j$,
