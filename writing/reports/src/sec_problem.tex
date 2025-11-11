@@ -1,10 +1,12 @@
 \section{Modeling of Ablating Thermal Protection Systems}
 
-This section presents the problem of modeling ablation for a non-decomposing TPS as a parametrized system of coupled non-linear PDEs. The ablation physics is decomposed into heat conduction and mesh motion, which are governed by the energy and pseudo-elasticity PDEs, respectively. Predictions for the ablating TPS response computed based on two models: (1) a high-fidelity FOM based on discontinuous Galerkin FEM (DG-FEM), and (2) an RPM based on the LCM. The mathematical details for the governing equations, FOM, and RPM, are provided next.
+This section presents the problem of modeling a non-decomposing ablating TPS subjected to extreme hypersonic heating. Two different but mathematically connected solution strategies are provided: (1) a high-fidelity full-order model (FOM) based on a finite element method (FEM), and (2) a low-fidelity reduced-physics model (RPM) based on a lumped capacitance model (LCM) and a one-dimensional surface velocity model (SVM). The FOM is computationally expensive but provides the highest fidelity, while the RPM is computationally efficeint but has low predictive fidelity; both models are amenable to high-dimensional design variables. The RPM is used in the subsequent sections for deriving the PIROM.
 
 \subsection{Governing Equations}\label{sec_governing_equations}
 
-\paragraph*{Heat Conduction} Consider a generic domain $\Omega\subset$, $d=2$ or $3$, illustrated in Fig.~\ref{fig_general_domain}. Let $\partial\Omega = \Gamma_q\cup\Gamma_T$ and $\Gamma_q\cap\Gamma_T = \emptyset$, where a Neumann $q_b(x,t)$ boundary condition is prescribed on the $\Gamma_q$ boundary, and a Dirichlet $T_b(x,t)$ boundary condition is prescribed on the boundary $\Gamma_T$. The ablation is modeled as mesh motion, and occurs only on the heated boundary $\Gamma_q$. Ablating effects on the energy equation are handled using the Arbitrary Lagrangian-Eulerian (ALE) description. The ALE establishes that mesh displacements $w(x,t)\in\mathbb{R}^d$ and velocities $v(x,t)\in\mathbb{R}^d$ evolve independently of the physical material's displacements, which are set to zero~\hl{CITE}.
+The multi-physics for a non-decomposing ablating TPS involves the transient heat conduction coupled with mesh motion due to surface recession. The governing equations for the ablating TPS are summarized in this section. 
+
+\paragraph*{Heat Conduction} Consider a generic domain $\Omega\subset$, $d=2$ or $3$, illustrated in Fig.~\ref{fig_general_domain}. Let $\partial\Omega = \Gamma_q\cup\Gamma_T$ and $\Gamma_q\cap\Gamma_T = \emptyset$, where a Neumann $q_b(x,t)$ boundary condition is prescribed on the $\Gamma_q$ boundary, and a Dirichlet $T_b(x,t)$ boundary condition is prescribed on the boundary $\Gamma_T$.  The ALE establishes that mesh displacements $w(x,t)\in\mathbb{R}^d$ and velocities $v(x,t)\in\mathbb{R}^d$ evolve independently of the physical material's displacements, which are set to zero~\hl{CITE}.
 
 \begin{figure}
     \centering
@@ -42,6 +44,10 @@ where $\mathbb{D}$ is the constitutive operator, ``:'' is the double contraction
     \bepsilon(\bw) = \frac{1}{2}\left(\nabla\bw + \nabla\bw^T\right)
 \]
 The ``material'' properties for the mesh are chosen to tailor the mesh deformation, and need not represent the actual material being modeled~\hl{Amar2016}. 
+
+Ablating effects on the energy equation are handled using the Arbitrary Lagrangian-Eulerian (ALE) description.
+
+The ablation is modeled as mesh motion, and occurs only on the heated boundary $\Gamma_q$. 
 
 For the pseudo-elasticity equations, the surface velocity due to the ablating material is a function of the surface temperature $T_q(x,t)$ for $x\in\Gamma_q$ on the heated boundary. For the $i$-th material component, the surface velocity is imposed based on the following relation,
 \begin{equation}
