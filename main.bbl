@@ -19,4 +19,29 @@ Frank~P. Incropera, David~P. DeWitt, Theodore~L. Bergman, and Adrienne~S. Lavine
 \newblock {\em Fundamentals of Heat and Mass Transfer}.
 \newblock Wiley, Hoboken, NJ, 7th edition, 2011.
 
+\bibitem{Parish2017a}
+Eric Parish and Karthik Duraisamy.
+\newblock Non-markovian closure models for large eddy simulations using the mori-zwanzig formalism.
+\newblock {\em Phys. Rev. Fluids}, 2:014604, Jan 2017.
+
+\bibitem{Parish2017}
+Eric Parish and Karthik Duraisamy.
+\newblock A unified framework for multiscale modeling using the mori-zwanzig formalism and the variational multiscale method.
+\newblock {\em ArXiv}, 12 2017.
+
+\bibitem{Duraisamy2025}
+Eric Parish and Karthik Duraisamy.
+\newblock {\em Coarse-Graining Turbulence Using the Mori–Zwanzig Formalism}.
+\newblock Cambridge University Press, Cambridge, 2025.
+
+\bibitem{VargasVenegas2025}
+Carlos A.~Vargas Venegas, Daning Huang, Patrick Blonigan, and John Tencer.
+\newblock Physics-infused reduced-order modeling for analysis of multi-layered hypersonic thermal protection systems.
+\newblock {\em ArXiv}, 2025.
+
+\bibitem{Yu2024coarse}
+Yin Yu, John Harlim, Daning Huang, and Yan Li.
+\newblock Learning coarse-grained dynamics on graph.
+\newblock {\em arXiv preprint arXiv:2405.09324}, 2024.
+
 \end{thebibliography}

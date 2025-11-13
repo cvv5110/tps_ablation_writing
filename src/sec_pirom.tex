@@ -1,11 +1,10 @@
 \section{Physics-Infused Reduced-Order Modeling}\label{sec_pirom}
-The formulation of PIROM for ablating TPS starts by connecting the FOM, i.e., DG-FEM, and the RPM, i.e., the LCM, via a coarse-graining procedure. This procedure pinpoints the missing dynamics in the LCM when compared to DG-FEM. Subsequently, the Mori-Zwanzig (MZ) formalism is employed to determine the model form for the missing dynamics in PIROM. Lastly, the data-driven identification of the missing dynanmics in PIROM is presented.
+The formulation of PIROM for ablating TPS starts by connecting the FOM, i.e., the DG-FEM, and the RPM, i.e., the LCM, via a coarse-graining procedure. This procedure pinpoints the missing dynamics in the LCM when compared to DG-FEM. Subsequently, the Mori-Zwanzig (MZ) formalism is employed to determine the model form for the missing dynamics in PIROM. Lastly, the data-driven identification of the missing dynamics in PIROM is presented.
 
 \subsection{Deriving the Reduced-Physics Model via Coarse-Graining}
-The LCM is derived from a full-order DG on a fine mesh via coarse graining. This process constraints the trial function space of a full-order DG model to a subset of piece-wise constants, so that the variables $\vu$, matrices $\vA$, $\vB$, and $\vC$, and forcing vector $\vf$ are all approximated using a single state associated to the average temperature. The details of the projection are described next.
+The subsequent coarse-graining formulation is performed on the DG-FEM in \cref{eqn_full_dg} to derive the LCM in \cref{eqn_lcm}. This process constraints the trial function space of a full-order DG model to a subset of piece-wise constants, so that the variables $\vu$, matrices $\vA$, $\vB$, and $\vC$, and forcing vector $\vf$ are all approximated using a single state associated to the average temperature. Note that the coarse-graining is exclusively performed to the thermal dynamics, as it is the surface temperature that drives the one-dimensional surface recession via the SVM; hence, the SVM is not included in this process.
 
 \subsubsection{Coarse-Graining of States}
-
 Consider a DG model as in \cref{eqn_full_dg} for M elements and an LCM as in \cref{eqn_lcm} for $N$ components; clearly $M\gg N$. Let $\cV_j = \left\{i \big| E_i\in\Omega_j\right\}$ be the indices of the elements belonging to the $j$-th component, so $E_i\in\Omega_j$ for all $i\in \cV_j$. The number of elements in the $j$-th component is $|\cV_j|$. The average temperature on $\Omega_j$ is,
 \begin{equation}
     \bar{u}_j = \frac{1}{|\Omega_j|}\sum_{i\in\cV_j}\intEi \vphi^{(i)}(x)^T\vu^{(i)} d\Omega = \frac{1}{\left|\Omega_j\right|}\sum_{i\in\cV_j} \left|E_i\right|\vvarphi_i^{j\top}\vu^{(i)},\quad j=1,2,\dots,N\label{eqn_average_temperature}
@@ -46,7 +45,7 @@ Apply the projection operator $\cP$ and the residual operator $\cQ$ to the right
 \end{equation}
 where $\vr^{(1)}(\vu,t)$ is resolved dynamics that depends on $\bvu$ only, and $\vr^{(2)}(\vu,t)$ is the un-resolved or residual dynamics. Detailed derivations and analysis of $\vr^{(1)}(\vu,t)$ and $\vr^{(2)}(\vu,t)$ can be found in the Appendix. 
 
-It follows from Ref.\hl{x} that the resolved dynamics is exactly the LCM, where the advection term reduces to zero, i.e., $\bvC(\bvu) = \vzero$ as shown in the Appendix. Using the notation from \cref{eqn_lcm}, it follows that,
+It follows from Ref.~\cite{VargasVenegas2025} that the resolved dynamics is exactly the LCM, where the advection term reduces to zero, i.e., $\bvC(\bvu) = \vzero$ as shown in the Appendix. Using the notation from \cref{eqn_lcm}, it follows that,
 \begin{align}
     \vr^{(1)}(\vu,t) &= \bvA(\bvu)^{-1}\bvB(\bvu)\bvu + \bvA(\bvu)^{-1}\bvC(\bvu)\bvu + \bvA(\bvu)^{-1}\bvf(\bvu)\notag\\
     &= \bvA(\bvu)^{-1}\bvB(\bvu)\bvu + \bvA(\bvu)^{-1}\bvf(t)\label{eqn_resolved_dynamics_no_advection}
@@ -58,19 +57,18 @@ where the following relations hold,
         \bvB(\bvu) &= \vW\vPhiplus\vB\left(\vPhi\bvu\right)\vPhi &\quad \bvf(t) &= \vW\vPhiplus\vf
     \end{align}\label{eqn_coarse_grained_matrices}
 \end{subequations}
-where $\vW\in\mathbb{R}^{N\times N}$ is a diagonal matrix with the $i$-th element as $\left[\vW\right]_{ii} = \left|\cV_k\right|$ if $i\in\cV_k$. As shown in the Appendix, the examination of the second residual term $\vr^{(2)}(\vu,t)$ in \cref{eqn_coarse_grained_dynamics} reveals the physical sources of missing dynamics in the LCM: the approximation of non-uniform temperature within each component as a constant, and the elimination of the advection term due to coarse-graining.
+where $\vW\in\mathbb{R}^{N\times N}$ is a diagonal matrix with the $i$-th element as $\left[\vW\right]_{ii} = \left|\cV_k\right|$ if $i\in\cV_k$. The examination of the second residual term $\vr^{(2)}(\vu,t)$ in \cref{eqn_coarse_grained_dynamics} is shown in the Appendix, and demonstrates that the physical sources of missing dynamics in the LCM include: the approximation of non-uniform temperature within each component as a constant, and the elimination of the advection term due to coarse-graining. In sum, the above results not only show that the LCM is a result of coarse-graining of the full-order DG-FEM, but also reveal the discrepancies between the LCM and the DG-FEM. These discrepancies propagate into the SVM, which as a result of the averaging in the LCM formulation, under-predicts the surface recession rates. In the subsequent section, the discrepancies in the LCM are corrected to formulate the PIROM.
 
-In sum, the above results not only show that the LCM is a result of coarse-graining of the full-order DG-FEM, but also reveal the discrepancies between the LCM and the DG-FEM. In the subsequent section, the discrepancies will be corrected to produce the proposed PIROM.
+\subsection{Physics-Infusion Via Mori-Zwanzig Formalism}
 
-\subsection{Formulation of Reduced-Order Model}
-
-The Mori-Zwanzig (MZ) formalism is an operator-projection technique used to derive ROMs for high-dimensional dynamical systems, especially in statistical mechanics and fluid dynamics \hl{Parish,Duraisamy}. It provides an exact reformulation of the full-order dynamics in terms of a subset of resolved variables. The proposed ROM is subsequently developed based on such reformulation. Equation \cref{eqn_coarse_grained_dynamics} shows that the DG-FEM dynamics can be decomposed into the resolved dynamics $\vr^{(1)}(\vu,t)$ and the orthogonal dynamics $\vr^{(2)}(\vu,t)$, in the sense of $\cP\vr^{(2)}=0$. In this case, the MZ formalism can be invoked to express the dynamics $\bvu$ in terms of $\bvu$ alone as the projected Generalized Langevin Equation (GLE) \hl{Parish,Duraisamy},
+The Mori-Zwanzig (MZ) formalism is an operator-projection technique used to derive ROMs for high-dimensional dynamical systems, especially in statistical mechanics and fluid dynamics~\cite{Parish2017a,Parish2017,Duraisamy2025}. It provides an exact reformulation of a high-dimensional Markovian dynamical system, into a low-dimensional observable non-Markovian dynamical system. The proposed ROM is subsequently developed based on the approximation to the non-Markovian term in the observable dynamics. Particularly, \cref{eqn_coarse_grained_dynamics} shows that the DG-FEM dynamics can be decomposed into the resolved dynamics $\vr^{(1)}(\vu,t)$ and the orthogonal dynamics $\vr^{(2)}(\vu,t)$, in the sense of $\cP\vr^{(2)}=0$. In this case, the MZ formalism can be invoked to express the dynamics $\bvu$ in terms of $\bvu$ alone as the projected Generalized Langevin Equation (GLE)~\cite{Parish2017a,Parish2017,Duraisamy2025},
 \begin{equation}
     \dot{\bvu}(t) = \vr^{(1)}(\bvu,t) + \int_{0}^{t}\tvkappa(t,s,\bvu)ds\label{eqn_gle}
 \end{equation}
-where the first term is Markovian, and the integral term is referred to as the memory. The integral term is non-Markovian, accounting for impact of past resolved states on the current states through their interactions with the un-resolved states.
+where the first and second terms are referred to as the Markovian and non-Markovian terms, respectively. The non-Markovian term accounts for the effects of past un-resolved states on the current resolved states via a memory kernel $\tvkappa(t,s,\bvu)$, which in practice is computationally expensive to evaluate.
 
-Next, to further inform the subsequent derivation of the ROM, the kernel $\tvk$ is examined via a leading-order expansion, based on prior work \hl{x}; this can be viewed as an analog of zeroth-order holding in linear system theory with a sufficiently small time step. In this case, the memory kernel is approximated as,
+\subsubsection{Markovian Reformulation}
+This section details the formal derivation of the PIROM for the thermal dynamics, based on approximations to the memory kernel. Specifically, the kernel $\tvk$ is examined via a leading-order expansion, based on prior work~\cite{Yu2024coarse}; this can be viewed as an analog of zeroth-order holding in linear system theory with a sufficiently small time step. In this case, the memory kernel is approximated as,
 \begin{equation}
     \tvkappa(t,s,\bvu) \approx \vr^{(1)}(\bvu,t) \cdot \nabla_{\bvu}\vr^{(2)}\left(\vPhi\bvu,t\right)
 \end{equation}
@@ -122,6 +120,11 @@ where,
     \end{align}
 \end{subequations}
 Since the hidden states $\vbeta$ serve as the memory, their initial conditions are set to zero, i.e., $\vbeta(t_0) = \vzero$, no memory at the beginning. The physics-infused model in \cref{eqn_extended_markovian_system} retains the structure of the LCM, while the hidden states account for missing physics through corrections to the stiffness and advection matrices, as well as the forcing term.
+
+\subsubsection{Coupling with Surface Velocity Model}
+Provided the PIROM for the thermal dynamics in \cref{eqn_extended_markovian_system}, the last step in the formulation is to couple it with the SVM to account for the ablative surface recession.
+
+
 
 Lastly, denote the collection of resolved and hidden states as $\vy = \left[\bvu,\vbeta\right]^T\in\mathbb{R}^{n_y}$ with $n_y = N+m$, then the proposed PIROM is summarized as,
 \begin{subequations}\label{eqn_pirom_general}

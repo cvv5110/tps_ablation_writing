@@ -61,7 +61,7 @@ where $\hat{\vn}$ is the unit normal vector on the heated boundary $\Gamma_q$, a
 \end{equation}
 
 \subsection{Full-Order Model: Finite-Element Method}\label{sec_fom}
-To obtain the full-order numerical solution, the energy quation is spatially discretized using variational principles of the Discontinuous Galerkin (DG) method~\cite{Cohen2018}, while the pseudo-elasticity equation is discretized using the standard FEM; the result is a high-dimensional system of ODEs describing the tempoeral evolution of the temperature field and mesh displacements. Note that the choice of DG approach here is mainly for theoretical convenience in the coarse-graining formulation, and is exclusively performed on the energy equation as the \textit{quantities of interest} (QoIs) or \textit{observables} correspond to the surface temperatures. The equivalence between DG and FEM is noted upon their convergence.
+To obtain the full-order numerical solution, the energy quation is spatially discretized using variational principles of the Discontinuous Galerkin (DG) method~\cite{Cohen2018}, while the pseudo-elasticity equation is discretized using the standard FEM; the result is a high-dimensional system of ODEs describing the temporal evolution of the temperature field and mesh displacements. Note that the choice of DG approach for the energy equation is mainly for \textit{theoretical convenience} in the coarse-graining formulation, and is exclusively performed on the energy equation. The equivalence between DG and FEM is noted upon their convergence.
 
 Consider a conforming mesh partition domain, where each element belongs to one and only one component. Denote the collection of all $M$ elements as $\left\{E_i\right\}_{i=1}^{M}$. In an element $E_i$, its shared boundaries with another element $E_j$, Neumann BC, and Dirichlet BC are denoted as $e_{ij}$, $e_{iq}$, and $e_{iT}$, respectively. Lastly, $\left|e\right|$ denotes the length $(n_d=2)$ or area $(n_d=3)$ of a component boundary $e$.
 
@@ -90,7 +90,7 @@ which is collected as the following ODE for the all the elements in the mesh,
 where $\vu = \left[\vu_1, \vu_2, \ldots, \vu_M\right]^\top\in\mathbb{R}^{MP}$ includes all the DG variables, $\mathbf{f}\in\mathbb{R}^{MP}$ is the external forcing, and the system matrices $\vA$, $\vB$, and $\vC$ are the matrices due to heat capacity, heat conduction, and temperature advection due to mesh motion, respectively. A detailed derivation of \cref{eqn_element_dg,eqn_full_dg} and their matrices is provided in Appendix~\ref{appendix_mathematical_details}.
 
 \subsection{Reduced-Physics Model}
-The RPM for predicting the response of the ablating TPS consists of two components: (1) the \textit{lumped-capacitance model} (LCM), and (2) the \textit{surface velocity model} (SVM). The LCM is described as a first-order system of ODEs for predicting the average temperatures inside the components of the TPS, and provides a low-fidelity under-estimation for the component's surface temperature. The SVM provides a relation between the surface temperature and the surface recession velocity based on pre-computed B' tables for the material, specifying the one-dimensional surface displacements through time integration. The LCM and SVM are combined to define the RPM, providing low-fidelity estimates for the temperatures and surface recession of the ablating TPS.
+The RPM for predicting the response of the ablating TPS consists of two components: (1) the \textit{lumped-capacitance model} (LCM), and (2) the \textit{surface velocity model} (SVM). The LCM is described as a first-order system of ODEs for predicting the average temperatures inside the components of the TPS, and provides a low-fidelity (under estimate) for the component's surface temperature. The SVM provides a relation between the surface temperature and the surface recession velocity based on pre-computed B' tables for the material, enabling the computation of one-dimensional surface displacements. The LCM and SVM are combined to define the RPM, providing low-fidelity estimates for the temperatures and surface recession of the ablating TPS.
 
 \subsubsection{Lumped Capacitance Model}
 A general form of the LCM is provided in this section; details regarding the derivation for the four-component TPS in Fig.~\ref{fig_four_components} are provided in Appendix~\ref{appendix_mathematical_details}. The LCM is a classical physics-based low-order model for predicting the temporal variation of average temperature in multiple interconnected components~\cite{Incropera2011}. The LCM is derived at the component level from a point of view of energy conservation, and leads to the following system of ODEs for the average temperatures on the components,
@@ -101,7 +101,7 @@ Where the states and inputs,
 \begin{equation}
     \bvu = \left[\bar{u}_1,\bar{u}_2,\dots,\bar{u}_N\right]^\top\in\mathbb{R}^{N},\quad \bar{\vf} = \left[\bar{f}_1,\bar{f}_2,\dots,\bar{f}_N\right]^\top\in\mathbb{R}^{N}\label{eqn_lcm_states_inputs}
 \end{equation}
-include the average temperatures $\bar{\vu}$ and forcing inputs $\bar{\vf}$ for the $N$ components. For $i,j=1,2,\dots,N$ the $(i,j)$-th elements of the $\bar{\vA}\in\mathbb{R}^{N\times N}$, $\bar{\vB}\in\mathbb{R}^{N\times N}$, and $\bar{\vf}\in\mathbb{R}^{N}$ matrices are given by,
+include the average temperatures $\bar{\vu}$ and spatially-integrated inputs $\bar{\vf}$ for the $N$ components. For $i,j=1,2,\dots,N$ the $(i,j)$-th elements of the $\bar{\vA}\in\mathbb{R}^{N\times N}$, $\bar{\vB}\in\mathbb{R}^{N\times N}$, and $\bar{\vf}\in\mathbb{R}^{N}$ matrices are given by,
 \begin{subequations}
     \begin{gather}
         \bar{A}_i = \begin{cases}
@@ -120,6 +120,7 @@ where,
 \begin{equation}
     \bar{q}_i = \frac{1}{|\eiq|}\int_{\eiq} q_b d\eiq,\quad \bar{T}_i = \frac{1}{|\eiT|}\int_{\eiT}T_b d\eiT,\quad \bar{B}^{i}_{ij} = -\frac{|\eij|}{R_{ij}},\quad \bar{B}_{ij}^{j} = \frac{|\eij|}{R_{ij}}\label{eqn_lcm_matrices_elements}
 \end{equation}
+where $R_{ij}$ is the equivalent thermal resistance between two neighboring components $\Omega_i$ and $\Omega_j$, and $R_i$ is the thermal resistance between component $\Omega_i$ and the Dirichlet boundary. The thermal resistances are computed based on the geometry and material properties of the components; details regarding their computation are provided in Appendix~\ref{appendix_mathematical_details}.
 
 \begin{figure}
     \centering
@@ -130,18 +131,20 @@ where,
 \end{figure}
 
 \subsubsection{Surface Velocity Model}
-The displacement is assumed to be \textit{one-dimensional} on the heated boundary $\Gamma_q$, i.e., the surface recedes only in the direction of the applied load, and occurs only for $\tilde{N}\leq N$ components. For example, in Fig.~\ref{fig_four_components}, the surface displacement on the heated boundary occurs only in the negative $y$-direction for the three components exposed to the hypersonic boundary layer; the fourth component is the substrate and does not ablate. For the $i$-th component, the SVM considered in this work takes the form,
+The displacement is assumed to be \textit{one-dimensional} on the heated boundary $\Gamma_q$, i.e., the surface recedes only in the direction of the applied load, and occurs only for $\tilde{N}\leq N$ components. For example, in Fig.~\ref{fig_four_components}, the surface displacement on the heated boundary occurs only in the negative $y$-direction for the three components exposed to the hypersonic boundary layer; the fourth component is the substrate and does not ablate. Displacements along the $x$ direction is small relative to displacements in the $y$ direction, and are thus neglected. 
+
+For the $i$-th component, the SVM considered in this work takes the form,
 \begin{equation}
     \dot{\vw} = \vXi\bvu - \tvf\label{eqn_svm}
 \end{equation}
 where $\vXi=\text{diag}\left(\xi_1,\dots,\xi_{\tilde{N}}\right)$ and $\tvf=\left(\xi_1\bu_{0,1},\dots,\xi_{\tilde{N}}\bu_{0,\tilde{N}}\right)^\top$. The constants $\xi_i$ are small material-dependent constants, determined from the B' table, and $\bu_{0,i}$ is the constant initial temperature of the component. The SVM provides a relation between the surface temperature and the surface recession velocity based on pre-computed B' tables for the material.
 
 \subsubsection{Coupled Reduced-Physics Model}
-The LCM and SVM are combined to define the RPM for predicting the thermo-ablative response of the TPS. Specifically, the RPM is defined as the LCM as in \cref{eqn_lcm}, where the \textit{geometry-dependent matrices} $\bar{\vA}$, $\bar{\vB}$, and $\bar{\vf}$ are updated at each time step based on the current surface displacements provided by the SVM. Assuming the same material properties for the ablative components, the RPM is written as,
+The LCM and SVM are combined to define the RPM for predicting the thermo-ablative response of the TPS under hypersonic boundary layers. Specifically, the RPM is defined as the LCM as in \cref{eqn_lcm}, where the \textit{geometry-dependent matrices} $\bar{\vA}$, $\bar{\vB}$, and $\bar{\vf}$ are updated at each time step based on the current surface displacements $\vw$ provided by the SVM. Assuming the same material properties for the ablative components, the RPM is written as,
 \begin{equation}
     \vcA(\vs)\dot{\vs} = \vcB(\vs)\vs + \vcF(t)\label{eqn_rpm}
 \end{equation}
-where the state $\vs=\left[\bvu,\vw\right]^\top\in\mathbb{R}^{N+\tilde{N}}$ includes the average temperatures for $N$ components and the surface displacements $\tilde{N}$ ablating components. The matrices are given as,
+where the state $\vs=\left[\bvu,\vw\right]^\top\in\mathbb{R}^{N+\tilde{N}}$ includes the average temperatures for $N$ components and the one-dimensional surface displacements for the $\tilde{N}$ ablating components. The matrices are given as,
 \begin{equation}
     \vcA = \begin{bmatrix}
         \bar{\vA}(\vw) & \vzero\\
@@ -154,16 +157,15 @@ where the state $\vs=\left[\bvu,\vw\right]^\top\in\mathbb{R}^{N+\tilde{N}}$ incl
         -\tvf
     \end{bmatrix}\label{eqn_rpm_matrices}
 \end{equation}
-
-
-
+In the matrices $\bvA$ and $\bvB$, the surface displacements $\vw$ are used to define the dimensions for the $\Omega_i$ component used in \cref{eqn_lcm_matrices,eqn_lcm_matrices_elements}, thus effectively coupling the LCM and SVM.
 
 \subsection{Summary of Modeling Approaches}
+The FOM (i.e., DG-FEM) and RPM (i.e., LCM with SVM) are two different but mathematically connected solution strategies. Specifically, the LCM in \cref{eqn_lcm} not only resembles the functional form of the DG model in \cref{eqn_full_dg}, but can be viewed as a special case of the latter, where the mesh partition is extremely coarse, and the trial and test functions are piece-wise constants. This removes all spatial variations within each component, and neglects advection effects due to mesh motion.
 
-The FOM (i.e., DG-FEM) and RPM (i.e., LCM) are two different but mathematically connected solution strategies. Specifically, the LCM in \cref{eqn_lcm} not only resembles the functional form of the DG model in \cref{eqn_full_dg}, but can be viewed as a special case of the latter, where the mesh partition is extremely coarse, and the trial and test functions are piece-wise constants. For example, consider the case where each component $\Omega_i$ is treated as one single element, and each element employs one constant basis function $\phi_i=1$. The element-wise DG model in \cref{eqn_element_dg} simplifies into a scalar ODE that ignores advection effects due to mesh motion,
+For example, consider the case where each component $\Omega_i$ is treated as one single element, and each element employs one constant basis function $\phi_i=1$. The element-wise DG model in \cref{eqn_element_dg} simplifies into a scalar ODE,
 \begin{equation}
     \vAi = \bar{A}_i,\quad \vCi = 0, \quad\vBiij = -\sigma|\eij|,\quad \vBjij=\sigma|\eij|,\quad \vf_i = |\eiq|\bar{q}_i + \sigma|\eiT|\bar{T}_i
 \end{equation}
 Clearly, the LCM is a coarse zeroth-order DG model with the inverse of thermal resistance chosen as the element-wise penalty factors. Or conversely, the DG model is a refined version of LCM via \textit{hp}-adaptation.
 
-The FOM and RPM represent two extremes in the modeling fidelity and computational cost spectrum. On one hand, the FOM is the most accurate but computationally expensive to evaluate due to the fine mesh discretizations for both the temperature and displacement fields, leading to possibly millions of state variables. On the other hand, the RPM considers only the average temperature of the material as the state variable, considerably reducing the computational cost, but sacrificing local temperature information and thus neglecting higher-order effects due to mesh motion. Thus, neither the FOM nor the RPM is a universal approach for real-world analysis, design, and optimization tasks for ablating TPS, where thousands of high-fidelity model evaluations may be necessary. This issue motivates the development of the PIROM, which can achieve the fidelity of FOM at a computational cost close to the RPM, while maintaining the generalizability to model parameters.
+The FOM and RPM represent two extremes in the modeling fidelity and computational cost spectrum. On one hand, the FOM is the most accurate but computationally expensive to evaluate due to the fine mesh discretizations for both the temperature and displacement fields, leading to possibly millions of state variables. On the other hand, the RPM considers only the average temperature of the material from which one-dimensional surface displacements are computed. This considerably reduces the computational cost, but sacrifices local temperature information that are critical to properly capture higher-order effects due to mesh motion and thermal gradients within each component. Thus, neither the FOM nor the RPM is an universal approach for real-world analysis, design, and optimization tasks for ablating TPS, where thousands of high-fidelity model evaluations may be necessary. This issue motivates the development of the PIROM, which can achieve the fidelity of FOM at a computational cost close to the RPM, while maintaining the generalizability to model parameters.
