@@ -24,7 +24,7 @@ Equations \cref{eqn_average_temperature,eqn_element_states} are combined and wri
 where $\vPhi\in\mathbb{R}^{MP\times N}$ is a matrix of $M\times N$ blocks, with the $(i,j)$-th block as $\vvarphiij$, $\vPhiplus\in\mathbb{R}^{N\times MP}$ is the left inverse of $\vPhi$, with the $(i,j)$-th block as $\vvarphi_{i}^{j+} = \frac{|E_i|}{|\Omega_j|}\vvarphiijT$, and $\deltavu$ is the collection of deviations. By their definitions, $\vPhiplus\vPhi = \vI$ and $\vPhiplus\deltavu = \vzero$.
 
 \subsubsection{Coarse-Graining of Dynamics}
-Next, consider a function of states in the form of $\vM\left(\vu\right)\vg(\vu)$, where $\vg:\mathbb{R}^{MP} \to \mathbb{R}^{MP}$ is a vector-valued function, and $\vM:\mathbb{R}^{MP} \to \mathbb{R}^{p\times MP}$ is a matrix-valued function with an arbitrary dimension $p$. Define the projection matrix $\vP=\vPhi\vPhiplus$ and the projection operator $\cP$ as,
+In this section, the dependence of the matrices with respect to the displacements $\vw$ is dropped to isolate the analysis based on coarsened variables. Next, consider a function of states in the form of $\vM\left(\vu\right)\vg(\vu)$, where $\vg:\mathbb{R}^{MP} \to \mathbb{R}^{MP}$ is a vector-valued function, and $\vM:\mathbb{R}^{MP} \to \mathbb{R}^{p\times MP}$ is a matrix-valued function with an arbitrary dimension $p$. Define the projection matrix $\vP=\vPhi\vPhiplus$ and the projection operator $\cP$ as,
 \begin{align}
     \cP\left[\vM(\vu)\vg(\vu)\right] &= \vM\left(\vP{\vu}\right)\vg\left(\vP{\vu}\right)\notag\\
     &= \vM\left(\vPhi\bvu\right)\vg\left(\vPhi\bvu\right)\label{eqn_projection_operator}
@@ -118,56 +118,73 @@ where the data-driven operators associated to the hidden dynamics are collected 
         \vE(\bvu) &= \text{diag}\left(e_1(\bvu),e_2(\bvu),\dots,e_m(\bvu)\right)\in\mathbb{R}^{m\times m}
     \end{align}
 \end{subequations}
-Note that since the hidden states $\vbeta$ serve as the memory, their initial conditions are set to zero, i.e., $\vbeta(t_0) = \vzero$, no memory at the beginning. The physics-infused model in \cref{eqn_extended_markovian_system} retains the structure of the LCM, while the hidden states account for missing physics through corrections to the stiffness and advection matrices, as well as the forcing term.
+The form of the temperature-dependent matrices $\vD(\bvu)$, $\vG(\bvu)$, and $\vE(\bvu)$ is provided in the next section. Note that since the hidden states $\vbeta$ serve as the memory, their initial conditions are set to zero, i.e., $\vbeta(t_0) = \vzero$, no memory at the beginning. The physics-infused model in \cref{eqn_extended_markovian_system} retains the structure of the LCM, while the hidden states account for missing physics through corrections to the stiffness and advection matrices, as well as the forcing term.
 
-\subsubsection{Coupling with Surface Velocity Model}
-Provided the physics-infused formulation in \cref{eqn_extended_markovian_system}, the last step in the formulation is to couple it with the SVM to account for the ablative surface recession. To this end, consider the observable of interest as the surface temperature, denoted as $\vz\in\mathbb{R}^{n_z}$, where $n_z$ is the number of monitored surface locations, and collect the resolved and hidden states into one state vector $\vy = \left[\bvu,\vbeta\right]^T\in\mathbb{R}^{n_y}$ with $n_y = N+m$. Define the data-driven observable mapping operator $\vM\in\mathbb{R}^{n_z\times n_{y}}$ and define the PIROM's observable as,
+\subsubsection{Coupled Physics-Infused Model}
+The next step is to coupled the physics-infused formulation in \cref{eqn_extended_markovian_system} with the SVM in \cref{eqn_svm} to form the PIROM for ablating TPS. To this end, define first the observables of interest as the surface temperature $\vz_u\in\mathbb{R}^{\tN}$ and displacements $\vz_w\in\mathbb{R}^{\tN}$ at the ablating surfaces to define the observable vector as $\vz=\left[\vz_u,\vz_w\right]^\top\in\mathbb{R}^{n_z}$ with $n_z=2\tN$ as the number of monitored surface locations, with $\tN$ being the number of ablating components. 
+
+Collect the RPM and hidden states into a single state vector $\vy = \left[\bvu,\vw,\vbeta\right]^\top\in\mathbb{R}^{n_y}$, where $n_y = N + \tN + m$, and define a data-driven operator $\vM\in\mathbb{R}^{n_z\times n_{y}}$ to define the PIROM's observable as,
 \begin{equation}
     \vz = \vM\vy\label{eqn_pirom_observable_mapping}
 \end{equation}
-
-The PIROM is coupled to the SVM in \cref{eqn_svm} by computing the surface recession velocity based on the PIROM's surface temperature prediction $\vz$. Specifically, the surface recession velocity is updated as,
+where,
 \begin{equation}
-    \dot{\vw} = \vXi\vz - \tvf\label{eqn_pirom_svm}
+    \vM = \begin{bmatrix}
+        \vM_{\bu} & \vzero & \vM_{\beta}\\
+        \vzero & \vI & \vzero
+    \end{bmatrix}
+\end{equation}
+includes the matrices $\vM_{\bu}\in\mathbb{R}^{\tN\times N}$ and $\vM_{\beta}\in\mathbb{R}^{\tN\times m}$, which computes the surface temperature (observable) from the RPM states and hidden states, respectively.
+
+The PIROM is coupled to the SVM in \cref{eqn_svm} by computing the surface recession velocity based on the PIROM's surface temperature prediction $\vz_u$. Specifically, the surface recession velocity is updated as,
+\begin{equation}
+    \dot{\vw} = \vXi\vz_u - \tvf\label{eqn_pirom_svm}
 \end{equation}
 Thus, the PIROM is formally stated as,
-\begin{subequations}\label{eqn_pirom_general}
+\begin{subequations}
     \begin{align}
-        \tilde{\vA}\dot{\vy} &= \left[\tilde{\vB} +\tilde{\vC}\right]\vy + \vH\bvf(t)\\
+        \vcA\dot{\vy} &= \left[\vcB + \vcC\right]\vy + \vcF(t)\\
         \vz &= \vM\vy
-    \end{align}
+    \end{align}\label{eqn_pirom_general}
 \end{subequations}
 where,
 \begin{subequations}
     \begin{gather}
-        \tilde{\vA} = \begin{bmatrix}
-            \bvA(\bvu) & \vO\\
-            \vO & \vI
-        \end{bmatrix}\in\mathbb{R}^{n_y\times n_y},\quad \tilde{\vB} = \begin{bmatrix}
-            \bvB(\bvu) & \vP\\
-            \vQ & -\vLambda
-        \end{bmatrix}\in\mathbb{R}^{n_y\times n_y},\quad \tilde{\vC} = \begin{bmatrix}
-            \vzero & \vD(\bvu)\\
-            \vG(\bvu) & \vE(\bvu)
+        \vcA = \begin{bmatrix}
+            \bvA & \vO & \vO\\
+            \vO & \vI & \vO\\
+            \vO & \vO & \vI
+        \end{bmatrix}\in\mathbb{R}^{n_y\times n_y},\quad \vcB = \begin{bmatrix}
+            \bvB & \vO & \vP\\
+            \vXi\vM_u & \vO & \vXi\vM_{\beta}\\
+            \vQ & \vO & -\vLambda
         \end{bmatrix}\in\mathbb{R}^{n_y\times n_y},\\
-        \vH = \begin{bmatrix}
-            \vI \\
-            \vR
-        \end{bmatrix}\in\mathbb{R}^{n_y\times N},\quad  \vM\in\mathbb{R}^{n_z\times n_y}
+        \vcC = \begin{bmatrix}
+            \vO & \vO & \vD(\bvu)\\
+            \vO & \vO & \vO\\
+            \vG(\bvu) & \vO & \vE(\bvu)
+        \end{bmatrix}\in\mathbb{R}^{n_y\times n_y},\quad
+        \vcF = \begin{bmatrix}
+            \bvf(t) \\
+            -\tvf\\
+            \vR\bvf(t)
+        \end{bmatrix}\in\mathbb{R}^{n_y}
     \end{gather}
 \end{subequations}
 
-In \cref{eqn_pirom_general}, the terms $\bvA$, $\bvB$, and $\bvf$ are the LCM terms. The collection of matrices,
+The learnable parameters in the PIROM are collected as,
 \begin{equation}
-    \vTheta = \left\{\vP,\vD(\bvu),\vG(\bvu),\vLambda,\vE(\bvu),\vQ,\vG(\bvu),\vR,\vM\right\},\in\mathbb{R}^{n_{\theta}}
+    \vTheta = \left\{\vP,\vQ,\vR,\vD(\bvu),\vG(\bvu),\vE(\bvu),\vM_{u},\vM_{\beta}\right\},\in\mathbb{R}^{n_{\theta}}
 \end{equation}
-are learnable parameters to capture the memory effects. Particularly, the matrices $\vP,\vLambda,\vQ,\vR$ are constants that need to be identified from data, and account for the effects of coarse-graining on the stiffness and forcing matrices. The matrices $\vD(\bvu),\vE(\bvu),\vG(\bvu)$ are state-dependent matrices, and account for the effects of coarse-graining on the advection matrix. Leveraging the DG-FEM formula for the advection matrix in \cref{eqn_advection_matrix_element_kl} in the Appendix, and noting that the mesh displacements are functions of the ablating velocity as in \cref{eqn_boundary_velocity}, the state-dependent matrices for the $i$-th component are written as,
+Particularly, the matrices $\vP,\vLambda,\vQ,\vR$ are constants that need to be identified from data, and account for the effects of coarse-graining on the stiffness and forcing matrices. The matrices $\vD(\bvu),\vE(\bvu),\vG(\bvu)$ are state-dependent matrices, and account for the effects of coarse-graining on the advection matrix due to mesh motion. Leveraging the DG-FEM formula for the advection matrix in \cref{eqn_advection_matrix_element_kl} in the Appendix, and noting that the ablating velocity in \cref{eqn_boundary_velocity} imposes the boundary condition for the mesh motion, the state-dependent matrices for the $i$-th component are written as,
 \begin{equation}
-    \vD^{(i)}(\bvu) \approx f^{(i)}(\bu^{(i)})\vD^{(i)}, \quad \vE^{(i)}(\bvu) \approx f^{(i)}(\bu^{(i)})\vE^{(i)}, \quad \vG^{(i)}(\bvu) \approx f^{(i)}(\bu^{(i)})\vG^{(i)}\label{eqn_advection_matrix_corrections}
+    \vD(\bvu) \approx \dot{\vw}(\bvu)\odot_{\text{r}}\vD,\quad \vG(\bvu) \approx \vG\odot_{\text{r}}\dot{\vw}(\bvu), \quad \vE(\bvu) \approx \dot{\vW}(\bvu)\odot\vE\label{eqn_advection_matrix_corrections}
 \end{equation}
-where $f^{(i)}(\bu^{(i)})$ is the surface recession velocity function in \cref{eqn_lcm_boundary_velocity} for the $i$-th component, and $\vD^{(i)},\vE^{(i)},\vG^{(i)}$ are constant matrices to be identified from data. In \cref{eqn_pirom_general}, $\vM$ is a fully-populated matrix that extracts the observables, i.e., the surface temperatures, from the PIROM states $\vy$. The PIROM incorporates explicit information on the temperature-dependent material properties through the LCM matrices, as well as the surface recession velocity function through \cref{eqn_advection_matrix_corrections}. The next step is focused on identifying the unknown parameters $\vTheta$ characterizing the hidden dynamics.
+where $\dot{\vw}(\bvu)$ is the SVM based on the observable temperature $\bvu$, $\odot_{\text{r}}$ is the row-wise multiplication, and $\dot{\vW}$ is the concatenation of $\dot{\vw}$ for $\tilde{m}$ times, where $\tilde{m}$ corresponds to the number of hidden states per component, i.e., $m = N\tilde{m}$.
 
-\subsection{Learning the Hidden Dynamics from Data}
+The PIROM in \cref{eqn_pirom_general} incorporates explicit information on the material properties, boundary conditions, and surface recession, and is designed to generalize across parametric variations in these inputs. Moreover, the hidden dynamics in \cref{eqn_extended_markovian_system} are interpretable, as these retain the functional form of the DG-FEM in \cref{eqn_full_dg}. The next step is focused on identifying the unknown data-driven parameters $\vTheta$ characterizing the hidden dynamics.
+
+\subsection{Learning the Hidden Dynamics}
 
 The learning of the PIROM is achieved through a neural-ODE like approach~\hl{Chen2018}. For ease of presentation, consider the following compact form of the PIROM in \cref{eqn_pirom_general},
 \begin{equation}

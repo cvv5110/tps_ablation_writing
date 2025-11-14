@@ -132,33 +132,33 @@ where $R_{ij}$ is the equivalent thermal resistance between two neighboring comp
 \end{figure}
 
 \subsubsection{Surface Velocity Model}
-The displacement is assumed to be \textit{one-dimensional} on the heated boundary $\Gamma_q$, i.e., the surface recedes only in the direction of the applied load, and occurs only for $\tilde{N}\leq N$ components. For example, in Fig.~\ref{fig_four_components}, the surface displacement on the heated boundary occurs only in the negative $y$-direction for the three components exposed to the hypersonic boundary layer; the fourth component is the substrate and does not ablate. Displacements along the $x$ direction is small relative to displacements in the $y$ direction, and are thus neglected. 
+The displacement is assumed to be \textit{one-dimensional} on the heated boundary $\Gamma_q$, i.e., the surface recedes only in the direction of the applied load. For example, in Fig.~\ref{fig_four_components}, the surface displacement on the heated boundary occurs only in the negative $y$-direction for the three components exposed to the hypersonic boundary layer; the fourth component is the substrate and does not ablate. Displacements along the $x$ direction is small relative to displacements in the $y$ direction, and are thus neglected. 
 
 For the $i$-th component, the SVM considered in this work takes the form,
 \begin{equation}
     \dot{\vw} = \vXi\bvu - \tvf\label{eqn_svm}
 \end{equation}
-where $\vXi=\text{diag}\left(\xi_1,\dots,\xi_{\tilde{N}}\right)$ and $\tvf=\left(\xi_1\bu_{0,1},\dots,\xi_{\tilde{N}}\bu_{0,\tilde{N}}\right)^\top$. The constants $\xi_i$ are small material-dependent constants, determined from the B' table, and $\bu_{0,i}$ is the constant initial temperature of the component. The SVM provides a relation between the surface temperature and the surface recession velocity based on pre-computed B' tables for the material.
+where $\vXi=\text{diag}\left(\xi_1,\dots,\xi_{N}\right)$ and $\tvf=\left(\xi_1\bu_{0,1},\dots,\xi_{N}\bu_{0,N}\right)^\top$. The constants $\xi_i$ are small material-dependent constants, determined from the B' table, and $\bu_{0,i}$ is the constant initial temperature of the component. The SVM provides a relation between the surface temperature and the surface recession velocity based on pre-computed B' tables for the material.
 
 \subsubsection{Coupled Reduced-Physics Model}
-The LCM and SVM are combined to define the RPM for predicting the thermo-ablative response of the TPS under hypersonic boundary layers. Specifically, the RPM is defined as the LCM as in \cref{eqn_lcm}, where the \textit{geometry-dependent matrices} $\bar{\vA}$, $\bar{\vB}$, and $\bar{\vf}$ are updated at each time step based on the current surface displacements $\vw$ provided by the SVM. The RPM is formally stated as,
+The LCM and SVM are combined to define the RPM for predicting the thermo-ablative response of the TPS under hypersonic boundary layers. Specifically, the RPM is defined as the LCM as in \cref{eqn_lcm}, where the \textit{geometry- and temperature-dependent matrices} $\bar{\vA}$, $\bar{\vB}$, and $\bar{\vf}$ are updated at each time step based on the current temperature $\bvu$ and displacements $\vw$ provided by the SVM. The RPM is formally stated as,
 \begin{equation}
-    \vcA(\vs)\dot{\vs} = \vcB(\vs)\vs + \vcF(t)\label{eqn_rpm}
+    \tvA(\vs)\dot{\vs} = \tvB(\vs)\vs + \tvF(t)\label{eqn_rpm}
 \end{equation}
-where the state $\vs=\left[\bvu,\vw\right]^\top\in\mathbb{R}^{N+\tilde{N}}$ includes the average temperatures for $N$ components and the one-dimensional surface displacements for the $\tilde{N}$ ablating components. The matrices are given as,
+where the state $\vs=\left[\bvu,\vw\right]^\top\in\mathbb{R}^{2N}$ includes the average temperatures and one-dimensional surface displacements. The matrices are given as,
 \begin{equation}
-    \vcA = \begin{bmatrix}
-        \bar{\vA}(\vw) & \vzero\\
+    \tvA(\vs) = \begin{bmatrix}
+        \bar{\vA}(\vs) & \vzero\\
         \vzero & \vI
-    \end{bmatrix},\quad \vcB(\vs) = \begin{bmatrix}
-        \bar{\vB}(\vw) & \vzero\\
+    \end{bmatrix},\quad \tvB(\vs) = \begin{bmatrix}
+        \bar{\vB}(\vs) & \vzero\\
         \vXi & \vzero
-    \end{bmatrix},\quad \vcF(t) = \begin{bmatrix}
+    \end{bmatrix},\quad \tvF(t) = \begin{bmatrix}
         \bar{\vf}(t)\\
         -\tvf
     \end{bmatrix}\label{eqn_rpm_matrices}
 \end{equation}
-In the matrices $\bvA$ and $\bvB$, the surface displacements $\vw$ are used to define the dimensions for the $\Omega_i$ component used in \cref{eqn_lcm_matrices,eqn_lcm_matrices_elements}, thus effectively coupling the LCM and SVM.
+In the matrices $\tvA$ and $\tvB$, the surface displacements $\vw$ are used to define the dimensions for the $\Omega_i$ component used in \cref{eqn_lcm_matrices,eqn_lcm_matrices_elements}, thus effectively coupling the LCM and SVM.
 
 \subsection{Summary of Modeling Approaches}
 The FOM (i.e., DG-FEM) and RPM (i.e., LCM with SVM) are two different but mathematically connected solution strategies. Specifically, the LCM in \cref{eqn_lcm} not only resembles the functional form of the DG model in \cref{eqn_full_dg}, but can be viewed as a special case of the latter, where the mesh partition is extremely coarse, and the trial and test functions are piece-wise constants. This removes all spatial variations within each component, and neglects advection effects due to mesh motion.
