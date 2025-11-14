@@ -3,10 +3,10 @@
 This section presents the problem of modeling a non-decomposing ablating TPS subjected to extreme hypersonic heating. Two different but mathematically connected solution strategies are provided: (1) a high-fidelity full-order model (FOM) based on a finite element method (FEM), and (2) a low-fidelity reduced-physics model (RPM) based on a lumped capacitance model (LCM) and a one-dimensional surface velocity model (SVM). The FOM is computationally expensive but provides the highest fidelity, while the RPM is computationally efficeint but has low predictive fidelity; both models are amenable to high-dimensional design variables. The RPM is used in the subsequent sections for deriving the PIROM.
 
 \subsection{Governing Equations}\label{sec_governing_equations}
-
 The multi-physics for a non-decomposing ablating TPS involves the \textit{energy equation} which models the transient heat conduction inside the TPS, and the \textit{pseudo-elasticity equation}, which models the mesh motion due to surface recession. The governing PDEs for the ablating TPS are summarized in this section.
 
-\paragraph*{Energy Equation} Consider a generic domain $\Omega\subset$, $d=2$ or $3$, illustrated in Fig.~\ref{fig_general_domain}. Let $\partial\Omega = \Gamma_q\cup\Gamma_T$ and $\Gamma_q\cap\Gamma_T = \emptyset$, where a Neumann $q_b(x,t)$ boundary condition is prescribed on the $\Gamma_q$ boundary, and represents the surface exposed to the hypersonic boundary layer. The Dirichlet $T_b(x,t)$ boundary condition is prescribed on the boundary $\Gamma_T$. The TPS is divided into $N$ non-overlapping components $\left\{\Omega_i\right\}_{i=1}^{N}$, as illustrated in Fig.~\ref{fig_general_domain} for $N=2$. The $i$-th component $\Omega_i$ is associated with material properties $\left(\rho_i,c_{p,i}, \vk_i\right)$, that are assumed to be continuous within one component, and can be discontinuous across two neighboring components. 
+\subsubsection{Energy Equation}
+Consider a generic domain $\Omega\subset$, $d=2$ or $3$, illustrated in Fig.~\ref{fig_general_domain}. Let $\partial\Omega = \Gamma_q\cup\Gamma_T$ and $\Gamma_q\cap\Gamma_T = \emptyset$, where a Neumann $q_b(x,t)$ boundary condition is prescribed on the $\Gamma_q$ boundary, and represents the surface exposed to the hypersonic boundary layer. The Dirichlet $T_b(x,t)$ boundary condition is prescribed on the boundary $\Gamma_T$. The TPS is divided into $N$ non-overlapping components $\left\{\Omega_i\right\}_{i=1}^{N}$, as illustrated in Fig.~\ref{fig_general_domain} for $N=2$. The $i$-th component $\Omega_i$ is associated with material properties $\left(\rho_i,c_{p,i}, \vk_i\right)$, that are assumed to be continuous within one component, and can be discontinuous across two neighboring components. 
 
 \begin{figure}
     \centering
@@ -32,7 +32,8 @@ An Abirtrary Lagrangian-Eulerian (ALE) description is used to account for mesh m
 \end{equation}
 where $\vv_s(x,t)$ and $\vv_m(x,t)$ are the physical material velocity and mesh velocity, respectively. In this work, the physical material velocity is assumed to be zero, i.e., $\vv_s(x,t)=\vzero$, and thus the relative velocity is simply the negative of the mesh velocity, $\tilde{\vv}(x,t) = -\vv_m(x,t)$.
 
-\paragraph*{Pseudo-Elasticity Equation} The mesh motion is described by the steady-state pseudo-elasticity equation without body forces,
+\subsubsection{Pseudo-Elasticity Equation}
+The mesh motion is described by the steady-state pseudo-elasticity equation without body forces,
 \begin{subequations}
     \begin{align}
         \nabla\cdot\vsigma(\vw) &= \vzero,\quad \forall\:t\in\cT,\:\vx\in\Omega\quad\label{eqn_elasticity_pde}\\
@@ -61,7 +62,7 @@ where $\hat{\vn}$ is the unit normal vector on the heated boundary $\Gamma_q$, a
 \end{equation}
 
 \subsection{Full-Order Model: Finite-Element Method}\label{sec_fom}
-To obtain the full-order numerical solution, the energy quation is spatially discretized using variational principles of the Discontinuous Galerkin (DG) method~\cite{Cohen2018}, while the pseudo-elasticity equation is discretized using the standard FEM; the result is a high-dimensional system of ODEs describing the temporal evolution of the temperature field and mesh displacements. Note that the choice of DG approach for the energy equation is mainly for \textit{theoretical convenience} in the coarse-graining formulation, and is exclusively performed on the energy equation. The equivalence between DG and FEM is noted upon their convergence.
+To obtain the full-order numerical solution, the \textit{energy equation} is spatially discretized using variational principles of the Discontinuous Galerkin (DG) method~\cite{Cohen2018}. Note that the choice of DG approach is mainly for theoretical convenience, and is exclusively performed on the energy equation, as it is the surface temperature that drives the ablation process. The equivalence between DG and FEM is noted upon their convergence. For the \textit{pseudo-elasticity equation} standard FEM is used to compute the mesh displacements based on the surface temperature provided by the DG solution of the energy equation~\cite{Bergel2022}.
 
 Consider a conforming mesh partition domain, where each element belongs to one and only one component. Denote the collection of all $M$ elements as $\left\{E_i\right\}_{i=1}^{M}$. In an element $E_i$, its shared boundaries with another element $E_j$, Neumann BC, and Dirichlet BC are denoted as $e_{ij}$, $e_{iq}$, and $e_{iT}$, respectively. Lastly, $\left|e\right|$ denotes the length $(n_d=2)$ or area $(n_d=3)$ of a component boundary $e$.
 
@@ -140,7 +141,7 @@ For the $i$-th component, the SVM considered in this work takes the form,
 where $\vXi=\text{diag}\left(\xi_1,\dots,\xi_{\tilde{N}}\right)$ and $\tvf=\left(\xi_1\bu_{0,1},\dots,\xi_{\tilde{N}}\bu_{0,\tilde{N}}\right)^\top$. The constants $\xi_i$ are small material-dependent constants, determined from the B' table, and $\bu_{0,i}$ is the constant initial temperature of the component. The SVM provides a relation between the surface temperature and the surface recession velocity based on pre-computed B' tables for the material.
 
 \subsubsection{Coupled Reduced-Physics Model}
-The LCM and SVM are combined to define the RPM for predicting the thermo-ablative response of the TPS under hypersonic boundary layers. Specifically, the RPM is defined as the LCM as in \cref{eqn_lcm}, where the \textit{geometry-dependent matrices} $\bar{\vA}$, $\bar{\vB}$, and $\bar{\vf}$ are updated at each time step based on the current surface displacements $\vw$ provided by the SVM. Assuming the same material properties for the ablative components, the RPM is written as,
+The LCM and SVM are combined to define the RPM for predicting the thermo-ablative response of the TPS under hypersonic boundary layers. Specifically, the RPM is defined as the LCM as in \cref{eqn_lcm}, where the \textit{geometry-dependent matrices} $\bar{\vA}$, $\bar{\vB}$, and $\bar{\vf}$ are updated at each time step based on the current surface displacements $\vw$ provided by the SVM. The RPM is formally stated as,
 \begin{equation}
     \vcA(\vs)\dot{\vs} = \vcB(\vs)\vs + \vcF(t)\label{eqn_rpm}
 \end{equation}

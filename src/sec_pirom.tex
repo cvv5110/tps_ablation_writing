@@ -2,7 +2,7 @@
 The formulation of PIROM for ablating TPS starts by connecting the FOM, i.e., the DG-FEM, and the RPM, i.e., the LCM, via a coarse-graining procedure. This procedure pinpoints the missing dynamics in the LCM when compared to DG-FEM. Subsequently, the Mori-Zwanzig (MZ) formalism is employed to determine the model form for the missing dynamics in PIROM. Lastly, the data-driven identification of the missing dynamics in PIROM is presented.
 
 \subsection{Deriving the Reduced-Physics Model via Coarse-Graining}
-The subsequent coarse-graining formulation is performed on the DG-FEM in \cref{eqn_full_dg} to derive the LCM in \cref{eqn_lcm}. This process constraints the trial function space of a full-order DG model to a subset of piece-wise constants, so that the variables $\vu$, matrices $\vA$, $\vB$, and $\vC$, and forcing vector $\vf$ are all approximated using a single state associated to the average temperature. Note that the coarse-graining is exclusively performed to the thermal dynamics, as it is the surface temperature that drives the one-dimensional surface recession via the SVM; hence, the SVM is not included in this process.
+The subsequent coarse-graining formulation is performed on the DG-FEM in \cref{eqn_full_dg} to derive the LCM in \cref{eqn_lcm}. This process constraints the trial function space of a full-order DG model to a subset of piece-wise constants, so that the variables $\vu$, matrices $\vA$, $\vB$, and $\vC$, and forcing vector $\vf$ are all approximated using a single state associated to the average temperature. Note that the coarse-graining is exclusively performed on the thermal dynamics, as it is the surface temperature that drives the one-dimensional recession via the SVM. Hence, the coarse-graining of the mesh dynamics is not included in the following procedure.
 
 \subsubsection{Coarse-Graining of States}
 Consider a DG model as in \cref{eqn_full_dg} for M elements and an LCM as in \cref{eqn_lcm} for $N$ components; clearly $M\gg N$. Let $\cV_j = \left\{i \big| E_i\in\Omega_j\right\}$ be the indices of the elements belonging to the $j$-th component, so $E_i\in\Omega_j$ for all $i\in \cV_j$. The number of elements in the $j$-th component is $|\cV_j|$. The average temperature on $\Omega_j$ is,
@@ -60,7 +60,6 @@ where the following relations hold,
 where $\vW\in\mathbb{R}^{N\times N}$ is a diagonal matrix with the $i$-th element as $\left[\vW\right]_{ii} = \left|\cV_k\right|$ if $i\in\cV_k$. The examination of the second residual term $\vr^{(2)}(\vu,t)$ in \cref{eqn_coarse_grained_dynamics} is shown in the Appendix, and demonstrates that the physical sources of missing dynamics in the LCM include: the approximation of non-uniform temperature within each component as a constant, and the elimination of the advection term due to coarse-graining. In sum, the above results not only show that the LCM is a result of coarse-graining of the full-order DG-FEM, but also reveal the discrepancies between the LCM and the DG-FEM. These discrepancies propagate into the SVM, which as a result of the averaging in the LCM formulation, under-predicts the surface recession rates. In the subsequent section, the discrepancies in the LCM are corrected to formulate the PIROM.
 
 \subsection{Physics-Infusion Via Mori-Zwanzig Formalism}
-
 The Mori-Zwanzig (MZ) formalism is an operator-projection technique used to derive ROMs for high-dimensional dynamical systems, especially in statistical mechanics and fluid dynamics~\cite{Parish2017a,Parish2017,Duraisamy2025}. It provides an exact reformulation of a high-dimensional Markovian dynamical system, into a low-dimensional observable non-Markovian dynamical system. The proposed ROM is subsequently developed based on the approximation to the non-Markovian term in the observable dynamics. Particularly, \cref{eqn_coarse_grained_dynamics} shows that the DG-FEM dynamics can be decomposed into the resolved dynamics $\vr^{(1)}(\vu,t)$ and the orthogonal dynamics $\vr^{(2)}(\vu,t)$, in the sense of $\cP\vr^{(2)}=0$. In this case, the MZ formalism can be invoked to express the dynamics $\bvu$ in terms of $\bvu$ alone as the projected Generalized Langevin Equation (GLE)~\cite{Parish2017a,Parish2017,Duraisamy2025},
 \begin{equation}
     \dot{\bvu}(t) = \vr^{(1)}(\bvu,t) + \int_{0}^{t}\tvkappa(t,s,\bvu)ds\label{eqn_gle}
@@ -107,26 +106,31 @@ Then, \cref{eqn_lcm_gle} is recast as the extended Markovian system,
 \begin{subequations}
     \begin{align}
         \bvA(\bvu)\dot{\bvu} &= \bvB(\bvu)\bvu + \left[\vP + \vD(\bvu)\right]\vbeta + \bvf(t)\\
-        \dot{\vbeta} &= \left[-\vLambda + \vE(\bvu)\right]\vbeta + \left[\vQ + \vG(\bvu)\right]\bvu + \vR\bvf(t)
+        \dot{\vbeta} &= \left[\vQ + \vG(\bvu)\right]\bvu + \left[\vE(\bvu) - \vLambda\right]\vbeta + \vR\bvf(t)
     \end{align}\label{eqn_extended_markovian_system}
 \end{subequations}
-where,
+where the data-driven operators associated to the hidden dynamics are collected as,
 \begin{subequations}
     \begin{align}
         \vLambda &= \text{diag}\left(\lambda_1,\lambda_2,\dots,\lambda_m\right)\in\mathbb{R}^{m\times m},\quad & \vP &= \left[\vp_1,\vp_2,\dots,\vp_m\right]\in\mathbb{R}^{N\times m}\\
         \vD(\bvu) &= \left[\vd_1(\bvu),\vd_2(\bvu),\dots,\vd_m(\bvu)\right]\in\mathbb{R}^{N\times m},\quad & \vQ &= \left[\vq_1,\vq_2,\dots,\vq_m\right]\in\mathbb{R}^{m\times N}\\
         \vG(\bvu) &= \left[\vg_1(\bvu),\vg_2(\bvu),\dots,\vg_m(\bvu)\right]\in\mathbb{R}^{m\times N},\quad & \vR &= \left[\vr_1,\vr_2,\dots,\vr_m\right]\in\mathbb{R}^{m\times N}\\
-        \vE(\bvu) &= \text{diag}\left(e_1(\bvu),e_2(\bvu),\dots,e_m(\bvu)\right)\in\mathbb{R}^{m\times m}&&
+        \vE(\bvu) &= \text{diag}\left(e_1(\bvu),e_2(\bvu),\dots,e_m(\bvu)\right)\in\mathbb{R}^{m\times m}
     \end{align}
 \end{subequations}
-Since the hidden states $\vbeta$ serve as the memory, their initial conditions are set to zero, i.e., $\vbeta(t_0) = \vzero$, no memory at the beginning. The physics-infused model in \cref{eqn_extended_markovian_system} retains the structure of the LCM, while the hidden states account for missing physics through corrections to the stiffness and advection matrices, as well as the forcing term.
+Note that since the hidden states $\vbeta$ serve as the memory, their initial conditions are set to zero, i.e., $\vbeta(t_0) = \vzero$, no memory at the beginning. The physics-infused model in \cref{eqn_extended_markovian_system} retains the structure of the LCM, while the hidden states account for missing physics through corrections to the stiffness and advection matrices, as well as the forcing term.
 
 \subsubsection{Coupling with Surface Velocity Model}
-Provided the PIROM for the thermal dynamics in \cref{eqn_extended_markovian_system}, the last step in the formulation is to couple it with the SVM to account for the ablative surface recession.
+Provided the physics-infused formulation in \cref{eqn_extended_markovian_system}, the last step in the formulation is to couple it with the SVM to account for the ablative surface recession. To this end, consider the observable of interest as the surface temperature, denoted as $\vz\in\mathbb{R}^{n_z}$, where $n_z$ is the number of monitored surface locations, and collect the resolved and hidden states into one state vector $\vy = \left[\bvu,\vbeta\right]^T\in\mathbb{R}^{n_y}$ with $n_y = N+m$. Define the data-driven observable mapping operator $\vM\in\mathbb{R}^{n_z\times n_{y}}$ and define the PIROM's observable as,
+\begin{equation}
+    \vz = \vM\vy\label{eqn_pirom_observable_mapping}
+\end{equation}
 
-
-
-Lastly, denote the collection of resolved and hidden states as $\vy = \left[\bvu,\vbeta\right]^T\in\mathbb{R}^{n_y}$ with $n_y = N+m$, then the proposed PIROM is summarized as,
+The PIROM is coupled to the SVM in \cref{eqn_svm} by computing the surface recession velocity based on the PIROM's surface temperature prediction $\vz$. Specifically, the surface recession velocity is updated as,
+\begin{equation}
+    \dot{\vw} = \vXi\vz - \tvf\label{eqn_pirom_svm}
+\end{equation}
+Thus, the PIROM is formally stated as,
 \begin{subequations}\label{eqn_pirom_general}
     \begin{align}
         \tilde{\vA}\dot{\vy} &= \left[\tilde{\vB} +\tilde{\vC}\right]\vy + \vH\bvf(t)\\
