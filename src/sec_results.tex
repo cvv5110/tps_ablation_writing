@@ -1,2 +1,28 @@
 \section{Application to Thermal Protection Systems}
-In this section, 
+In this section, the proposed PIROM approach is applied to the analysis of thermo-ablative behavior of multi-layered hypersonic TPS. The performance of the PIROM is evaluated in terms of \textit{accuracy}, \textit{generalizability}, and \textit{computational efficiency}, across a range of boundary condition and surface velocity model parametrizations. The results show PIROM to be a promising candidate for the solution of the impossible trinity of modeling.
+
+\subsection{Problem Definition}
+Consider the two-dimensional TPS configuration shown in Fig.~\hl{x} with constant material properties within each layer, dimensions, and BCs listed in Table~\hl{x}. Such configuration is representative of the TPS used for the initial concept 3.X vehicle in past studies~\cite{Klock2017}, and involves two main layers: an outer ablative layer, and an inner substrate layer. The top ablative layer may be composed of different materials, such as PICA or Avcoat, while the substrate layer is typically made of a high-temperature resistant material, such as carbon-carbon composite~\cite{Gasch2024}. The ablative layer, composed of $\tN=3$ ablative components, is subjected to strong time-varying and non-uniform heating, while the substrate layer, composed of one non-ablative component, is insulated adiabatically at the outer surface; the total number of components is thus $N=4$. 
+
+The sources of non-linearities in the problem originate from the coupling between the thermo-ablative physics and the temperature-dependent surface recession dynamics, as well as the heterogeneities across material layers. As shown in Fig.~\hl{x}, perfect thermocouple devices are placed at the surfaces of the ablative layers for the collection of the high-fidelity temperature signals that are used in the following sections for training and testing the PIROM.
+
+\subsection{Parametrization of Boundary Conditions and Surface Velocity Models}
+The operating conditions of the TPS is determined by the boundary conditions, i.e., the heat flux, and the surface velocity model (SVM). Specifically, the heat flux on the Neumann BC is parametrized using $\xibc=\left\{\xi_0,\xi_1,\xi_2\right\}$, while the SVM is parametrized using $\xisvm=\{\alpha_1, \alpha_2,\dots,\alpha_{\tN}\}$. This, the heat flux and SVM over the $i$-th ablative component are expressed as,
+\begin{equation}
+    q(x,t;\xibc) = \xi_0e^{\xi_1 x}e^{\xi_2 t},\:\forall x\in\Gamma_{i,q},\quad \dot{w}_i(u_i;\xisvm) = \alpha_i\left(u_i - u_{0,i}\right)
+\end{equation}
+where $\Gamma_{i,q}$ and $u_{0,i}$ are the Neumann BC boundary and initial temperature of the $i$-th ablative component, respectively. The $\xi_0$ controls the magnitude of the heat flux, while $\xi_1$ and $\xi_2$ control the spatial and temporal variations, respectively. The constant $\alpha_i$ is a small material-dependent constant, determined from the B' table for the material of the $i$-th ablative component.
+
+\subsection{Data Generation}
+
+\subsubsection{Definition of Training and Testing Datasets}
+
+\subsection{Performance Metrics}
+
+\subsection{Convergence Study}
+
+\subsection{Generalization to Boundary Conditions}
+
+\subsection{Generalization to Surface Velocity Models}
+
+\subsection{Summary of Results}

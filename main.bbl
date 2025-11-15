@@ -1,4 +1,4 @@
-\begin{thebibliography}{1}
+\begin{thebibliography}{10}
 
 \bibitem{Amar2016}
 Adam~J. Amar, A.~Brandon Oliver, Benjamin~S. Kirk, Giovanni Salazar, and Justin Droba.
@@ -9,15 +9,29 @@ Adam~J. Amar, A.~Brandon Oliver, Benjamin~S. Kirk, Giovanni Salazar, and Justin 
 Guy~L. Bergel, Frank~B. Beckwith, Gabiel~J. de~Frias, Kevin~M. Manktelow, Mark~T. Merewether, Scott~T. Miller, Krishen~J. Parmar, Timothy~S. Shelton, Jesse~T. Thomas, Jeremy~T. Trageser, Benjamin~T. Treweek, Michael~V. Veilleux, and Ellen~B. Wagman.
 \newblock {\em Sierra/SolidMechanics 5.6 User's Manual}, 2022.
 
+\bibitem{Chen2019}
+Ricky T.~Q. Chen, Yulia Rubanova, Jesse Bettencourt, and David Duvenaud.
+\newblock Neural ordinary differential equations, 2019.
+
 \bibitem{Cohen2018}
 Gary Cohen and Sebastien Pernet.
 \newblock {\em Finite Element and Discontinuous Galerkin Methods for Transient Wave Equations}.
 \newblock Springer Dordrecht, Le Chesnay and Toulouse France, 2018.
 
+\bibitem{Gasch2024}
+Matthew Gasch, Keith Peterson, Mairead Stackpoole, Ethiraj Venkatapathy, Gregory Gonzales, and Kyle Hendrickson.
+\newblock Development of advanced ablative carbon phenolic tps for future nasa missions and commercial space.
+\newblock In {\em 38th Annual Small Satellite Conference}, Logan, Utah, May 2024.
+
 \bibitem{Incropera2011}
 Frank~P. Incropera, David~P. DeWitt, Theodore~L. Bergman, and Adrienne~S. Lavine.
 \newblock {\em Fundamentals of Heat and Mass Transfer}.
 \newblock Wiley, Hoboken, NJ, 7th edition, 2011.
+
+\bibitem{Klock2017}
+R.~J. Klock and Carlos Cesnik.
+\newblock Nonlinear thermal reduced-order modeling for hypersonic vehicles.
+\newblock {\em AIAA Journal}, 55(7), 2017.
 
 \bibitem{Parish2017a}
 Eric Parish and Karthik Duraisamy.

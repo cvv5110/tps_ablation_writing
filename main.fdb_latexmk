@@ -1,15 +1,15 @@
 # Fdb version 4
-["bibtex main"] 1763164119.43598 "main.aux" "main.bbl" "main" 1763164122.27893 0
-  "./references.bib" 1763154170.24016 2929 4b62c7761ec873f4740ddda77d8f2f55 ""
+["bibtex main"] 1763236722.17474 "main.aux" "main.bbl" "main" 1763236854.83261 0
+  "./references.bib" 1763234683.08811 3897 1f460f5d50f5dfbca5d7ea830e840e52 ""
   "/usr/share/texlive/texmf-dist/bibtex/bst/base/plain.bst" 1292289607 20613 bd3fbfa9f64872b81ac57a0dd2ed855f ""
-  "main.aux" 1763164122.0667 11334 e301cbcd000cd543f644f3b3608f032d "pdflatex"
+  "main.aux" 1763236854.58751 12771 c40c974e5eaf7130f386fcbcdbef2d1d "pdflatex"
   (generated)
   "main.bbl"
   "main.blg"
   (rewritten before read)
-["pdflatex"] 1763164119.53091 "/home/andres/pirom_tps_ablation/main.tex" "main.pdf" "main" 1763164122.27908 0
+["pdflatex"] 1763236852.05191 "/home/andres/pirom_tps_ablation/main.tex" "main.pdf" "main" 1763236854.83276 0
   "/etc/texmf/web2c/texmf.cnf" 1758497887.83616 475 c0e671620eb5563b2130f56340a5fde8 ""
-  "/home/andres/pirom_tps_ablation/main.tex" 1763161871.57656 6687 cfc4255305135e508c5e5e3485a6794b ""
+  "/home/andres/pirom_tps_ablation/main.tex" 1763235466.14694 6905 228f23fc5a425c8fc7efd07dfa4fef5e ""
   "/usr/share/texlive/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmbsy6.tfm" 1246382020 1124 14ccf5552bc7f77ca02a8a402bea8bfb ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmbsy8.tfm" 1246382020 1120 200be8b775682cdf80acad4be5ef57e4 ""
@@ -113,15 +113,15 @@
   "figs/four_components.png" 1762883665.1208 233261 2d3977a0c645e3677462d20e1bde7d7a ""
   "figs/general_domain.png" 1762883665.1348 1126974 245c2f657b5c1dda907264430a22a01c ""
   "figs/lumped_mass_representation.png" 1762883665.1358 95012 1ac2a55bbb5044ac2155988619863c7b ""
-  "main.aux" 1763164122.0667 11334 e301cbcd000cd543f644f3b3608f032d "pdflatex"
-  "main.bbl" 1763164119.52675 2099 268cf9fe81bf4f9d126ae0e4eb646c67 "bibtex main"
-  "main.tex" 1763161871.57656 6687 cfc4255305135e508c5e5e3485a6794b ""
+  "main.aux" 1763236854.58751 12771 c40c974e5eaf7130f386fcbcdbef2d1d "pdflatex"
+  "main.bbl" 1763236722.26229 2746 8fd0bc5faa4a4e4ba9dfbdbaa5d6d545 "bibtex main"
+  "main.tex" 1763235466.14694 6905 228f23fc5a425c8fc7efd07dfa4fef5e ""
   "src/appendix_details.tex" 1762898397.7646 16494 ca73ea10079acf25eb79c90a95fc5c0c ""
   "src/sec_conclusion.tex" 1763154170.24016 22 a94a31fb7a7ca2df842019707b5530a5 ""
   "src/sec_intro.tex" 1762883665.1448 2149 2e2a4f72d363174ac1746ef26deab2c8 ""
-  "src/sec_pirom.tex" 1763164116.54481 18963 6d984cfd05ce5cac0211f6479afa9d37 ""
-  "src/sec_problem.tex" 1763163998.98554 18539 fe87b72090326b0db745c48dc60d4c9e ""
-  "src/sec_results.tex" 1763154170.24116 69 7859ea853d3b176d3a8504a00d5d04f7 ""
+  "src/sec_pirom.tex" 1763232412.63822 20113 bde4fdf99fdc59e15db85b39d2b5c1f4 ""
+  "src/sec_problem.tex" 1763236356.41899 18841 44956016d388057359f42d9a941eb54d ""
+  "src/sec_results.tex" 1763236851.89574 3273 6385172770722d23faa9f057c34cd644 ""
   (generated)
   "main.aux"
   "main.log"

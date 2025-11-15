@@ -24,7 +24,7 @@ Equations \cref{eqn_average_temperature,eqn_element_states} are combined and wri
 where $\vPhi\in\mathbb{R}^{MP\times N}$ is a matrix of $M\times N$ blocks, with the $(i,j)$-th block as $\vvarphiij$, $\vPhiplus\in\mathbb{R}^{N\times MP}$ is the left inverse of $\vPhi$, with the $(i,j)$-th block as $\vvarphi_{i}^{j+} = \frac{|E_i|}{|\Omega_j|}\vvarphiijT$, and $\deltavu$ is the collection of deviations. By their definitions, $\vPhiplus\vPhi = \vI$ and $\vPhiplus\deltavu = \vzero$.
 
 \subsubsection{Coarse-Graining of Dynamics}
-In this section, the dependence of the matrices with respect to the displacements $\vw$ is dropped to isolate the analysis based on coarsened variables. Next, consider a function of states in the form of $\vM\left(\vu\right)\vg(\vu)$, where $\vg:\mathbb{R}^{MP} \to \mathbb{R}^{MP}$ is a vector-valued function, and $\vM:\mathbb{R}^{MP} \to \mathbb{R}^{p\times MP}$ is a matrix-valued function with an arbitrary dimension $p$. Define the projection matrix $\vP=\vPhi\vPhiplus$ and the projection operator $\cP$ as,
+The dependence of the matrices with respect to the displacements $\vw$ is dropped to isolate the analysis based on coarsened variables. Consider a function of states in the form of $\vM\left(\vu\right)\vg(\vu)$, where $\vg:\mathbb{R}^{MP} \to \mathbb{R}^{MP}$ is a vector-valued function, and $\vM:\mathbb{R}^{MP} \to \mathbb{R}^{p\times MP}$ is a matrix-valued function with an arbitrary dimension $p$. Define the projection matrix $\vP=\vPhi\vPhiplus$ and the projection operator $\cP$ as,
 \begin{align}
     \cP\left[\vM(\vu)\vg(\vu)\right] &= \vM\left(\vP{\vu}\right)\vg\left(\vP{\vu}\right)\notag\\
     &= \vM\left(\vPhi\bvu\right)\vg\left(\vPhi\bvu\right)\label{eqn_projection_operator}
@@ -67,7 +67,7 @@ The Mori-Zwanzig (MZ) formalism is an operator-projection technique used to deri
 where the first and second terms are referred to as the Markovian and non-Markovian terms, respectively. The non-Markovian term accounts for the effects of past un-resolved states on the current resolved states via a memory kernel $\tvkappa(t,s,\bvu)$, which in practice is computationally expensive to evaluate.
 
 \subsubsection{Markovian Reformulation}
-This section details the formal derivation of the PIROM for the thermal dynamics, based on approximations to the memory kernel. Specifically, the kernel $\tvk$ is examined via a leading-order expansion, based on prior work~\cite{Yu2024coarse}; this can be viewed as an analog of zeroth-order holding in linear system theory with a sufficiently small time step. In this case, the memory kernel is approximated as,
+This section details the formal derivation of the PIROM as a system of ODEs for the thermal dynamics, based on approximations to the memory kernel. Specifically, the kernel $\tvk$ is examined via a leading-order expansion, based on prior work~\cite{Yu2024coarse}; this can be viewed as an analog of zeroth-order holding in linear system theory with a sufficiently small time step. In this case, the memory kernel is approximated as,
 \begin{equation}
     \tvkappa(t,s,\bvu) \approx \vr^{(1)}(\bvu,t) \cdot \nabla_{\bvu}\vr^{(2)}\left(\vPhi\bvu,t\right)
 \end{equation}
@@ -134,11 +134,7 @@ where,
         \vzero & \vI & \vzero
     \end{bmatrix}
 \end{equation}
-includes the matrices $\vM_{\bu}\in\mathbb{R}^{\tN\times N}$ and $\vM_{\beta}\in\mathbb{R}^{\tN\times m}$, which computes the surface temperature observable from the RPM states and hidden states, respectively. Then, the PIROM is coupled to the SVM in \cref{eqn_svm} by computing the surface recession velocity based on the PIROM's surface temperature prediction $\vz_u$. Specifically, the surface recession velocity is updated as,
-\begin{equation}
-    \dot{\vw} = \vXi\vz_u - \tvf\label{eqn_pirom_svm}
-\end{equation}
-Thus, the PIROM is formally stated as,
+includes the matrices $\vM_{\bu}\in\mathbb{R}^{\tN\times N}$ and $\vM_{\beta}\in\mathbb{R}^{\tN\times m}$, which computes the surface temperature observable from the RPM states and hidden states, respectively. The PIROM is coupled to the SVM in \cref{eqn_svm} by leveraging \cref{eqn_pirom_observable_mapping} to compute the surface recession velocity. Thus, the PIROM is formally stated as,
 \begin{subequations}
     \begin{align}
         \vcA\dot{\vy} &= \left[\vcB + \vcC\right]\vy + \vcF(t)\\
@@ -183,23 +179,37 @@ where $\dot{\vw}(\bvu)$ is the SVM based on the observable temperature $\bvu$, $
 The PIROM in \cref{eqn_pirom_general} incorporates explicit information on the material properties, boundary conditions, and surface recession, and is designed to generalize across parametric variations in these inputs. Moreover, the hidden dynamics in \cref{eqn_extended_markovian_system} are interpretable, as these retain the functional form of the DG-FEM in \cref{eqn_full_dg}. The next step is focused on identifying the unknown data-driven parameters $\vTheta$ characterizing the hidden dynamics.
 
 \subsection{Learning the Hidden Dynamics}
+Learning of the PIROM is achieved through a gradient-based neural-ODE-like approach~\cite{Chen2019}. For ease of presentation, consider the compact form of the PIROM in \cref{eqn_pirom_general},
+\begin{equation}
+    \vcD\left(\dot{\vy},\vy,\vxi,\vcF;\vTheta\right) = \vzero\label{eqn_pirom_compact}
+\end{equation}
+where $\vxi$ defines the model parameters, i.e., material properties and B' tables, while $\vcF$ represents the forcing terms, i.e., the boundary conditions.
 
-The learning of the PIROM is achieved through a neural-ODE like approach~\hl{Chen2018}. For ease of presentation, consider the following compact form of the PIROM in \cref{eqn_pirom_general},
+Consider a dataset of $N_s$ high-fidelity \textit{surface temperature} observable trajectories $\vz_{\text{HF}}$, sampled at $p$ time instances $\{t_k\}_{k=0}^{p-1}$, for different parameter settings $\{\vxi^{(l)}\}_{l=1}^{N_s}$ and forcing functions $\{\vcF^{(l)}(t)\}_{l=1}^{N_s}$. The dataset is expressed as,
 \begin{equation}
-    \vcF\left(\dot{\vy},\vy;\vxi,\vTheta\right) = \vzero\label{eqn_pirom_compact}
+    \cD = \left\{\left(t_k,\vz^{(l)}_{\text{HF}}(t_k),\vxi^{(l)},\vcF^{(l)}(t_k)\right)\right\}_{l=1}^{N_s},\quad k=0,1,\dots,p-1
 \end{equation}
-where $\vxi$ defines the parametrization of the problem, i.e., operating conditions, such as the BC's, as well as the material properties. Consider a dataset of $N_s$ high-fidelity trajectories of observables over a time interval $[t_0,t_f]$,
-\begin{equation}
-    \cD = \left\{\left(t_k,\vz^{(l)}_{\text{HF}}(t_k),\vxi^{(l)}\right)\right\}_{l=1}^{N_s},\quad k=0,1,\dots,K
-\end{equation}
+Note that the dataset contains only surface temperature observables -- all high-fidelity information regarding the surface displacements \textit{are assumed to be unavailable during learning}.
 
 The learning problem is formulated as the following differentially-constrained problem,
 \begin{subequations}
     \begin{align}
-        \min_{\vTheta} &\quad \frac{1}{N_s}\sum_{l=1}^{N_s}\frac{1}{K}\sum_{k=0}^{K}\left\|\vz^{(l)}_{\text{HF}}(t_k) - \vM\vy^{(l)}(t_k)\right\|_2^2 \\
-        \text{s.t.} &\quad \vcF\left(\dot{\vy}^{(l)},\vy^{(l)};\vxi^{(l)},\vTheta\right) = \vzero,\quad t\in[t_0,t_f],\quad l=1,2,\dots,N_s\\
-        &\quad \vy^{(l)}(t_0) = \vy_0(\vxi^{(l)}),\quad l=1,2,\dots,N_s
+        \min_{\vTheta} &\quad\cJ\left(\vTheta;\cD\right) = \sum_{l=1}^{N_s}\int_{t_0}^{t_f}\ell\left(\vz_u^{(l)},\vz_{\text{HF}}^{(l)}\right)dt\\
+        \text{s.t.}\quad \vzero &= \vcD\left(\dot{\vy}^{(l)},\vy^{(l)},\vxi^{(l)},\vcF^{(l)};\vTheta\right)
     \end{align}
 \end{subequations}
+for $l=1,2,\dots,N_s$, the objective is to minimize the discrepancy between the high-fidelity and PIROM predictions for the $l$-th trajectory with $\ell\left(\vz_u^{(l)},\vz_{\text{HF}}^{(l)}\right) = \left\|\vz_u^{(l)} - \vz^{(l)}_{\text{HF}}\right\|_2^2$.
 
+The gradient-based optimization loop is based on the adjoint variable $\vlambda$, governed by the adjoint differential equation,
+\begin{subequations}
+    \begin{align}
+        \frac{\partial\ell}{\partial\vy} + \vlambda^\top\frac{\partial\vcD}{\partial\vy} - \frac{d}{dt}\left(\vlambda^\top\frac{\partial\vcD}{\partial\dot{\vy}}\right) &= \vzero\\
+        \vlambda(t_f)^\top\frac{\partial\vcD}{\partial\dot{\vy}(t_f)} &=\vzero
+    \end{align}\label{eqn_adjoint_equation}
+\end{subequations}
+Once $\vlambda$ is solved, the gradient is computed as,
+\begin{equation}
+    \nabla_{\vTheta}\cJ = \frac{1}{N_s}\sum_{l=1}^{N_s}\int_{t_0}^{t_f}\left(\frac{\partial\ell}{\partial\vTheta} + \left(\vlambda^{(l)}\right)^\top\frac{\partial\vcD}{\partial\vTheta}\right)dt
+\end{equation}
 
+\hl{Discussion on TSA?}
