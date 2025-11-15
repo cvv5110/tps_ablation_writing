@@ -1,30 +1,47 @@
 \begin{thebibliography}{10}
 
 \bibitem{Amar2016}
-Adam~J. Amar, A.~Brandon Oliver, Benjamin~S. Kirk, Giovanni Salazar, and Justin Droba.
+Adam~J. Amar, A.~Brandon Oliver, Benjamin~S. Kirk, Giovanni Salazar, and Justin
+  Droba.
 \newblock Overview of the charring ablator response (char) code.
 \newblock In AIAA, editor, {\em AIAA Aviation Forum}, 2016.
 
 \bibitem{Bergel2022}
-Guy~L. Bergel, Frank~B. Beckwith, Gabiel~J. de~Frias, Kevin~M. Manktelow, Mark~T. Merewether, Scott~T. Miller, Krishen~J. Parmar, Timothy~S. Shelton, Jesse~T. Thomas, Jeremy~T. Trageser, Benjamin~T. Treweek, Michael~V. Veilleux, and Ellen~B. Wagman.
+Guy~L. Bergel, Frank~B. Beckwith, Gabiel~J. de~Frias, Kevin~M. Manktelow,
+  Mark~T. Merewether, Scott~T. Miller, Krishen~J. Parmar, Timothy~S. Shelton,
+  Jesse~T. Thomas, Jeremy~T. Trageser, Benjamin~T. Treweek, Michael~V.
+  Veilleux, and Ellen~B. Wagman.
 \newblock {\em Sierra/SolidMechanics 5.6 User's Manual}, 2022.
 
 \bibitem{Chen2019}
 Ricky T.~Q. Chen, Yulia Rubanova, Jesse Bettencourt, and David Duvenaud.
 \newblock Neural ordinary differential equations, 2019.
 
+\bibitem{Clausen2024}
+Jonathan Clausen, Victor Brunini, Lincoln Collins, Robert~C Knaus, Alec Kucala,
+  Stephen Lin, Daniel~Robert Moser, Malachi Phillips, Thomas~Michael
+  Ransegnola, Samuel~Ramirez Subia, et~al.
+\newblock Sierra multimechanics module: Aria verification manual-version 5.22.
+\newblock Technical report, Sandia National Lab.(SNL-NM), Albuquerque, NM
+  (United States), 2024.
+
 \bibitem{Cohen2018}
 Gary Cohen and Sebastien Pernet.
-\newblock {\em Finite Element and Discontinuous Galerkin Methods for Transient Wave Equations}.
+\newblock {\em Finite Element and Discontinuous Galerkin Methods for Transient
+  Wave Equations}.
 \newblock Springer Dordrecht, Le Chesnay and Toulouse France, 2018.
 
 \bibitem{Gasch2024}
-Matthew Gasch, Keith Peterson, Mairead Stackpoole, Ethiraj Venkatapathy, Gregory Gonzales, and Kyle Hendrickson.
-\newblock Development of advanced ablative carbon phenolic tps for future nasa missions and commercial space.
-\newblock In {\em 38th Annual Small Satellite Conference}, Logan, Utah, May 2024.
+Matthew Gasch, Keith Peterson, Mairead Stackpoole, Ethiraj Venkatapathy,
+  Gregory Gonzales, and Kyle Hendrickson.
+\newblock Development of advanced ablative carbon phenolic tps for future nasa
+  missions and commercial space.
+\newblock In {\em 38th Annual Small Satellite Conference}, Logan, Utah, May
+  2024.
 
 \bibitem{Incropera2011}
-Frank~P. Incropera, David~P. DeWitt, Theodore~L. Bergman, and Adrienne~S. Lavine.
+Frank~P. Incropera, David~P. DeWitt, Theodore~L. Bergman, and Adrienne~S.
+  Lavine.
 \newblock {\em Fundamentals of Heat and Mass Transfer}.
 \newblock Wiley, Hoboken, NJ, 7th edition, 2011.
 
@@ -35,12 +52,14 @@ R.~J. Klock and Carlos Cesnik.
 
 \bibitem{Parish2017a}
 Eric Parish and Karthik Duraisamy.
-\newblock Non-markovian closure models for large eddy simulations using the mori-zwanzig formalism.
+\newblock Non-markovian closure models for large eddy simulations using the
+  mori-zwanzig formalism.
 \newblock {\em Phys. Rev. Fluids}, 2:014604, Jan 2017.
 
 \bibitem{Parish2017}
 Eric Parish and Karthik Duraisamy.
-\newblock A unified framework for multiscale modeling using the mori-zwanzig formalism and the variational multiscale method.
+\newblock A unified framework for multiscale modeling using the mori-zwanzig
+  formalism and the variational multiscale method.
 \newblock {\em ArXiv}, 12 2017.
 
 \bibitem{Duraisamy2025}
@@ -50,7 +69,8 @@ Eric Parish and Karthik Duraisamy.
 
 \bibitem{VargasVenegas2025}
 Carlos A.~Vargas Venegas, Daning Huang, Patrick Blonigan, and John Tencer.
-\newblock Physics-infused reduced-order modeling for analysis of multi-layered hypersonic thermal protection systems.
+\newblock Physics-infused reduced-order modeling for analysis of multi-layered
+  hypersonic thermal protection systems.
 \newblock {\em ArXiv}, 2025.
 
 \bibitem{Yu2024coarse}
